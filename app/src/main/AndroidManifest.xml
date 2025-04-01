@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TASHTIT"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ACTIVITIES.RegisterActivity"
+            android:exported="false" />
         <activity
             android:name=".ACTIVITIES.BASE.BaseActivity"
             android:exported="false" />
