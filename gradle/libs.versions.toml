@@ -1,0 +1,33 @@
+[versions]
+agp = "8.9.1"
+firebaseDatabase = "21.0.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
+activity = "1.9.0"
+constraintlayout = "2.1.4"
+googleGmsGoogleServices = "4.4.2"
+firebaseFirestore = "25.0.0"
+playServicesTasks = "18.2.0"
+securityCrypto = "1.0.0"
+
+[libraries]
+firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
+firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseDatabase" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+play-services-tasks = { module = "com.google.android.gms:play-services-tasks", version.ref = "playServicesTasks" }
+security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
