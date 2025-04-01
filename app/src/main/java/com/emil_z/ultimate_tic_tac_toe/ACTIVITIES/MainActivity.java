@@ -43,7 +43,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void setListeners() {
 		btnLogin.setOnClickListener(v -> {
-			//startActivity(new Intent(MainActivity.this, LoginActivity.class));
+			startActivity(new Intent(MainActivity.this, LoginActivity.class));
 		});
 		btnRegister.setOnClickListener(v -> {
 			startActivity(new Intent(MainActivity.this, RegisterActivity.class));

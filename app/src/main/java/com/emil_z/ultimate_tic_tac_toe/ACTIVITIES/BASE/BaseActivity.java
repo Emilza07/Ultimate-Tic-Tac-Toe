@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.emil_z.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.MainActivity;
@@ -18,6 +19,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.emil_z.ultimate_tic_tac_toe.R;
+
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -38,7 +40,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void initializeViews();
     protected abstract void setListeners();
     protected abstract void setViewModel();
-    //public static Member currentMember = null;
+    public static User currentMember = null;
 
     //region Progress Dialog
     public ProgressDialog mProgressDialog;
