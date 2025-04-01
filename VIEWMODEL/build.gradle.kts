@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-
+    implementation("com.google.android.gms:play-services-tasks:18.0.2")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation (libs.play.services.tasks)
