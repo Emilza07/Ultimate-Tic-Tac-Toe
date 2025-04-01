@@ -4,27 +4,22 @@ import com.emil_z.model.BASE.BaseEntity;
 
 import java.io.Serializable;
 
-public class Player extends BaseEntity implements Serializable {
-	private String idFs;
+public class User extends BaseEntity implements Serializable {
 	private String name;
 	private String email;
 	private String password;
 	private int elo;
 
-	public Player() {
+	public User() {
 	}
-	public Player(String idFs, String name, String email, String password) {
-		this.idFs = idFs;
+	public User(String name, String email, String password) {
+		this(name, email, password, 1200);
+	}
+	public User(String name, String email, String password, int elo) {
 		this.name = name;
 		this.email = email;
 		this.password = password;
 		this.elo = elo;
-	}
-	public String getIdFs() {
-		return idFs;
-	}
-	public void setIdFs(String idFs) {
-		this.idFs = idFs;
 	}
 	public String getName() {
 		return name;

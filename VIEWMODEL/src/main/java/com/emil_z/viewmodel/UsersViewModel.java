@@ -2,29 +2,29 @@ package com.emil_z.viewmodel;
 
 import android.app.Application;
 
-import com.emil_z.model.Player;
-import com.emil_z.model.Players;
+import com.emil_z.model.User;
+import com.emil_z.model.Users;
 import com.emil_z.repository.BASE.BaseRepository;
-import com.emil_z.repository.PlayersRepository;
+import com.emil_z.repository.UsersRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
 
-public class PlayersViewModel extends BaseViewModel<Player, Players> {
-	private PlayersRepository repository;
+public class UsersViewModel extends BaseViewModel<User, Users> {
+	private UsersRepository repository;
 
-	public PlayersViewModel(Application application) {
-		super(Player.class, Players.class, application);
+	public UsersViewModel(Application application) {
+		super(User.class, Users.class, application);
 	}
 
 	@Override
-	protected BaseRepository<Player, Players> createRepository(Application application) {
-		repository = new PlayersRepository(application);
+	protected BaseRepository<User, Users> createRepository(Application application) {
+		repository = new UsersRepository(application);
 		return repository;
 	}
 	public void logIn(String email, String password) {
 		repository.getCollection().whereEqualTo("email", email).whereEqualTo("password", password).get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if (queryDocumentSnapshots.size() > 0) {
-						Player player = queryDocumentSnapshots.getDocuments().get(0).toObject(Player.class);
+						User player = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 						lvEntity.setValue(player);
 					}
 				})
