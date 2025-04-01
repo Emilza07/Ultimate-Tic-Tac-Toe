@@ -20,16 +20,17 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 		repository = new UsersRepository(application);
 		return repository;
 	}
-	public void logIn(String email, String password) {
-		repository.getCollection().whereEqualTo("email", email).whereEqualTo("password", password).get()
+	public void logIn(String Username, String password) {
+		repository.getCollection().whereEqualTo("Username", Username).whereEqualTo("password", password).get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if (queryDocumentSnapshots.size() > 0) {
-						User player = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-						lvEntity.setValue(player);
+						User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+						lvEntity.setValue(user);
 					}
 				})
 				.addOnFailureListener(e -> {
 					lvEntity.setValue(null);
 				});
 	}
+
 }
