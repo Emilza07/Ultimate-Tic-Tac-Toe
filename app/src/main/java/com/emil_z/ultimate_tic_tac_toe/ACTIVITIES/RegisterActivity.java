@@ -1,5 +1,6 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,17 +15,18 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.inputValidators.CompareRule;
-import com.emil_z.helper.inputValidators.EmailRule;
+import com.emil_z.helper.inputValidators.NameRule;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
 import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class RegisterActivity extends AppCompatActivity {
 	private EditText etUsername;
-	private EditText etEmail;
 	private EditText etPassword;
 	private EditText etConfirmPassword;
 	private Button btnRegister;
@@ -43,34 +45,55 @@ public class RegisterActivity extends AppCompatActivity {
 		});
 
 		initializeViews();
-		setValidation();
+		setListeners();
+		setViewModel();
+
 	}
 	protected void initializeViews() {
 		etUsername = findViewById(R.id.etUsername);
-		etEmail = findViewById(R.id.etEmail);
 		etPassword = findViewById(R.id.etPassword);
 		etConfirmPassword = findViewById(R.id.etConfirmPassword);
 		btnRegister = findViewById(R.id.btnRegister);
 		btnBack = findViewById(R.id.btnBack);
-
-		setListeners();
 	}
 
 	protected void setListeners() {
 		btnRegister.setOnClickListener(v -> {
-			// Register user
 			if(validate()) {
-				User user = new User(etUsername.getText().toString(),
-						etEmail.getText().toString(),
-						etPassword.getText().toString());
-				viewModel.save(user);
+				checkIfUsernameExists();
 			}
 		});
 		btnBack.setOnClickListener(v -> {
 			finish();
 		});
 
-		setViewModel();
+	}
+
+	protected void checkIfUsernameExists() {
+		viewModel.getFirstUserByUsername(etUsername.getText().toString(), new OnSuccessListener<User>() {
+			@Override
+			public void onSuccess(User user) {
+				if (user != null) {
+					etUsername.setError("Username already exists");
+				}
+				else {
+					etUsername.setError(null);
+					registerUser();
+				}
+			}
+		}, new OnFailureListener() {
+			@Override
+			public void onFailure(Exception e) {
+				Toast.makeText(RegisterActivity.this, "Error", Toast.LENGTH_SHORT).show();
+			}});
+	}
+
+	protected void registerUser() {
+		User user = new User(etUsername.getText().toString(),
+				etPassword.getText().toString());
+		viewModel.save(user);
+		startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+
 	}
 
 	protected void setViewModel() {
@@ -84,15 +107,16 @@ public class RegisterActivity extends AppCompatActivity {
 	}
 
 	public void setValidation() {
+		Validator.clear();
 		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, "Username is required"));
-		Validator.add(new Rule(etUsername, RuleOperation.NAME, "Username is not valid"));
-		Validator.add(new Rule(etEmail, RuleOperation.REQUIRED, "Email is required"));
-		Validator.add(new EmailRule(etEmail, RuleOperation.TEXT, "Email is not valid"));
+		Validator.add(new NameRule(etUsername, RuleOperation.NAME, "Username is not valid"));
 		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, "Password is required"));
 		Validator.add(new Rule(etConfirmPassword, RuleOperation.REQUIRED, "Confirm password is required"));
 		Validator.add(new CompareRule(etConfirmPassword, etPassword, RuleOperation.COMPARE, "Passwords do not match"));
 	}
+
 	public boolean validate() {
+		setValidation();
 		return Validator.validate();
 	}
 }
