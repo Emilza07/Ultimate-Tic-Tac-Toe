@@ -22,7 +22,7 @@ import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 	private EditText etUsername;
 	private EditText etPassword;
 	private Button btnSignIn;

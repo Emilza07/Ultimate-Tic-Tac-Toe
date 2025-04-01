@@ -20,12 +20,13 @@ import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
 import com.emil_z.model.User;
+import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends BaseActivity {
 	private EditText etUsername;
 	private EditText etPassword;
 	private EditText etConfirmPassword;

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.emil_z.model.User;
@@ -70,6 +71,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     //region NAV_BAR
     protected BottomNavigationView bottomNavigationView;
 
+
     private void setMenu(){
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -112,6 +114,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
             }
+        }
+    }
+    protected void setBottomNavigationVisibility(boolean isVisible) {
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setVisibility(isVisible ? View.VISIBLE :
+                    View.GONE);
         }
     }
 
