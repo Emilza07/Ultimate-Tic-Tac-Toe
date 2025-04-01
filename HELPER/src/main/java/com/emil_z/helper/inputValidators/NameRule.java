@@ -10,6 +10,6 @@ public class NameRule extends TextRule{
         minimumLength       = 2;
         maximumLength       = 20;
         includeNumbers      = false;
-        startsWithUpperCase = true;
+        startsWithUpperCase = false;
     }
 }
