@@ -17,7 +17,7 @@ public class FirebaseInstance {
                 .setStorageBucket("ultimate-tic-tac-toe-project.firebasestorage.app")
                 .build();
 
-        app = FirebaseApp.initializeApp(context, options);
+        app = FirebaseApp.initializeApp(context, options, "ultimate-tic-tac-toe-project");
     }
 
     public static FirebaseInstance instance(Context context) {

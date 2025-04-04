@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":VIEWMODEL"))
     implementation(project(":MODEL"))
     implementation(project(":HELPER"))
+    implementation(libs.gridlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
