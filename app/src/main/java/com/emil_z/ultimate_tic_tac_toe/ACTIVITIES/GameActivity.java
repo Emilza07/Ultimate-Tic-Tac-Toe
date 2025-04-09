@@ -134,17 +134,15 @@ public class GameActivity extends AppCompatActivity {
 				//if LocalGame
 				if (Objects.equals(gameType, gameTypes[1])) {
 					if (aBoolean){
-						Toast.makeText(GameActivity.this, "Local game created successfully", Toast.LENGTH_SHORT).show();
+						//Game created successfully
 						clLoading.setVisibility(View.GONE);
 						gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
-						setLvGameObserver();
 						setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
 					}
 				}
 				//if OnlineGame
 				else if (Objects.equals(gameType, gameTypes[2]) || Objects.equals(gameType, gameTypes[3])) {
 					if (aBoolean && viewModel.getLvGame().getValue() != null) {
-						setLvGameObserver();
 					}
 					else if (aBoolean && viewModel.getLvGame() == null){
 						Toast.makeText(GameActivity.this, "Game removed successfully", Toast.LENGTH_SHORT).show();
@@ -153,9 +151,6 @@ public class GameActivity extends AppCompatActivity {
 			}
 		});
 
-	}
-
-	private void setLvGameObserver() {
 		viewModel.getLvGame().observe(this, new Observer<Game>() {
 			@Override
 			public void onChanged(Game game) {
@@ -166,8 +161,10 @@ public class GameActivity extends AppCompatActivity {
 				}
 			}
 		});
+
 	}
 
+	//region GameInit
 	private void gameInit(String gameType) {
 		switch (gameType) {
 			case "CPU":
@@ -185,6 +182,7 @@ public class GameActivity extends AppCompatActivity {
 				break;
 		}
 	}
+
 	private void setPlayers(Player p1, Player p2){
 		tvP1Name.setText(p1.getName());
 		if(Objects.equals(gameType, gameTypes[0]) || Objects.equals(gameType, gameTypes[1])) {
@@ -292,5 +290,6 @@ public class GameActivity extends AppCompatActivity {
 		int screenWidth = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
 		return (int) (screenWidth * 0.9);
 	}
+	//endregion
 	//endregion
 }
