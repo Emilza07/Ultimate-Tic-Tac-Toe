@@ -20,9 +20,9 @@
 		android:layout_width="100dp"
 		android:layout_height="100dp"
 		android:scaleType="fitXY"
+		app:layout_constraintStart_toEndOf="@+id/imageButton"
 		app:layout_constraintTop_toTopOf="parent"
-		app:srcCompat="@drawable/top_players"
-		tools:layout_editor_absoluteX="100dp" />
+		app:srcCompat="@drawable/top_players" />
 
 	<ImageButton
 		android:id="@+id/imageButton3"

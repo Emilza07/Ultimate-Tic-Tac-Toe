@@ -39,8 +39,15 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	public void startLocalGame(){
-
+		setLvGameObserver();
+		repository.startLocalGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
+			@Override
+			public void onSuccess(Boolean aBoolean) {
+				lvSuccess.setValue(true);
+			}
+		});
 	}
+
 	public void hostOnlineGame(User user) {
 		setLvGameObserver();
 		repository.hostOnlineGame(user).addOnCompleteListener(new OnCompleteListener<Boolean>() {
@@ -89,7 +96,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	public void removeGame(){
 		removeLvGameObserver();
-		repository.removeGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
+		repository.abortOnlineGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
 				@Override
 				public void onSuccess(Boolean aBoolean) {
 					lvGame.setValue(null);

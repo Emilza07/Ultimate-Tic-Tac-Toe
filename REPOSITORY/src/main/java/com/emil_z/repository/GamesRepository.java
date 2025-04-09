@@ -10,10 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.emil_z.model.BASE.GameType;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
+import com.emil_z.model.LocalGame;
 import com.emil_z.model.OnlineGame;
+import com.emil_z.model.PlayerType;
 import com.emil_z.model.User;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.google.android.gms.tasks.Continuation;
@@ -40,8 +41,6 @@ import java.util.Objects;
 
 public class GamesRepository extends BaseRepository<Game, Games> {
 	private MutableLiveData<Game> lvGame;
-	private GameType gameType;
-
 
 	public LiveData<Game> getLvGame() {
 		return lvGame;
@@ -53,10 +52,12 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	}
 
-//	public Task<Boolean> startLocalGame(User user) {
-//		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
-//		lvGame.setValue(new)
-//	}
+	public Task<Boolean> startLocalGame() {
+		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
+		lvGame.setValue(new LocalGame());
+		taskCreateGame.setResult(true);
+		return taskCreateGame.getTask();
+	}
 	public Task<Boolean> hostOnlineGame(User user) {
 
 		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
@@ -249,20 +250,30 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		});
 	}
 
-	public Task<Boolean> removeGame(){
-		TaskCompletionSource<Boolean> taskRemoveGame = new TaskCompletionSource<>();
-		delete(lvGame.getValue()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
-			@Override
-			public void onSuccess(Boolean aBoolean) {
-				lvGame.setValue(null);
-				taskRemoveGame.setResult(true);
-			}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception e) {
-			taskRemoveGame.setResult(false);
-			}
-		});
-		return taskRemoveGame.getTask();
+	public Task<Boolean> abortOnlineGame(){
+		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
+		if (lvGame.getValue().getMoves().isEmpty()){
+			delete(lvGame.getValue()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
+				@Override
+				public void onSuccess(Boolean aBoolean) {
+					lvGame.setValue(null);
+					taskAbortGame.setResult(true);
+				}
+			}).addOnFailureListener(new OnFailureListener() {
+				@Override
+				public void onFailure(@NonNull Exception e) {
+				taskAbortGame.setResult(false);
+				}
+			});
+		}
+		else {
+			lvGame.getValue().setFinished(true);
+			lvGame.getValue().setWinner(lvGame.getValue().getPlayer1().getPlayerType() == PlayerType.LOCAL ?
+					lvGame.getValue().getPlayer2().getIdFs():
+					lvGame.getValue().getPlayer1().getIdFs());
+			update(lvGame.getValue());
+			taskAbortGame.setResult(true);
+		}
+		return taskAbortGame.getTask();
 	}
 }

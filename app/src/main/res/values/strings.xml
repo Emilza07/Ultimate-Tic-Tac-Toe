@@ -1,3 +1,10 @@
 <resources>
 	<string name="app_name">ultimate_tic_tac_toe</string>
+	<string name="EXTRA_GAME_TYPE">com.emil_z.GAME_TYPE</string>
+	<string-array name="game_types">
+		<item>CPU</item>
+		<item>LOCAL</item>
+		<item>HOST</item>
+		<item>JOIN</item>
+	</string-array>
 </resources>
