@@ -17,9 +17,8 @@ import androidx.gridlayout.widget.GridLayout;
 
 import com.emil_z.ultimate_tic_tac_toe.R;
 
-public class Online_multiplayer_activity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity {
 
-	private final float BOARD_DRAWABLE_SIZE = 653;
 	private int boardSize;
 	private float conversionFactor;
 	private GridLayout gridBoard;
@@ -29,7 +28,7 @@ public class Online_multiplayer_activity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
-		setContentView(R.layout.activity_online_multiplayer);
+		setContentView(R.layout.activity_game);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -49,6 +48,7 @@ public class Online_multiplayer_activity extends AppCompatActivity {
 	}
 
 	private void createBoard() {
+		final float BOARD_DRAWABLE_SIZE = 653;
 		boardSize = getBoardSize();
 		conversionFactor = boardSize / BOARD_DRAWABLE_SIZE;
 

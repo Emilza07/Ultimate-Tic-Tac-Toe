@@ -1,20 +1,28 @@
 [versions]
 agp = "8.9.1"
-firebaseDatabase = "21.0.0"
+circleimageview = "3.1.0"
+firebaseDatabase = "21.0.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 material = "1.12.0"
-activity = "1.9.0"
-constraintlayout = "2.1.4"
+activity = "1.10.1"
+constraintlayout = "2.2.1"
 googleGmsGoogleServices = "4.4.2"
-firebaseFirestore = "25.0.0"
-playServicesTasks = "18.2.0"
+firebaseFirestore = "25.1.3"
+playServicesMaps = "19.1.0"
+playServicesTasks = "18.2.1"
+playServicesTasksVersion = "18.2.1"
 securityCrypto = "1.0.0"
 gridlayout = "1.0.0"
+firebaseFunctions = "21.2.1"
+annotation = "1.9.1"
+lifecycleLivedataKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.8.7"
 
 [libraries]
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
 firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseDatabase" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -25,9 +33,15 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 play-services-tasks = { module = "com.google.android.gms:play-services-tasks", version.ref = "playServicesTasks" }
+play-services-tasks-v1821 = { module = "com.google.android.gms:play-services-tasks", version.ref = "playServicesTasksVersion" }
 security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
+firebase-functions = { group = "com.google.firebase", name = "firebase-functions", version.ref = "firebaseFunctions" }
+annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

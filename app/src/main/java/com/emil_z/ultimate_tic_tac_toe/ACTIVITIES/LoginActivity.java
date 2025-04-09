@@ -7,7 +7,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -78,7 +77,7 @@ public class LoginActivity extends BaseActivity {
 			@Override
 			public void onChanged(User user) {
 				if (user != null){
-					BaseActivity.currentMember = user;
+					BaseActivity.currentUser = user;
 					startActivity(new Intent(LoginActivity.this, HomeActivity.class));
 				}
 			}

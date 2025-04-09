@@ -44,7 +44,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/imageButton2" />
 
 	<Button
-		android:id="@+id/button7"
+		android:id="@+id/btnLocal"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="52dp"
@@ -54,13 +54,23 @@
 		app:layout_constraintTop_toBottomOf="@+id/button6" />
 
 	<Button
-		android:id="@+id/button8"
+		android:id="@+id/btnHost"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="52dp"
-		android:text="Online Multiplayer"
-		app:layout_constraintEnd_toEndOf="@+id/button7"
-		app:layout_constraintStart_toStartOf="@+id/button7"
-		app:layout_constraintTop_toBottomOf="@+id/button7" />
+		android:text="Host an online game"
+		app:layout_constraintEnd_toEndOf="@+id/btnLocal"
+		app:layout_constraintStart_toStartOf="@+id/btnLocal"
+		app:layout_constraintTop_toBottomOf="@+id/btnLocal" />
+
+	<Button
+		android:id="@+id/btnJoin"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="36dp"
+		android:text="Join an online game"
+		app:layout_constraintEnd_toEndOf="@+id/btnHost"
+		app:layout_constraintStart_toStartOf="@+id/btnHost"
+		app:layout_constraintTop_toBottomOf="@+id/btnHost" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

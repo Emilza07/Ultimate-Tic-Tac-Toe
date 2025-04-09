@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/main"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<androidx.cardview.widget.CardView
+		android:layout_width="446dp"
+		android:layout_height="50dp"
+		android:layout_marginBottom="16dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<TextView
+				android:id="@+id/tvPlayerOneName"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="24dp"
+				android:layout_marginTop="8dp"
+				android:text="{PLAYER_1_NAME}:"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+
+			<TextView
+				android:id="@+id/tvPlayerOneElo"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="{PLAYER_1_ELO}"
+				app:layout_constraintBottom_toBottomOf="@+id/tvPlayerOneName"
+				app:layout_constraintStart_toEndOf="@+id/tvPlayerOneName"
+				app:layout_constraintTop_toTopOf="@+id/tvPlayerOneName" />
+		</androidx.constraintlayout.widget.ConstraintLayout>
+	</androidx.cardview.widget.CardView>
+
+	<androidx.gridlayout.widget.GridLayout
+		android:id="@+id/gridBoard"
+		android:layout_width="403dp"
+		android:layout_height="403dp"
+		android:background="@drawable/board"
+		app:columnCount="3"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:rowCount="3" />
+
+	<androidx.cardview.widget.CardView
+		android:layout_width="446dp"
+		android:layout_height="50dp"
+		android:layout_marginTop="16dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<TextView
+				android:id="@+id/tvPlayerTwoName"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="24dp"
+				android:layout_marginTop="8dp"
+				android:text="{PLAYER_TWO_NAME}:"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+
+			<TextView
+				android:id="@+id/tvPlayerTwoElo"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="{PLAYER_2_ELO}"
+				app:layout_constraintBottom_toBottomOf="@+id/tvPlayerTwoName"
+				app:layout_constraintStart_toEndOf="@+id/tvPlayerTwoName"
+				app:layout_constraintTop_toTopOf="@+id/tvPlayerTwoName" />
+		</androidx.constraintlayout.widget.ConstraintLayout>
+	</androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

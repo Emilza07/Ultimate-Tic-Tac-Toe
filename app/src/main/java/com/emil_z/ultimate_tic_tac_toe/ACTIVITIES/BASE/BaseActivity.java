@@ -41,7 +41,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void initializeViews();
     protected abstract void setListeners();
     protected abstract void setViewModel();
-    public static User currentMember = null;
+    public static User currentUser = null;
 
     //region Progress Dialog
     public ProgressDialog mProgressDialog;

@@ -29,6 +29,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.emil_z.helper.StringUtil;
 import com.emil_z.model.BASE.BaseEntity;
 import com.emil_z.model.BASE.BaseList;
+import com.google.firebase.functions.FirebaseFunctions;
 
 
 public abstract class BaseRepository<TEntity extends BaseEntity, TCollection extends BaseList<TEntity, TCollection>> {
@@ -41,6 +42,7 @@ public abstract class BaseRepository<TEntity extends BaseEntity, TCollection ext
     private TaskCompletionSource<TEntity>       tcEntity;
     private CollectionReference                 collection;
     private ListenerRegistration listenerRegistration = null;
+    protected static FirebaseFunctions          function;
 
 
     public BaseRepository() { }
@@ -52,10 +54,23 @@ public abstract class BaseRepository<TEntity extends BaseEntity, TCollection ext
 
         db         = getDb(context);
         collection = db.collection(getCollectionName());
-
+        function   = getFunction(context);
         FirebaseImageStorage.initialize(context);
     }
 
+    private static FirebaseFunctions getFunction(Context context) {
+        if (function == null) {
+            if (function == null) {
+                try {
+                    function = FirebaseFunctions.getInstance();
+                } catch (Exception e) {
+                    FirebaseInstance instance = FirebaseInstance.instance(context);
+                    function = FirebaseFunctions.getInstance(FirebaseInstance.app);
+                }
+            }
+        }
+        return function;
+    }
     private static FirebaseFirestore getDb(Context context) {
         if (db == null) {
             try {

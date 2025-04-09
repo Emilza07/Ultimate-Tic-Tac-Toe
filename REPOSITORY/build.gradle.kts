@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.google.gms.google.services)
+
 }
 
 android {
     namespace = "com.emil_z.repository"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -30,13 +31,14 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.play.services.tasks)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(project(":MODEL"))
     implementation(project(":HELPER"))
+    implementation(libs.firebase.functions)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

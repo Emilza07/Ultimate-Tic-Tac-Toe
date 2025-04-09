@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.emil_z.viewmodel"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-tasks:18.0.2")
+    implementation(libs.play.services.tasks.v1821)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation (libs.play.services.tasks)
