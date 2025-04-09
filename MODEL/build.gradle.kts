@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.emil_z.model"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
