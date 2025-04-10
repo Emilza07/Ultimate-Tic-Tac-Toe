@@ -36,6 +36,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 		this.outerBoard = new OuterBoard();
 		this.player1 = new Player(game.player1);
 		this.player2 = new Player(game.player2);
+		this.currentPlayer = game.currentPlayer;
 	}
 
 	//region getters and setters

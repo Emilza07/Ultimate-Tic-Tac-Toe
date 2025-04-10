@@ -7,4 +7,10 @@
 		<item>HOST</item>
 		<item>JOIN</item>
 	</string-array>
+
+	<string-array name="error_codes">
+		<item>OK</item>
+		<item>Not your turn</item>
+		<item>Illegal move</item>
+	</string-array>
 </resources>
