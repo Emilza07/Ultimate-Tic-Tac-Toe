@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 import com.emil_z.model.LocalGame;
@@ -41,23 +42,37 @@ import java.util.Objects;
 
 public class GamesRepository extends BaseRepository<Game, Games> {
 	private MutableLiveData<Game> lvGame;
+	private MutableLiveData<char[][]> lvOuterBoardWinners;
+	private MutableLiveData<Boolean> lvIsFinished;
 
 	public LiveData<Game> getLvGame() {
 		return lvGame;
 	}
 
+	public LiveData<char[][]> getLvOuterBoardWinners() {
+		return lvOuterBoardWinners;
+	}
+
+	public LiveData<Boolean> getLvIsFinished() {
+		return lvIsFinished;
+	}
+
 	public GamesRepository(Application application) {
 		super(Game.class, Games.class, application);
 		lvGame = new MutableLiveData<>();
-
+		lvOuterBoardWinners = new MutableLiveData<>();
+		lvOuterBoardWinners.setValue(new char[3][3]);
+		lvIsFinished = new MutableLiveData<>();
 	}
 
+	//region start game
 	public Task<Boolean> startLocalGame() {
 		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
 		lvGame.setValue(new LocalGame());
 		taskCreateGame.setResult(true);
 		return taskCreateGame.getTask();
 	}
+
 	public Task<Boolean> hostOnlineGame(User user) {
 
 		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
@@ -140,6 +155,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			}
 		});
 	}
+
 	@Override
 	protected Query getQueryForExist(Game entity) {
 		return getCollection().whereEqualTo("idFs", entity.getIdFs());
@@ -212,6 +228,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 					}
 				});
 	}
+	//endregion
 
 	public void addSnapshotListener(String gameId) {
 		final DocumentReference gameRef = getCollection().document(gameId);
@@ -250,7 +267,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		});
 	}
 
-	public Task<Boolean> abortOnlineGame(){
+	public Task<Boolean> deleteOnlineGame(){
 		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
 		if (lvGame.getValue().getMoves().isEmpty()){
 			delete(lvGame.getValue()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
@@ -275,5 +292,38 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			taskAbortGame.setResult(true);
 		}
 		return taskAbortGame.getTask();
+	}
+
+	public Task<Boolean> makeMove(BoardLocation location) {
+		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
+		if(lvGame.getValue().getCurrentPlayer() == PlayerType.LOCAL) {
+			if(lvGame.getValue().isLegal(location)) {
+				lvGame.getValue().makeTurn(location);
+				if(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).isFinished()){			//check if the inner board is finished
+					if(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).getWinner() != 0){	//check if the inner board isn't a tie
+						char[][] tmp = new char[3][3];
+						for (int i = 0; i < 3; i++) {
+							for (int j = 0; j < 3; j++) {
+								tmp[i][j] = lvOuterBoardWinners.getValue()[i][j];
+							}
+						}
+						tmp[location.getOuter().x][location.getOuter().y] = lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).getWinner();
+						lvOuterBoardWinners.setValue(tmp);
+					}
+					else {
+						lvOuterBoardWinners.getValue()[location.getOuter().x][location.getOuter().y] = 'T';
+					}
+					if(lvGame.getValue().getOuterBoard().isGameOver()){
+						lvGame.getValue().setWinner(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).getWinner() == 'X' ? "X" : "O");
+						lvGame.getValue().setFinished(true);
+						lvIsFinished.setValue(true);
+					}
+				}
+				taskMakeMove.setResult(true);
+			}
+			else taskMakeMove.setException(new Exception("2"));
+		}
+		else taskMakeMove.setException(new Exception("1"));
+		return taskMakeMove.getTask();
 	}
 }

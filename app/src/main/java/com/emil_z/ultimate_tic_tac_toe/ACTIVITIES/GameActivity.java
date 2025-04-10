@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
@@ -27,12 +26,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.emil_z.helper.AlertUtil;
 import com.emil_z.model.Game;
 import com.emil_z.model.Player;
+import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
 
 import java.util.Objects;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends BaseActivity {
 
 	private int boardSize;
 	private float conversionFactor;
@@ -49,6 +49,7 @@ public class GameActivity extends AppCompatActivity {
 	private GamesViewModel viewModel;
 	String gameType;
 	String[] gameTypes;
+	String[] errorCodes;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +67,9 @@ public class GameActivity extends AppCompatActivity {
 		setListeners();
 	}
 
-	private void initializeViews() {
+	protected void initializeViews() {
 		gameTypes = getResources().getStringArray(R.array.game_types);
+		errorCodes = getResources().getStringArray(R.array.error_codes);
 		Intent intent = getIntent();
 		gameType = intent.getStringExtra(getString(R.string.EXTRA_GAME_TYPE));
 
@@ -84,9 +86,9 @@ public class GameActivity extends AppCompatActivity {
 		gameInit(gameType);
 	}
 
-	private void setListeners() {
+	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
-			if (gameType.equals(gameTypes[2]) || gameType.equals(gameTypes[3])) {
+			if (gameType.equals(gameTypes[2])) {
 				viewModel.removeGame();
 				Toast.makeText(this, "Online game aborted", Toast.LENGTH_SHORT).show();
 			}
@@ -121,12 +123,30 @@ public class GameActivity extends AppCompatActivity {
 	}
 
 	private void handleBoardButtonClick(ImageView btn) {
-
 		String tag = (String) btn.getTag();
-		// Handle button click using the tag (e.g., "ibtn34" for row 3, col 4)
+		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
+		Toast.makeText(this, "Button clicked: " + tag, Toast.LENGTH_SHORT).show();
+		viewModel.makeMove(Character.getNumericValue(tag.charAt(3)), Character.getNumericValue(tag.charAt(4)), Character.getNumericValue(tag.charAt(5)), Character.getNumericValue(tag.charAt(6)));
+		viewModel.getLvCode().observe(this, new Observer<Integer>() {
+			@Override
+			public void onChanged(Integer code) {
+				if (code != null) {
+					if(code == 0){
+						btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
+						viewModel.resetLvCode();
+						viewModel.getLvCode().removeObserver(this);
+					}
+					else {
+						Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
+						viewModel.resetLvCode();
+						viewModel.getLvCode().removeObserver(this);
+						}
+					}
+				}
+		});
 	}
 
-	private void setViewModel() {
+	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(GamesViewModel.class);
 
 		viewModel.getSuccess().observe(this, new Observer<Boolean>() {
@@ -143,6 +163,8 @@ public class GameActivity extends AppCompatActivity {
 				//if OnlineGame
 				else if (Objects.equals(gameType, gameTypes[2]) || Objects.equals(gameType, gameTypes[3])) {
 					if (aBoolean && viewModel.getLvGame().getValue() != null) {
+						//Game created successfully
+						setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
 					}
 					else if (aBoolean && viewModel.getLvGame() == null){
 						Toast.makeText(GameActivity.this, "Game removed successfully", Toast.LENGTH_SHORT).show();
@@ -156,12 +178,46 @@ public class GameActivity extends AppCompatActivity {
 			public void onChanged(Game game) {
 				if (game != null) {
 					if (!game.getPlayer2().getIdFs().isEmpty()) {
-						Toast.makeText(GameActivity.this, "Game Created", Toast.LENGTH_SHORT).show();
+						//Game started
+						Toast.makeText(GameActivity.this, "Game started", Toast.LENGTH_SHORT).show();
+						clLoading.setVisibility(View.GONE);
+						gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
+						setPlayers(game.getPlayer1(), game.getPlayer2());
 					}
 				}
 			}
 		});
 
+		viewModel.getLvOuterBoardWinners().observe(this, new Observer<char[][]>() {
+			@Override
+			public void onChanged(char[][] chars) {
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						if (chars[i][j] != 0) {
+							// Set the background of the outer board to indicate the winner
+							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), chars[i][j] == 'X' ? R.drawable.x : R.drawable.o, null));
+						}
+					}
+				}
+			}
+		});
+
+		viewModel.getLvIsFinished().observe(this, new Observer<Boolean>() {
+			@Override
+			public void onChanged(Boolean aBoolean) {
+				AlertUtil.alert(GameActivity.this,
+						"Game Over",
+						 "Player " + viewModel.getLvGame().getValue().getWinner() + " wins!",
+						false,
+						0,
+						"Return",
+						null,
+						null,
+						() -> finish(),
+						null,
+						null);
+			}
+		});
 	}
 
 	//region GameInit
@@ -176,9 +232,11 @@ public class GameActivity extends AppCompatActivity {
 				break;
 			case "HOST":
 				// Initialize online game as host
+				viewModel.hostOnlineGame(currentUser);
 				break;
 			case "JOIN":
 				// Initialize online game as joiner
+				viewModel.joinOnlineGame(currentUser);
 				break;
 		}
 	}
@@ -191,6 +249,7 @@ public class GameActivity extends AppCompatActivity {
 			tvP2Name.setText(p2.getName());
 		}
 		else if (p2.getName() != null) {
+			tvP1Elo.setText("(" + String.valueOf(p1.getElo()) + ")");
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("(" + String.valueOf(p2.getElo()) + ")");
 		}
@@ -200,6 +259,7 @@ public class GameActivity extends AppCompatActivity {
 			} else if (Objects.equals(gameType, gameTypes[3])) {
 				tvP2Name.setText("Searching for game...");
 			}
+			tvP1Elo.setText("(" + String.valueOf(p1.getElo()) + ")");
 			tvP2Elo.setText("");
 		}
 	}
@@ -241,7 +301,7 @@ public class GameActivity extends AppCompatActivity {
 		btn.setScaleType(ImageButton.ScaleType.FIT_XY);
 		btn.setForegroundGravity(ImageButton.TEXT_ALIGNMENT_CENTER);
 		btn.setClickable(true);
-		btn.setImageResource(R.drawable.o);
+		//btn.setImageResource(R.drawable.o);
 		GridLayout.LayoutParams btnParams = new GridLayout.LayoutParams();
 		btnParams.width = INNER_CELL_DRAWABLE_REF_SIZE;
 		btnParams.height = INNER_CELL_DRAWABLE_REF_SIZE;
@@ -275,6 +335,7 @@ public class GameActivity extends AppCompatActivity {
 		grid.setRowCount(3);
 		grid.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
 		grid.setPadding(PADDING, PADDING, PADDING, PADDING);
+		//grid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
 		GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 		params.width = INNER_BOARD_DRAWABLE_REF_SIZE;
 		params.height = INNER_BOARD_DRAWABLE_REF_SIZE;

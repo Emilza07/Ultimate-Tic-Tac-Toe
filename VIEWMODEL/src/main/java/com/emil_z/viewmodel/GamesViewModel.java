@@ -5,8 +5,10 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
+import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 
@@ -18,14 +20,21 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 
 public class GamesViewModel extends BaseViewModel<Game, Games> {
 	private GamesRepository repository;
+	private MutableLiveData<Integer> lvCode;
 	private MediatorLiveData<Game> lvGame;
-
+	private MediatorLiveData<char[][]> lvOuterBoardWinners;
+	private MediatorLiveData<Boolean> lvIsFinished;
 	public GamesViewModel(Application application) {
 		super(Game.class, Games.class, application);
-		lvGame = new MediatorLiveData<>();
+		lvGame				= new MediatorLiveData<>();
+		lvCode				= new MutableLiveData<>();
+		lvOuterBoardWinners = new MediatorLiveData<>();
+		lvIsFinished		= new MediatorLiveData<>();
+		setObservers();
 	}
 
 	@Override
@@ -38,8 +47,20 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return lvGame;
 	}
 
+	public LiveData<Integer> getLvCode() {
+		return lvCode;
+	}
+
+	public LiveData<char[][]> getLvOuterBoardWinners() {
+		return lvOuterBoardWinners;
+	}
+
+	public LiveData<Boolean> getLvIsFinished() {
+		return lvIsFinished;
+	}
+
+	//region start game
 	public void startLocalGame(){
-		setLvGameObserver();
 		repository.startLocalGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
 			@Override
 			public void onSuccess(Boolean aBoolean) {
@@ -49,7 +70,6 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	public void hostOnlineGame(User user) {
-		setLvGameObserver();
 		repository.hostOnlineGame(user).addOnCompleteListener(new OnCompleteListener<Boolean>() {
 			@Override
 			public void onComplete(@NonNull Task<Boolean> task) {
@@ -64,30 +84,45 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		});
 	}
 
-	public void joinOnlineGame(User user) {
+	public Task<String> joinOnlineGame(User user) {
+		TaskCompletionSource<String> taskJoinGame = new TaskCompletionSource<>();
 		repository.joinOnlineGame(user, new OnSuccessListener<String>() {
 			@Override
 			public void onSuccess(String s) {
 				if (s == "Joined") {
 					lvSuccess.setValue(true); //inform the activity that successfully joined the game
-					setLvGameObserver();
 				}
 			}
 		}, new OnFailureListener() {
 			@Override
 			public void onFailure(@NonNull Exception e) {
-
+				taskJoinGame.setResult(e.toString());
 			}
 		});
+		return taskJoinGame.getTask();
 	}
+	//endregion
 
-	private void setLvGameObserver() {
+	private void setObservers() {
 		lvGame.addSource(repository.getLvGame(), new Observer<Game>() {
 			@Override
 			public void onChanged(Game game) {
 				lvGame.setValue(game);
 			}
 		});
+		lvOuterBoardWinners.addSource(repository.getLvOuterBoardWinners(), new Observer<char[][]>() {
+			@Override
+			public void onChanged(char[][] chars) {
+				lvOuterBoardWinners.setValue(chars);
+			}
+		});
+		lvIsFinished.addSource(repository.getLvIsFinished(), new Observer<Boolean>() {
+			@Override
+			public void onChanged(Boolean aBoolean) {
+				lvIsFinished.setValue(aBoolean);
+			}
+		});
+
 	}
 
 	private void removeLvGameObserver() {
@@ -96,7 +131,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	public void removeGame(){
 		removeLvGameObserver();
-		repository.abortOnlineGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
+		repository.deleteOnlineGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
 				@Override
 				public void onSuccess(Boolean aBoolean) {
 					lvGame.setValue(null);
@@ -105,9 +140,27 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		}).addOnFailureListener(new OnFailureListener() {
 			@Override
 			public void onFailure(@NonNull Exception e) {
-				setLvGameObserver();
+				setObservers();
 				lvSuccess.setValue(false);
 			}
 		});
+	}
+
+	public void makeMove(int oRow, int oCol, int iRow, int iCol) {
+		repository.makeMove(new BoardLocation(oRow, oCol, iRow, iCol)).addOnSuccessListener( new OnSuccessListener<Boolean>() {;
+			@Override
+			public void onSuccess(Boolean aBoolean) {
+				lvCode.setValue(0);
+			}
+		}).addOnFailureListener(new OnFailureListener() {
+			@Override
+			public void onFailure(@NonNull Exception e) {
+				lvCode.setValue(Integer.valueOf(e.getMessage()));
+			}
+		});
+	}
+
+	public void resetLvCode() {
+		lvCode.setValue(null);
 	}
 }

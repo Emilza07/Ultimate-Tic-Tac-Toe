@@ -9,4 +9,12 @@ public class LocalGame extends Game{
 		player2.setPlayerType(PlayerType.LOCAL);
 		player2.setName("Player 2");
 	}
+
+	public void makeTurn(BoardLocation location) {
+		super.makeTurn(location);
+		if (outerBoard.isGameOver()) {
+			isFinished = true;
+			winner = String.valueOf(outerBoard.getWinner());
+		}
+	}
 }

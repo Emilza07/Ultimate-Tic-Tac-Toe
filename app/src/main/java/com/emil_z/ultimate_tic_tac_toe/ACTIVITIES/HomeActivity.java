@@ -51,10 +51,12 @@ public class HomeActivity extends BaseActivity {
 		btnHost.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
 			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), getResources().getStringArray(R.array.game_types)[2]);
+			startActivity(intent);
 		});
 		btnJoin.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
 			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), getResources().getStringArray(R.array.game_types)[3]);
+			startActivity(intent);
 		});
 	}
 

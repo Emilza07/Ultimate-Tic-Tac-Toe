@@ -1,13 +1,14 @@
 package com.emil_z.model;
 
-public class GameModel {
+import android.graphics.Point;
+
+public class OuterBoard {
 	private InnerBoard[][] board;
 	private char winner;
 	private char currentPlayer;
 	private boolean freeMove;
-	private int lastMoveRow;
-	private int lastMoveColumn;
-	public GameModel(){
+	private Point lastMove;
+	public OuterBoard(){
 		board = new InnerBoard[3][3];
 		winner = 0;
 		currentPlayer = 'X';
@@ -18,11 +19,13 @@ public class GameModel {
 			}
 		}
 	}
-	public InnerBoard getBoard(int outerRow, int outerColumn){
-		return board[outerRow][outerColumn];
+	public InnerBoard getBoard(Point outer){
+		return board[outer.x][outer.y];
 	}
 	public char getCurrentPlayer(){return currentPlayer;}
+
 	public char getWinner(){return winner;}
+
 	public boolean isTie(){
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3 ; j++) {
@@ -33,6 +36,7 @@ public class GameModel {
 		}
 		return true;
 	}
+
 	public boolean isGameOver(){
 		//check if the game is a tie
 		if(isTie()){
@@ -61,30 +65,19 @@ public class GameModel {
 		}
 		return false;
 	}
-	public void resetGame(){
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3 ; j++) {
-				board[i][j].resetGame();
-			}
-		}
-	}
-	public boolean isLegal(byte row, byte column){
+
+	public boolean isLegal(BoardLocation location){
 		if(freeMove) {
-			return board[row/3][column/3].isLegal(row%3, column%3);
+			return board[location.getOuter().x][location.getOuter().y].isLegal(location.getInner());
 		}
-		return row/3 == lastMoveRow && column/3 == lastMoveColumn && board[row/3][column/3].isLegal(row%3, column%3);
-
+		return location.getOuter().equals(lastMove) && board[location.getOuter().x][location.getOuter().y].isLegal(location.getInner());
 
 	}
-	public boolean makeTurn(byte row, byte column) {
-		if(isLegal(row, column)){
-			board[row/3][column/3].makeTurn(row%3, column%3, currentPlayer);
-			lastMoveRow = row%3;
-			lastMoveColumn = column%3;
-			freeMove = board[lastMoveRow][lastMoveColumn].isGameOver();
+
+	public void makeTurn(BoardLocation location) {
+			board[location.getOuter().x][location.getOuter().y].makeTurn(location.getInner(), currentPlayer);
+			lastMove = location.getInner();
+			freeMove = board[location.getInner().x][location.getInner().y].isFinished();
 			currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
-			return true;
-		}
-		return false;
 	}
 }
