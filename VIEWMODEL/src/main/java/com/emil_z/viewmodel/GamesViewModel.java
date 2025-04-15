@@ -1,6 +1,7 @@
 package com.emil_z.viewmodel;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -12,15 +13,15 @@ import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 
-import com.emil_z.model.User;
+import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.emil_z.repository.GamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
+
+import java.util.concurrent.Executors;
 
 public class GamesViewModel extends BaseViewModel<Game, Games> {
 	private GamesRepository repository;
@@ -28,13 +29,16 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	private MediatorLiveData<Game> lvGame;
 	private MediatorLiveData<char[][]> lvOuterBoardWinners;
 	private MediatorLiveData<Boolean> lvIsFinished;
+	private MediatorLiveData<Boolean> lvIsStarted;
+
 	public GamesViewModel(Application application) {
 		super(Game.class, Games.class, application);
 		lvGame				= new MediatorLiveData<>();
 		lvCode				= new MutableLiveData<>();
 		lvOuterBoardWinners = new MediatorLiveData<>();
 		lvIsFinished		= new MediatorLiveData<>();
-		setObservers();
+		lvIsStarted			= new MediatorLiveData<>(false);
+		isStartedObserver();
 	}
 
 	@Override
@@ -59,70 +63,51 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return lvIsFinished;
 	}
 
-	//region start game
+	public LiveData<Boolean> getLvIsStarted() {
+		return lvIsStarted;
+	}
+
+	//region start gaFme
 	public void startLocalGame(){
-		repository.startLocalGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
+		repository.startLocalGame();
+	}
+
+	public void startOnlineGame(Player player) throws Exception {
+		Tasks.call(Executors.newSingleThreadExecutor(), () -> {
+			Tasks.await(repository.startOnlineGame(player));
+			return true;
+		}).addOnSuccessListener(new OnSuccessListener<Boolean>() {
 			@Override
 			public void onSuccess(Boolean aBoolean) {
-				lvSuccess.setValue(true);
+				Log.d("qqq", "started");
 			}
 		});
 	}
 
-	public void hostOnlineGame(User user) {
-		repository.hostOnlineGame(user).addOnCompleteListener(new OnCompleteListener<Boolean>() {
-			@Override
-			public void onComplete(@NonNull Task<Boolean> task) {
-				if (task.isSuccessful()) {
-					lvGame.setValue(repository.getLvGame().getValue());
-					lvSuccess.setValue(true); //inform the activity that the game was created and uploaded to the database
-					repository.addSnapshotListener(lvGame.getValue().getIdFs());
-				} else {
-					// Handle failure
-				}
-			}
-		});
-	}
-
-	public Task<String> joinOnlineGame(User user) {
-		TaskCompletionSource<String> taskJoinGame = new TaskCompletionSource<>();
-		repository.joinOnlineGame(user, new OnSuccessListener<String>() {
-			@Override
-			public void onSuccess(String s) {
-				if (s == "Joined") {
-					lvSuccess.setValue(true); //inform the activity that successfully joined the game
-				}
-			}
-		}, new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception e) {
-				taskJoinGame.setResult(e.toString());
-			}
-		});
-		return taskJoinGame.getTask();
-	}
 	//endregion
 
-	private void setObservers() {
-		lvGame.addSource(repository.getLvGame(), new Observer<Game>() {
-			@Override
-			public void onChanged(Game game) {
-				lvGame.setValue(game);
-			}
-		});
-		lvOuterBoardWinners.addSource(repository.getLvOuterBoardWinners(), new Observer<char[][]>() {
-			@Override
-			public void onChanged(char[][] chars) {
-				lvOuterBoardWinners.setValue(chars);
-			}
-		});
-		lvIsFinished.addSource(repository.getLvIsFinished(), new Observer<Boolean>() {
-			@Override
-			public void onChanged(Boolean aBoolean) {
-				lvIsFinished.setValue(aBoolean);
-			}
-		});
+	private void isStartedObserver(){
+		lvIsStarted.addSource(
+				repository.getLvIsStarted(), new Observer<Boolean>() {
+					@Override
+					public void onChanged(Boolean aBoolean) {
+						if (aBoolean)
+							setObservers();
+						lvIsStarted.setValue(aBoolean);
+					}
+				});
+	}
 
+	private void setObservers() {
+		lvGame.addSource(
+				repository.getLvGame(),
+				game -> lvGame.setValue(game));
+		lvOuterBoardWinners.addSource(
+				repository.getLvOuterBoardWinners(),
+				chars -> lvOuterBoardWinners.setValue(chars));
+		lvIsFinished.addSource(
+				repository.getLvIsFinished(),
+				aBoolean -> lvIsFinished.setValue(aBoolean));
 	}
 
 	private void removeLvGameObserver() {

@@ -4,13 +4,16 @@ public class OnlineGame extends Game{
 	public OnlineGame(){
 		super();
 	}
-	public OnlineGame(User player1) {
+
+	public OnlineGame(Player player1) {
 		super();
-		this.player1 = new Player(player1.getIdFs(), player1.getUsername(), player1.getElo());
+		this.player1 = player1;
 		this.player1.setPlayerType(PlayerType.LOCAL);
 	}
+
 	public OnlineGame(Game game) {
 	}
+
 	public void startGameForJoiner() {
 		outerBoard = new OuterBoard();
 		player1.setPlayerType(PlayerType.REMOTE);

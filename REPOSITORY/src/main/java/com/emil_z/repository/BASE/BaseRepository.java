@@ -57,16 +57,16 @@ public abstract class BaseRepository<TEntity extends BaseEntity, TCollection ext
         function   = getFunction(context);
         FirebaseImageStorage.initialize(context);
     }
-
+    protected CollectionReference getCollectionReference() {
+        return collection;
+    }
     private static FirebaseFunctions getFunction(Context context) {
         if (function == null) {
-            if (function == null) {
-                try {
-                    function = FirebaseFunctions.getInstance();
-                } catch (Exception e) {
-                    FirebaseInstance instance = FirebaseInstance.instance(context);
-                    function = FirebaseFunctions.getInstance(FirebaseInstance.app);
-                }
+            try {
+                function = FirebaseFunctions.getInstance();
+            } catch (Exception e) {
+                FirebaseInstance instance = FirebaseInstance.instance(context);
+                function = FirebaseFunctions.getInstance(FirebaseInstance.app);
             }
         }
         return function;
@@ -513,7 +513,7 @@ public abstract class BaseRepository<TEntity extends BaseEntity, TCollection ext
         return tcs.getTask();
     }
 
-    private Task<Void> handlePictureDownload(TEntity entity, String pictureFieldName, String pictureUrlFieldName) {
+    protected Task<Void> handlePictureDownload(TEntity entity, String pictureFieldName, String pictureUrlFieldName) {
         TaskCompletionSource<Void> tcs = new TaskCompletionSource<>();
 
         if (!StringUtil.isNullOrEmpty(pictureFieldName) && !StringUtil.isNullOrEmpty(pictureUrlFieldName)) {

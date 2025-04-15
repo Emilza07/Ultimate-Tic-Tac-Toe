@@ -20,6 +20,12 @@ public class Player extends BaseEntity {
 		this.name = player.name;
 		this.elo = player.elo;
 	}
+
+	public Player(User user) {
+		this.idFs = user.getIdFs();
+		this.name = user.getName();
+		this.elo = user.getElo();
+	}
 	@Exclude
 	public PlayerType getPlayerType() {
 		return type;
@@ -40,5 +46,9 @@ public class Player extends BaseEntity {
 	}
 	public void setElo(int elo){
 		this.elo = elo;
+	}
+
+	public int compareElo(Player player){
+		return Integer.compare(this.elo, player.elo);
 	}
 }

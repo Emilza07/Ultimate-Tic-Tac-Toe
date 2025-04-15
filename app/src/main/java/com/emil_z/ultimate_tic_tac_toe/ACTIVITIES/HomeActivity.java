@@ -9,23 +9,25 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.emil_z.model.GameType;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 
 public class HomeActivity extends BaseActivity {
 	private Button btnLocal;
-	private Button btnHost;
-	private Button btnJoin;
+	private Button btnOnline;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
 		setContentView(R.layout.activity_home);
-		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-			return insets;
+		ViewCompat.setOnApplyWindowInsetsListener(
+			findViewById(R.id.main),
+			(v, insets) -> {
+				Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+				v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+				return insets;
 		});
 
 		setBottomNavigationVisibility(true);
@@ -37,25 +39,19 @@ public class HomeActivity extends BaseActivity {
 	@Override
 	protected void initializeViews() {
 		btnLocal = findViewById(R.id.btnLocal);
-		btnHost = findViewById(R.id.btnHost);
-		btnJoin = findViewById(R.id.btnJoin);
+		btnOnline = findViewById(R.id.btnOnline);
 	}
 
 	@Override
 	protected void setListeners() {
 		btnLocal.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
-			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), getResources().getStringArray(R.array.game_types)[1]);
+			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), GameType.LOCAL);
 			startActivity(intent);
 		});
-		btnHost.setOnClickListener(v -> {
+		btnOnline.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
-			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), getResources().getStringArray(R.array.game_types)[2]);
-			startActivity(intent);
-		});
-		btnJoin.setOnClickListener(v -> {
-			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
-			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), getResources().getStringArray(R.array.game_types)[3]);
+			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), GameType.Online);
 			startActivity(intent);
 		});
 	}

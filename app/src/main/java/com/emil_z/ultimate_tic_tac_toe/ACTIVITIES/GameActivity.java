@@ -24,20 +24,18 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.AlertUtil;
-import com.emil_z.model.Game;
+import com.emil_z.model.GameType;
 import com.emil_z.model.Player;
+import com.emil_z.model.PlayerType;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
-
-import java.util.Objects;
 
 public class GameActivity extends BaseActivity {
 
 	private int boardSize;
 	private float conversionFactor;
 	private GridLayout gridBoard;
-	private ImageButton[][] buttons = new ImageButton[3][3];
 
 	private ConstraintLayout clLoading;
 	private Button btnAbort;
@@ -47,8 +45,7 @@ public class GameActivity extends BaseActivity {
 	private TextView tvP2Elo;
 
 	private GamesViewModel viewModel;
-	String gameType;
-	String[] gameTypes;
+	GameType gameType;
 	String[] errorCodes;
 
 	@Override
@@ -62,18 +59,17 @@ public class GameActivity extends BaseActivity {
 			return insets;
 		});
 
-		setViewModel();
 		initializeViews();
 		setListeners();
+		setViewModel();
+		gameInit(gameType);
 	}
 
 	protected void initializeViews() {
-		gameTypes = getResources().getStringArray(R.array.game_types);
 		errorCodes = getResources().getStringArray(R.array.error_codes);
 		Intent intent = getIntent();
-		gameType = intent.getStringExtra(getString(R.string.EXTRA_GAME_TYPE));
+		gameType = (GameType) intent.getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
 
-		//abort searching Layout
 		clLoading = findViewById(R.id.clLoading);
 		btnAbort = findViewById(R.id.btnAbort);
 
@@ -83,12 +79,11 @@ public class GameActivity extends BaseActivity {
 		tvP2Elo = findViewById(R.id.tvP2Elo);
 
 		createBoard();
-		gameInit(gameType);
 	}
 
 	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
-			if (gameType.equals(gameTypes[2])) {
+			if (gameType.equals(GameType.Online)) {
 				viewModel.removeGame();
 				Toast.makeText(this, "Online game aborted", Toast.LENGTH_SHORT).show();
 			}
@@ -104,16 +99,13 @@ public class GameActivity extends BaseActivity {
 						true,
 						0,
 						"Yes",
-						"Cancel",
+						"No",
 						null,
-						(new Runnable() {
-							@Override
-							public void run() {
-								if (gameType.equals(gameTypes[2]) || gameType.equals(gameTypes[3])) {
-									viewModel.removeGame();
-								}
-								finish();
+						(() -> {
+							if (gameType == GameType.Online) {
+								viewModel.removeGame();
 							}
+							finish();
 						}),
 						null,
 						null
@@ -126,21 +118,17 @@ public class GameActivity extends BaseActivity {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
 		Toast.makeText(this, "Button clicked: " + tag, Toast.LENGTH_SHORT).show();
-		viewModel.makeMove(Character.getNumericValue(tag.charAt(3)), Character.getNumericValue(tag.charAt(4)), Character.getNumericValue(tag.charAt(5)), Character.getNumericValue(tag.charAt(6)));
+		viewModel.makeMove(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0');
 		viewModel.getLvCode().observe(this, new Observer<Integer>() {
 			@Override
 			public void onChanged(Integer code) {
 				if (code != null) {
-					if(code == 0){
+					if(code == 0)
 						btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
-						viewModel.resetLvCode();
-						viewModel.getLvCode().removeObserver(this);
-					}
-					else {
+					else
 						Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
-						viewModel.resetLvCode();
-						viewModel.getLvCode().removeObserver(this);
-						}
+					viewModel.resetLvCode();
+					viewModel.getLvCode().removeObserver(this);
 					}
 				}
 		});
@@ -149,43 +137,22 @@ public class GameActivity extends BaseActivity {
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(GamesViewModel.class);
 
-		viewModel.getSuccess().observe(this, new Observer<Boolean>() {
-			public void onChanged(Boolean aBoolean) {
-				//if LocalGame
-				if (Objects.equals(gameType, gameTypes[1])) {
-					if (aBoolean){
-						//Game created successfully
-						clLoading.setVisibility(View.GONE);
-						gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
-						setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
-					}
-				}
-				//if OnlineGame
-				else if (Objects.equals(gameType, gameTypes[2]) || Objects.equals(gameType, gameTypes[3])) {
-					if (aBoolean && viewModel.getLvGame().getValue() != null) {
-						//Game created successfully
-						setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
-					}
-					else if (aBoolean && viewModel.getLvGame() == null){
-						Toast.makeText(GameActivity.this, "Game removed successfully", Toast.LENGTH_SHORT).show();
-					}
+		viewModel.getSuccess().observe(this, success -> {
+			//if LocalGame
+			if (success) {
+				switch (gameType) {
+					case Online:
+						if (viewModel.getLvGame() == null) {
+							Toast.makeText(GameActivity.this, "Game removed successfully", Toast.LENGTH_SHORT).show();
+						}
+						break;
 				}
 			}
 		});
 
-		viewModel.getLvGame().observe(this, new Observer<Game>() {
-			@Override
-			public void onChanged(Game game) {
-				if (game != null) {
-					if (!game.getPlayer2().getIdFs().isEmpty()) {
-						//Game started
-						Toast.makeText(GameActivity.this, "Game started", Toast.LENGTH_SHORT).show();
-						clLoading.setVisibility(View.GONE);
-						gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
-						setPlayers(game.getPlayer1(), game.getPlayer2());
-					}
-				}
-			}
+		viewModel.getLvGame().observe(this, game -> {
+			if (game == null)
+				finish();
 		});
 
 		viewModel.getLvOuterBoardWinners().observe(this, new Observer<char[][]>() {
@@ -196,6 +163,7 @@ public class GameActivity extends BaseActivity {
 						if (chars[i][j] != 0) {
 							// Set the background of the outer board to indicate the winner
 							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), chars[i][j] == 'X' ? R.drawable.x : R.drawable.o, null));
+							//((GridLayout) gridBoard.getChildAt(1)).getChildAt(1)
 						}
 					}
 				}
@@ -218,49 +186,69 @@ public class GameActivity extends BaseActivity {
 						null);
 			}
 		});
+
+		viewModel.getLvIsStarted().observe(this, new Observer<Boolean>() {
+			@Override
+			public void onChanged(Boolean aBoolean) {
+				if (aBoolean) {
+					// Game started
+					Toast.makeText(GameActivity.this, "Game started", Toast.LENGTH_SHORT).show();
+					clLoading.setVisibility(View.GONE);
+					gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
+					setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
+				}
+			}
+		});
 	}
 
 	//region GameInit
-	private void gameInit(String gameType) {
+	private void gameInit(GameType gameType) {
 		switch (gameType) {
-			case "CPU":
+			case CPU:
 				// Initialize SP game
 				break;
-			case "LOCAL":
+			case LOCAL:
 				// Initialize local game
 				viewModel.startLocalGame();
 				break;
-			case "HOST":
-				// Initialize online game as host
-				viewModel.hostOnlineGame(currentUser);
-				break;
-			case "JOIN":
+			case Online:
 				// Initialize online game as joiner
-				viewModel.joinOnlineGame(currentUser);
+				try {
+					viewModel.startOnlineGame(new Player(currentUser));
+					setPlayers(new Player(currentUser), null);
+				} catch (Exception e) {
+					Toast.makeText(this, "Error starting game: " + e.getMessage() + " Try again", Toast.LENGTH_SHORT).show();
+				}
 				break;
 		}
 	}
 
-	private void setPlayers(Player p1, Player p2){
-		tvP1Name.setText(p1.getName());
-		if(Objects.equals(gameType, gameTypes[0]) || Objects.equals(gameType, gameTypes[1])) {
+	private void setPlayers(Player p1, Player p2) {
+		if (gameType == GameType.CPU || gameType == GameType.LOCAL) {
+			// For local games, display as is
+			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
+			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
-			tvP2Name.setText(p2.getName());
-		}
-		else if (p2.getName() != null) {
-			tvP1Elo.setText("(" + String.valueOf(p1.getElo()) + ")");
-			tvP2Name.setText(p2.getName());
-			tvP2Elo.setText("(" + String.valueOf(p2.getElo()) + ")");
-		}
-		else {
-			if(Objects.equals(gameType, gameTypes[2])) {
-				tvP2Name.setText("Waiting for opponent...");
-			} else if (Objects.equals(gameType, gameTypes[3])) {
-				tvP2Name.setText("Searching for game...");
+		} else {
+			// For online games
+			if(!viewModel.getLvIsStarted().getValue())
+			{
+				tvP1Name.setText(currentUser.getName());
+				tvP1Elo.setText("(" + currentUser.getElo() + ")");
+				tvP2Name.setText( "Waiting for opponent...");
+				tvP2Elo.setText("");
 			}
-			tvP1Elo.setText("(" + String.valueOf(p1.getElo()) + ")");
-			tvP2Elo.setText("");
+			else {
+				boolean isHost = viewModel.getLvGame().getValue().getPlayer1().getPlayerType() == PlayerType.LOCAL;
+				if (isHost) {
+					tvP2Name.setText(p2.getName());
+					tvP2Elo.setText("(" + p2.getElo() + ")");
+				} else {
+					tvP2Name.setText(p1.getName());
+					tvP2Elo.setText("(" + p1.getElo() + ")");
+				}
+			}
 		}
 	}
 
@@ -301,7 +289,6 @@ public class GameActivity extends BaseActivity {
 		btn.setScaleType(ImageButton.ScaleType.FIT_XY);
 		btn.setForegroundGravity(ImageButton.TEXT_ALIGNMENT_CENTER);
 		btn.setClickable(true);
-		//btn.setImageResource(R.drawable.o);
 		GridLayout.LayoutParams btnParams = new GridLayout.LayoutParams();
 		btnParams.width = INNER_CELL_DRAWABLE_REF_SIZE;
 		btnParams.height = INNER_CELL_DRAWABLE_REF_SIZE;
@@ -335,7 +322,6 @@ public class GameActivity extends BaseActivity {
 		grid.setRowCount(3);
 		grid.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
 		grid.setPadding(PADDING, PADDING, PADDING, PADDING);
-		//grid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
 		GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 		params.width = INNER_BOARD_DRAWABLE_REF_SIZE;
 		params.height = INNER_BOARD_DRAWABLE_REF_SIZE;

@@ -54,23 +54,13 @@
 		app:layout_constraintTop_toBottomOf="@+id/button6" />
 
 	<Button
-		android:id="@+id/btnHost"
+		android:id="@+id/btnOnline"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="52dp"
-		android:text="Host an online game"
+		android:text="Online Game"
 		app:layout_constraintEnd_toEndOf="@+id/btnLocal"
 		app:layout_constraintStart_toStartOf="@+id/btnLocal"
 		app:layout_constraintTop_toBottomOf="@+id/btnLocal" />
-
-	<Button
-		android:id="@+id/btnJoin"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="36dp"
-		android:text="Join an online game"
-		app:layout_constraintEnd_toEndOf="@+id/btnHost"
-		app:layout_constraintStart_toStartOf="@+id/btnHost"
-		app:layout_constraintTop_toBottomOf="@+id/btnHost" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

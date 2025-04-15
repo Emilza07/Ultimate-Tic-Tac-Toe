@@ -12,7 +12,7 @@ public class FirebaseInstance {
     private FirebaseInstance(Context context) {
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setProjectId("ultimate-tic-tac-toe-project")
-                .setApplicationId("ultimate-tic-tac-toe-project")
+                .setApplicationId("1:273203212742:android:5e05863b0c6b3a1722c2c7")
                 .setApiKey("AIzaSyCqKjSsYdTE9JuwOTWBxpm55qxTiUFNQxs")
                 .setStorageBucket("ultimate-tic-tac-toe-project.firebasestorage.app")
                 .build();

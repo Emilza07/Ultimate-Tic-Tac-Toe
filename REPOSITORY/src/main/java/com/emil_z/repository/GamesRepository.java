@@ -1,12 +1,10 @@
 package com.emil_z.repository;
 
 import android.app.Application;
-import android.os.Handler;
 import android.util.Log;
 
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -15,35 +13,47 @@ import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 import com.emil_z.model.LocalGame;
 import com.emil_z.model.OnlineGame;
+import com.emil_z.model.Player;
 import com.emil_z.model.PlayerType;
-import com.emil_z.model.User;
+import com.emil_z.model.exceptions.EmptyQueryException;
+import com.emil_z.model.exceptions.GameFullException;
 import com.emil_z.repository.BASE.BaseRepository;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.functions.FirebaseFunctionsException;
-import com.google.firebase.functions.HttpsCallableResult;
+import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutionException;
 
 public class GamesRepository extends BaseRepository<Game, Games> {
 	private MutableLiveData<Game> lvGame;
 	private MutableLiveData<char[][]> lvOuterBoardWinners;
 	private MutableLiveData<Boolean> lvIsFinished;
+	private MutableLiveData<Boolean> lvIsStarted;
+	private int retryCounter = 0;
+	private final int MAX_TRIES = 10;
+
+
+
+	public GamesRepository(Application application) {
+		super(Game.class, Games.class, application);
+		lvGame = new MutableLiveData<>();
+		lvOuterBoardWinners = new MutableLiveData<>();
+		lvOuterBoardWinners.setValue(new char[3][3]);
+		lvIsFinished = new MutableLiveData<>();
+		lvIsStarted = new MutableLiveData<>(false);
+	}
 
 	public LiveData<Game> getLvGame() {
 		return lvGame;
@@ -57,35 +67,90 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return lvIsFinished;
 	}
 
-	public GamesRepository(Application application) {
-		super(Game.class, Games.class, application);
-		lvGame = new MutableLiveData<>();
-		lvOuterBoardWinners = new MutableLiveData<>();
-		lvOuterBoardWinners.setValue(new char[3][3]);
-		lvIsFinished = new MutableLiveData<>();
+	public LiveData<Boolean> getLvIsStarted() {
+		return lvIsStarted;
 	}
 
 	//region start game
-	public Task<Boolean> startLocalGame() {
-		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
+	public void startLocalGame() {
 		lvGame.setValue(new LocalGame());
-		taskCreateGame.setResult(true);
-		return taskCreateGame.getTask();
+		lvIsStarted.setValue(true);
 	}
 
-	public Task<Boolean> hostOnlineGame(User user) {
+	public Task<Boolean> startOnlineGame(Player player) throws Exception {
+		TaskCompletionSource<Boolean> tcs = new TaskCompletionSource<>();
+		try {
+			Games games = Tasks.await(getNotStartedGames());
+			String gameId = getGameIdWithSimilarElo(player.getElo(), games);
+			Tasks.await(joinGame(gameId, player));
+			//joined successfully because joinGame returns true or throws exception
+			OnlineGame game = Tasks.await(getOnlineGame(gameId));
+			//lvGame.setValue(game);
+			addSnapshotListener(gameId);//will inform the user when the host started the game
+			lvGame.setValue(game);
+			tcs.setResult(false); //will inform the ViewModel that he is a joiner
+		} catch (NoSuchElementException e) { //game with elo in range not found, create a new game
+			Tasks.await(hostOnlineGame(player));
+		} catch (ExecutionException e) {
+			Throwable cause = e.getCause();
 
-		TaskCompletionSource<Boolean> taskCreateGame = new TaskCompletionSource<>();
-		lvGame.setValue(new OnlineGame(user));
-		add(lvGame.getValue()).addOnCompleteListener(new OnCompleteListener<Boolean>() {
+			if (cause instanceof EmptyQueryException) {
+				String gameId = Tasks.await(hostOnlineGame(player));
+				addSnapshotListener(gameId);
+				tcs.setResult(true); //will inform the ViewModel that he is a host
+			} else if (cause instanceof GameFullException) {
+				if (retryCounter < MAX_TRIES) {
+					retryCounter++;
+					// Recursive call within the background thread
+					Tasks.await(startOnlineGame(player));
+				} else {
+					Log.d("GameViewModel", "Max retries reached, hosting new game");
+					//return Tasks.await(hostOnlineGame(player));
+				}
+			}
+
+			throw e; // Rethrow other execution exceptions
+		}
+		return tcs.getTask();
+	}
+
+	private String getGameIdWithSimilarElo(int userElo, Games games) throws NoSuchElementException {
+		final int eloRange = 100;
+		ListIterator<Game> iGames = games.listIterator();
+
+		Game closestGame = iGames.next();
+		int closestElo = Math.abs(closestGame.getPlayer1().getElo() - userElo);
+		while (iGames.hasNext()) {
+			Game currentGame = iGames.next();
+			int currentElo = Math.abs(currentGame.getPlayer1().getElo() - userElo);
+			if (currentElo <= closestElo) {
+				closestGame = currentGame;
+				closestElo = currentElo;
+			} else {
+				break;
+			}
+		}
+		if (closestElo <= eloRange) {
+			return closestGame.getIdFs();
+		} else {
+			throw new NoSuchElementException();
+		}
+	}
+
+	public Task<String> hostOnlineGame(Player player) {
+
+		TaskCompletionSource<String> taskCreateGame = new TaskCompletionSource<>();
+		OnlineGame game = new OnlineGame(player);
+		add(game).addOnSuccessListener(new OnSuccessListener<Boolean>() {
 			@Override
-			public void onComplete(@NonNull Task<Boolean> task) {
-				if(task.isSuccessful()){
-					taskCreateGame.setResult(true); // inform the viewmodel that the game was created and uploaded to the database
-				}
-				else {
-					taskCreateGame.setResult(false);
-				}
+			public void onSuccess(Boolean aBoolean) {
+					lvGame.setValue(game);
+					taskCreateGame.setResult(game.getIdFs()); // inform the viewmodel that the game was created and uploaded to the database
+			}
+		}).addOnFailureListener(new OnFailureListener() {
+			@Override
+			public void onFailure(@NonNull Exception e) {
+				taskCreateGame.setException(e);
 			}
 		});
 		return taskCreateGame.getTask();
@@ -93,67 +158,10 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public void startOnlineGame() {
 		lvGame.getValue().setStarted(true);
+		lvGame.getValue().getPlayer1().setPlayerType(PlayerType.LOCAL);
+		lvGame.getValue().getPlayer2().setPlayerType(PlayerType.REMOTE);
 		update(lvGame.getValue());
-	}
-
-	public void joinOnlineGame(User user, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
-		//functions = FirebaseFunctions.getInstance();
-		function.useEmulator("127.0.0.1", 5001);
-		getNotStartedGames(remoteGames -> {
-			if (remoteGames != null) {
-				getGameIdWithSimilarElo(user.getElo(), remoteGames, gameId -> {
-					//run a cloud function to join the game
-					Log.d("qqq", "joinedOnlineGame: " + gameId);
-					joinGame(gameId, user.getIdFs(), user.getName(), user.getElo()).addOnCompleteListener(new OnCompleteListener<String>() {
-						@Override
-						public void onComplete(@NonNull Task<String> task) {
-							if (task.isSuccessful()) {
-								// got status 200/400/409
-								String status = task.getResult();
-								if(Objects.equals(status, "200")){
-									lvGame.setValue(new OnlineGame(get(gameId).getResult()));
-									onSuccessListener.onSuccess("Joined"); // inform the viewmodel that successfully joined the game
-									addSnapshotListener(gameId);
-								}
-								else if(Objects.equals(status, "400")){
-									// garbage data
-									onFailureListener.onFailure(new Exception("Garbage data"));
-								}
-								else if(Objects.equals(status, "409")){
-									// game is full (someone wrote into the document in the meantime)
-									onFailureListener.onFailure(new Exception("Game is full"));
-								}
-							} else {
-								// Handle failure
-								Exception e = task.getException();
-								if (e instanceof FirebaseFunctionsException) {
-
-									FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-									FirebaseFunctionsException.Code code = ffe.getCode();
-									Object details = ffe.getDetails();
-									onFailureListener.onFailure(new Exception("Error: " + code + ", Details: " + details));
-								}
-							}
-						}
-					});
-				}, new OnFailureListener() {
-					@Override
-					public void onFailure(@NonNull Exception e) {
-						// unable to find a game with similar elo
-						onFailureListener.onFailure(new Exception("Unable to find a game with similar elo"));
-					}
-				});
-			} else {
-				// No games found
-				onFailureListener.onFailure(new Exception("No games found"));
-			}
-		}, new OnFailureListener() {
-			@Override
-			public void onFailure(Exception e) {
-				// Handle failure
-				onFailureListener.onFailure(new Exception("Error fetching games: " + e.getMessage()));
-			}
-		});
+		lvIsStarted.setValue(true);
 	}
 
 	@Override
@@ -165,103 +173,73 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return getCollection().whereEqualTo("started", false);
 	}
 
-	public void getNotStartedGames(OnSuccessListener<Games> onSuccessListener, OnFailureListener onFailureListener) {
+	public Task<Games> getNotStartedGames() {
+		TaskCompletionSource<Games> taskGetNotStartedGames = new TaskCompletionSource<>();
 		Games games = new Games();
 		getQueryForNotStarted().get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
-					if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+					if (!queryDocumentSnapshots.isEmpty()) {
 						for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
 							games.add(document.toObject(OnlineGame.class));
 						}
-						onSuccessListener.onSuccess(games);
+						games.sort((g1, g2) -> g1.getPlayer1().compareElo(g2.getPlayer1()));
+						taskGetNotStartedGames.setResult(games);
 					} else {
-						onFailureListener.onFailure(new Exception("No games found"));
+						taskGetNotStartedGames.setException(new EmptyQueryException());
 					}
 				})
-				.addOnFailureListener(e -> {
-					onFailureListener.onFailure(e);
-				});
+				.addOnFailureListener(taskGetNotStartedGames::setException);
+		return taskGetNotStartedGames.getTask();
 	}
 
-	private void getGameIdWithSimilarElo(int userElo, Games games, OnSuccessListener<String> onSuccessListener, OnFailureListener onFailureListener) {
-		ArrayList<Integer> eloRange = new ArrayList<Integer>(Arrays.asList(100, 200, 300, 400, 500));
-		ListIterator<Integer> iEloRange = eloRange.listIterator();
-
-		final Handler handler = new Handler();
-		Runnable task = new Runnable() {
-			@Override
-			public void run() {
-					ListIterator<Game> iGames = games.listIterator();
-					while (iGames.hasNext()) {
-						if (Math.abs(iGames.next().getPlayer1().getElo() - userElo) <= iEloRange.next()) {
-							onSuccessListener.onSuccess(iGames.previous().getIdFs());
-							handler.removeCallbacks(this);
-							return;
-						}
-						iEloRange.previous();
-					}
-					if (!iEloRange.hasNext()) {
-						onFailureListener.onFailure(new Exception("No games found within 500 elo range"));
-						handler.removeCallbacks(this);
-					}
-				iEloRange.next();
-				handler.postDelayed(this, 3000);
-			}
-		};
-		handler.post(task);
-	}
-
-	private Task<String> joinGame(String gameId, String userId, String userName, int userElo) {
-		Map<String, String> data = new HashMap<>();
+	public Task<Boolean> joinGame(String gameId, Player player) {
+		Map<String, Object> data = new HashMap<>();
+		Gson gson = new Gson();
+		String json = gson.toJson(player);
 		data.put("game_id", gameId);
-		//data.put("user_id", userId);
-		//data.put("user_name", userName);
-		//data.put("user_elo", String.valueOf(userElo));
+		data.put("player", json);
 
 		return function
 				.getHttpsCallable("join_game")
-				.call(data)
-				.continueWith(new Continuation<HttpsCallableResult, String>() {
-					@Override
-					public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-						return (String) task.getResult().getData();
+				.call(data).continueWith(task -> {
+					if (task.isSuccessful()) {
+						return true;
+					} else if (task.getException() instanceof FirebaseFunctionsException) {
+						if (((FirebaseFunctionsException) task.getException()).getCode() == FirebaseFunctionsException.Code.ABORTED)
+							throw new GameFullException();
 					}
+					throw task.getException();
 				});
 	}
 	//endregion
 
 	public void addSnapshotListener(String gameId) {
 		final DocumentReference gameRef = getCollection().document(gameId);
-		gameRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-			@Override
-			public void onEvent(@Nullable DocumentSnapshot snapshot,
-								@Nullable FirebaseFirestoreException e) {
-				if (e != null) {
-					//Log.w(TAG, "Listen failed.", e);
-					return;
-				}
+		gameRef.addSnapshotListener((snapshot, e) -> {
+			if (e != null) {
+				return;
+			}
 
-				boolean isLocal = snapshot != null && snapshot.getMetadata().hasPendingWrites();
-				if(!isLocal){
-					if (snapshot != null && snapshot.exists()) {
-						if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty()) {
-							//the second user joined the game
-							//only the host get it, the joiner ignores it
-							lvGame.setValue(snapshot.toObject(OnlineGame.class));
-							startOnlineGame();
-						}
-						else if((boolean) snapshot.get("started") && snapshot.get("moves") == null) {
-							//the Host started the game
-							//the joiner get it, the host ignores it
-							((OnlineGame)(lvGame.getValue())).startGameForJoiner();
-							lvGame.setValue(snapshot.toObject(OnlineGame.class));
-						}
-						else {
-							//it's a move and send it to handle a move
-						}
-					} else {
-						//Log.d(TAG, "Current data: null");
+			boolean isLocal = snapshot != null && snapshot.getMetadata().hasPendingWrites();
+			if(!isLocal){
+				if (snapshot != null && snapshot.exists()) {
+					if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && lvGame.getValue().getPlayer1().getPlayerType() == PlayerType.LOCAL) {
+						//the joiner joined the game
+						lvGame.setValue(snapshot.toObject(OnlineGame.class));
+						startOnlineGame();
+					} else if((Boolean) snapshot.get("started") && ((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
+						//the Host started the game
+						//the joiner get it, the host ignores it
+						lvGame.setValue(snapshot.toObject(OnlineGame.class));
+						((OnlineGame)(lvGame.getValue())).startGameForJoiner();
+						lvIsStarted.setValue(true);
 					}
+					else {
+						//it's a move and send it to handle a move
+					}
+				} else {
+					// The document does not exist (deleted
+					lvGame.setValue(null);
 				}
 			}
 		});
@@ -269,7 +247,10 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public Task<Boolean> deleteOnlineGame(){
 		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
-		if (lvGame.getValue().getMoves().isEmpty()){
+		if(lvGame.getValue() == null) {
+			taskAbortGame.setResult(true);
+		}
+		else if (lvGame.getValue().getMoves().isEmpty()) {
 			delete(lvGame.getValue()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
 				@Override
 				public void onSuccess(Boolean aBoolean) {
@@ -325,5 +306,25 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 		else taskMakeMove.setException(new Exception("1"));
 		return taskMakeMove.getTask();
+	}
+
+	public Task<OnlineGame> getOnlineGame(String idFs) {
+		TaskCompletionSource<OnlineGame> taskMember = new TaskCompletionSource<>();
+
+		super.getCollection().document(idFs).get()
+				.addOnSuccessListener(documentSnapshot -> {
+					OnlineGame member = documentSnapshot.toObject(OnlineGame.class);
+					if (member != null) {
+						taskMember.setResult(member);
+					} else {
+						taskMember.setResult(null);
+					}
+				})
+				.addOnFailureListener(e -> {
+					Log.e("qqq", "Error getting member: " + e.getMessage());
+					taskMember.setResult(null);
+				});
+
+		return taskMember.getTask();
 	}
 }
