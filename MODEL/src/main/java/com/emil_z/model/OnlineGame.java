@@ -22,10 +22,10 @@ public class OnlineGame extends Game{
 
 	public void makeTurn(BoardLocation location){
 		super.makeTurn(location);
-		if (currentPlayer == PlayerType.LOCAL) {
-			currentPlayer = PlayerType.REMOTE;
+		if (currentPlayerIdFs == player1.getIdFs()) {
+			currentPlayerIdFs = player2.getIdFs();
 		} else {
-			currentPlayer = PlayerType.LOCAL;
+			currentPlayerIdFs = player1.getIdFs();
 		}
 		if (outerBoard.isGameOver()) {
 			isFinished = true;

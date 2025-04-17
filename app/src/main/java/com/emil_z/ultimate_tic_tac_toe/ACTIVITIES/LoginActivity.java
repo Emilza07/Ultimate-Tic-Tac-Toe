@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emil_z.helper.PreferenceManager;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
@@ -78,6 +79,7 @@ public class LoginActivity extends BaseActivity {
 			public void onChanged(User user) {
 				if (user != null){
 					BaseActivity.currentUser = user;
+					PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}});
 					startActivity(new Intent(LoginActivity.this, HomeActivity.class));
 				}
 			}

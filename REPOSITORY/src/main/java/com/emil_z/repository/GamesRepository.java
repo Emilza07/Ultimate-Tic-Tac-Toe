@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.emil_z.helper.PreferenceManager;
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
@@ -43,6 +44,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 	private MutableLiveData<Boolean> lvIsStarted;
 	private int retryCounter = 0;
 	private final int MAX_TRIES = 10;
+	private String localPlayerIdFs;
 
 
 
@@ -53,6 +55,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		lvOuterBoardWinners.setValue(new char[3][3]);
 		lvIsFinished = new MutableLiveData<>();
 		lvIsStarted = new MutableLiveData<>(false);
+		localPlayerIdFs = PreferenceManager.readFromSharedPreferences(application, "user_prefs", new Object[][]{{"UserIdFs", "String"}})[0][1].toString();
 	}
 
 	public LiveData<Game> getLvGame() {
@@ -73,7 +76,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	//region start game
 	public void startLocalGame() {
-		lvGame.setValue(new LocalGame());
+		lvGame.setValue(new LocalGame(localPlayerIdFs));
 		lvIsStarted.setValue(true);
 	}
 
@@ -277,7 +280,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public Task<Boolean> makeMove(BoardLocation location) {
 		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
-		if(lvGame.getValue().getCurrentPlayer() == PlayerType.LOCAL) {
+		if(lvGame.getValue().getCurrentPlayerIdFs() == localPlayerIdFs) {
 			if(lvGame.getValue().isLegal(location)) {
 				lvGame.getValue().makeTurn(location);
 				if(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).isFinished()){			//check if the inner board is finished

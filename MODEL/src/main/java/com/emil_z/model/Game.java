@@ -16,7 +16,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 	protected OuterBoard outerBoard;
 	protected Player player1;
 	protected Player player2;
-	protected PlayerType currentPlayer;
+	protected String currentPlayerIdFs;
 
 	public Game() {
 		this.isStarted = false;
@@ -26,7 +26,6 @@ public abstract class Game extends BaseEntity implements Serializable {
 		this.outerBoard = new OuterBoard();
 		this.player1 = new Player();
 		this.player2 = new Player();
-		this.currentPlayer = PlayerType.LOCAL;
 	}
 	public Game(Game game){
 		this.isStarted = game.isStarted;
@@ -36,7 +35,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 		this.outerBoard = new OuterBoard();
 		this.player1 = new Player(game.player1);
 		this.player2 = new Player(game.player2);
-		this.currentPlayer = game.currentPlayer;
+		this.currentPlayerIdFs = game.currentPlayerIdFs;
 	}
 
 	//region getters and setters
@@ -97,12 +96,12 @@ public abstract class Game extends BaseEntity implements Serializable {
 		this.player2 = player2;
 	}
 
-	public PlayerType getCurrentPlayer() {
-		return currentPlayer;
+	public String getCurrentPlayerIdFs() {
+		return currentPlayerIdFs;
 	}
 
-	public void setCurrentPlayer(PlayerType currentPlayer) {
-		this.currentPlayer = currentPlayer;
+	public void setCurrentPlayerIdFs(String currentPlayerIdFs) {
+		this.currentPlayerIdFs = currentPlayerIdFs;
 	}
 	//endregion
 
