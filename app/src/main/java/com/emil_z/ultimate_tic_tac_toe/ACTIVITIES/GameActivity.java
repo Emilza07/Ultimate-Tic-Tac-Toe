@@ -26,10 +26,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.emil_z.helper.AlertUtil;
 import com.emil_z.model.GameType;
 import com.emil_z.model.Player;
-import com.emil_z.model.PlayerType;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
+
+import java.util.Objects;
 
 public class GameActivity extends BaseActivity {
 
@@ -240,7 +241,7 @@ public class GameActivity extends BaseActivity {
 				tvP2Elo.setText("");
 			}
 			else {
-				boolean isHost = viewModel.getLvGame().getValue().getPlayer1().getPlayerType() == PlayerType.LOCAL;
+				boolean isHost = Objects.equals(viewModel.getLvGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 				if (isHost) {
 					tvP2Name.setText(p2.getName());
 					tvP2Elo.setText("(" + p2.getElo() + ")");

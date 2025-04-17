@@ -1,11 +1,8 @@
 package com.emil_z.model;
 
 import com.emil_z.model.BASE.BaseEntity;
-import com.google.firebase.firestore.Exclude;
 
 public class Player extends BaseEntity {
-	@Exclude
-	private PlayerType type;
 	private String name;
 	private int elo;
 
@@ -26,24 +23,19 @@ public class Player extends BaseEntity {
 		this.name = user.getName();
 		this.elo = user.getElo();
 	}
-	@Exclude
-	public PlayerType getPlayerType() {
-		return type;
-	}
 
-	@Exclude
-	public void setPlayerType(PlayerType type) {
-		this.type = type;
-	}
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public int getElo(){
 		return elo;
 	}
+
 	public void setElo(int elo){
 		this.elo = elo;
 	}

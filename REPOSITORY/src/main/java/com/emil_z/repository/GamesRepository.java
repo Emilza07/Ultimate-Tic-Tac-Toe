@@ -15,7 +15,6 @@ import com.emil_z.model.Games;
 import com.emil_z.model.LocalGame;
 import com.emil_z.model.OnlineGame;
 import com.emil_z.model.Player;
-import com.emil_z.model.PlayerType;
 import com.emil_z.model.exceptions.EmptyQueryException;
 import com.emil_z.model.exceptions.GameFullException;
 import com.emil_z.repository.BASE.BaseRepository;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class GamesRepository extends BaseRepository<Game, Games> {
@@ -161,8 +161,6 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public void startOnlineGame() {
 		lvGame.getValue().setStarted(true);
-		lvGame.getValue().getPlayer1().setPlayerType(PlayerType.LOCAL);
-		lvGame.getValue().getPlayer2().setPlayerType(PlayerType.REMOTE);
 		update(lvGame.getValue());
 		lvIsStarted.setValue(true);
 	}
@@ -226,7 +224,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			boolean isLocal = snapshot != null && snapshot.getMetadata().hasPendingWrites();
 			if(!isLocal){
 				if (snapshot != null && snapshot.exists()) {
-					if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && lvGame.getValue().getPlayer1().getPlayerType() == PlayerType.LOCAL) {
+					if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
 						//the joiner joined the game
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						startOnlineGame();
@@ -269,7 +267,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 		else {
 			lvGame.getValue().setFinished(true);
-			lvGame.getValue().setWinner(lvGame.getValue().getPlayer1().getPlayerType() == PlayerType.LOCAL ?
+			lvGame.getValue().setWinner(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs) ?
 					lvGame.getValue().getPlayer2().getIdFs():
 					lvGame.getValue().getPlayer1().getIdFs());
 			update(lvGame.getValue());
@@ -280,7 +278,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public Task<Boolean> makeMove(BoardLocation location) {
 		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
-		if(lvGame.getValue().getCurrentPlayerIdFs() == localPlayerIdFs) {
+		if(Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			if(lvGame.getValue().isLegal(location)) {
 				lvGame.getValue().makeTurn(location);
 				if(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).isFinished()){			//check if the inner board is finished

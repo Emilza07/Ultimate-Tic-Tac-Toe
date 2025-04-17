@@ -8,7 +8,6 @@ public class OnlineGame extends Game{
 	public OnlineGame(Player player1) {
 		super();
 		this.player1 = player1;
-		this.player1.setPlayerType(PlayerType.LOCAL);
 	}
 
 	public OnlineGame(Game game) {
@@ -16,8 +15,6 @@ public class OnlineGame extends Game{
 
 	public void startGameForJoiner() {
 		outerBoard = new OuterBoard();
-		player1.setPlayerType(PlayerType.REMOTE);
-		player2.setPlayerType(PlayerType.LOCAL);
 	}
 
 	public void makeTurn(BoardLocation location){
