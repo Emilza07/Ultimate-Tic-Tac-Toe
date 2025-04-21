@@ -7,11 +7,7 @@ public class Player extends BaseEntity {
 	private float elo;
 
 	public Player (){}
-	public Player(String idFs, String name, float elo) {
-		this.idFs = idFs;
-		this.name = name;
-		this.elo = elo;
-	}
+
 	public Player(Player player){
 		this.idFs = player.idFs;
 		this.name = player.name;

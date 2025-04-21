@@ -134,7 +134,7 @@ public class GameActivity extends BaseActivity {
 	private void handleBoardButtonClick(ImageView btn) {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
-		Toast.makeText(this, "Button clicked: " + tag, Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Button clicked: " + tag, Toast.LENGTH_SHORT).show();
 		viewModel.makeMove(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0');
 		viewModel.getLvCode().observe(this, new Observer<Integer>() {
 			@Override
