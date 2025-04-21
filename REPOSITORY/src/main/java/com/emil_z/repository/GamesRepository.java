@@ -40,13 +40,13 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class GamesRepository extends BaseRepository<Game, Games> {
-	private MutableLiveData<Game> lvGame;
-	private MutableLiveData<char[][]> lvOuterBoardWinners;
-	private MutableLiveData<Boolean> lvIsFinished;
-	private MutableLiveData<Boolean> lvIsStarted;
+	private final MutableLiveData<Game> lvGame;
+	private final MutableLiveData<char[][]> lvOuterBoardWinners;
+	private final MutableLiveData<Boolean> lvIsFinished;
+	private final MutableLiveData<Boolean> lvIsStarted;
 	private int retryCounter = 0;
 	private final int MAX_TRIES = 10;
-	private String localPlayerIdFs;
+	private final String localPlayerIdFs;
 
 
 

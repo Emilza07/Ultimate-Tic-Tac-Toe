@@ -26,11 +26,11 @@ import java.util.concurrent.Executors;
 
 public class GamesViewModel extends BaseViewModel<Game, Games> {
 	private GamesRepository repository;
-	private MutableLiveData<Integer> lvCode;
-	private MediatorLiveData<Game> lvGame;
-	private MediatorLiveData<char[][]> lvOuterBoardWinners;
-	private MediatorLiveData<Boolean> lvIsFinished;
-	private MediatorLiveData<Boolean> lvIsStarted;
+	private final MutableLiveData<Integer> lvCode;
+	private final MediatorLiveData<Game> lvGame;
+	private final MediatorLiveData<char[][]> lvOuterBoardWinners;
+	private final MediatorLiveData<Boolean> lvIsFinished;
+	private final MediatorLiveData<Boolean> lvIsStarted;
 
 	public GamesViewModel(Application application) {
 		super(Game.class, Games.class, application);
@@ -133,7 +133,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	public void makeMove(int oRow, int oCol, int iRow, int iCol) {
-		repository.makeMove(new BoardLocation(oRow, oCol, iRow, iCol)).addOnSuccessListener( new OnSuccessListener<Boolean>() {;
+		repository.makeMove(new BoardLocation(oRow, oCol, iRow, iCol)).addOnSuccessListener( new OnSuccessListener<Boolean>() {
 			@Override
 			public void onSuccess(Boolean aBoolean) {
 				lvCode.setValue(0);
