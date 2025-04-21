@@ -15,7 +15,7 @@ public class UsersRepository extends BaseRepository<User, Users> {
 
 	@Override
 	protected Query getQueryForExist(User entity) {
-		return getCollection().whereEqualTo("username", entity.getUsername());
+		return getCollection().whereEqualTo("idFs", entity.getIdFs());
 	}
 	public Query getUsersByUsername(String username) {
 		return getCollection().whereEqualTo("username", username);
