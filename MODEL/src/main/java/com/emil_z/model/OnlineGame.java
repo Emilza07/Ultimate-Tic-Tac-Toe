@@ -1,5 +1,7 @@
 package com.emil_z.model;
 
+import java.util.Objects;
+
 public class OnlineGame extends Game{
 	public OnlineGame(){
 		super();
@@ -19,14 +21,14 @@ public class OnlineGame extends Game{
 
 	public void makeTurn(BoardLocation location){
 		super.makeTurn(location);
-		if (currentPlayerIdFs == player1.getIdFs()) {
+		if (Objects.equals(currentPlayerIdFs, player1.getIdFs())) {
 			currentPlayerIdFs = player2.getIdFs();
 		} else {
 			currentPlayerIdFs = player1.getIdFs();
 		}
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
-			winner = outerBoard.getWinner() == 'X' ? player1.getIdFs() : player2.getIdFs(); //TODO: when added the option that p1 isn't always 'X' depend this to the player that began
+			winner = currentPlayerIdFs == player2.getIdFs() ? player1.getIdFs() : player2.getIdFs();
 		}
 	}
 }
