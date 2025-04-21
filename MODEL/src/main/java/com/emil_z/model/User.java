@@ -7,13 +7,13 @@ import java.io.Serializable;
 public class User extends BaseEntity implements Serializable {
 	private String username;
 	private String password;
-	private int elo;
+	private float elo;
 	public User() {
 	}
 	public User(String username, String password) {
 		this(username, password, 1200);
 	}
-	public User(String username, String password, int elo) {
+	public User(String username, String password, float elo) {
 		this.username = username;
 		this.password = password;
 		this.elo = elo;
@@ -30,10 +30,10 @@ public class User extends BaseEntity implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public int getElo() {
+	public float getElo() {
 		return elo;
 	}
-	public void setElo(int elo) {
+	public void setElo(float elo) {
 		this.elo = elo;
 	}
 

@@ -4,10 +4,10 @@ import com.emil_z.model.BASE.BaseEntity;
 
 public class Player extends BaseEntity {
 	private String name;
-	private int elo;
+	private float elo;
 
 	public Player (){}
-	public Player(String idFs, String name, int elo) {
+	public Player(String idFs, String name, float elo) {
 		this.idFs = idFs;
 		this.name = name;
 		this.elo = elo;
@@ -32,15 +32,15 @@ public class Player extends BaseEntity {
 		this.name = name;
 	}
 
-	public int getElo(){
+	public float getElo(){
 		return elo;
 	}
 
-	public void setElo(int elo){
+	public void setElo(float elo){
 		this.elo = elo;
 	}
 
 	public int compareElo(Player player){
-		return Integer.compare(this.elo, player.elo);
+		return Float.compare(this.elo, player.elo);
 	}
 }

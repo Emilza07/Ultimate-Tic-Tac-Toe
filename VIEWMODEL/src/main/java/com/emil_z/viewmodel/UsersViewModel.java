@@ -22,6 +22,7 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 		repository = new UsersRepository(application);
 		return repository;
 	}
+
 	public void logIn(String Username, String password) {
 		repository.getCollection().whereEqualTo("username", Username).whereEqualTo("password", password).get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
