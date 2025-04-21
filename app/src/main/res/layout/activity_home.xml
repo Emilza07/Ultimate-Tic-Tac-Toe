@@ -38,7 +38,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="56dp"
-		android:text="Single Player"
+		android:text="@string/single_player"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/imageButton2" />
@@ -48,7 +48,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="52dp"
-		android:text="Local Multiplayer"
+		android:text="@string/local_multiplayer"
 		app:layout_constraintEnd_toEndOf="@+id/button6"
 		app:layout_constraintStart_toStartOf="@+id/button6"
 		app:layout_constraintTop_toBottomOf="@+id/button6" />
@@ -58,7 +58,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="52dp"
-		android:text="Online Game"
+		android:text="@string/online_game"
 		app:layout_constraintEnd_toEndOf="@+id/btnLocal"
 		app:layout_constraintStart_toStartOf="@+id/btnLocal"
 		app:layout_constraintTop_toBottomOf="@+id/btnLocal" />

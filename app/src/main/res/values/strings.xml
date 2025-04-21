@@ -1,7 +1,20 @@
 <resources>
-	<string name="app_name">ultimate_tic_tac_toe</string>
-	<string name="EXTRA_GAME_TYPE">com.emil_z.GAME_TYPE</string>
+	<string name="app_name">Ultimate Tic Tac Toe</string>
+	<string name="sign_in">Sign In</string>
+	<string name="username">Username</string>
+	<string name="password">Password</string>
+	<string name="back">Back</string>
+	<string name="abort_search">Abort search</string>
+	<string name="player_x_turn">Player X turn</string>
+	<string name="single_player">Single Player</string>
+	<string name="local_multiplayer">Local Multiplayer</string>
+	<string name="online_game">Online Game</string>
+	<string name="ultimate_tic_tac_toe_online">Ultimate Tic Tac Toe Online</string>
+	<string name="register">Register</string>
+	<string name="confirm_password">Confirm Password</string>
+	<string name="by_emil_zalessky">by Emil Zalessky</string>
 
+	<string name="EXTRA_GAME_TYPE">com.emil_z.GAME_TYPE</string>
 	<string-array name="error_codes">
 		<item>OK</item>
 		<item>Not your turn</item>

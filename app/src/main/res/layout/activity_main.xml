@@ -13,7 +13,7 @@
         android:layout_height="90dp"
         android:layout_marginTop="76dp"
         android:gravity="center"
-        android:text="Ultimate Tic Tac Toe Online"
+        android:text="@string/ultimate_tic_tac_toe_online"
         android:textSize="33sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.461"
@@ -26,7 +26,7 @@
         android:layout_height="85dp"
         android:layout_marginStart="36dp"
         android:layout_marginTop="476dp"
-        android:text="Sign In"
+        android:text="@string/sign_in"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,7 +35,7 @@
         android:layout_width="150dp"
         android:layout_height="85dp"
         android:layout_marginEnd="36dp"
-        android:text="Register"
+        android:text="@string/register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnLogin" />
 
@@ -54,7 +54,7 @@
         android:id="@+id/tvCreator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="by Emil Zalessky"
+        android:text="@string/by_emil_zalessky"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="@+id/tvTitle"
         app:layout_constraintStart_toStartOf="@+id/tvTitle"
