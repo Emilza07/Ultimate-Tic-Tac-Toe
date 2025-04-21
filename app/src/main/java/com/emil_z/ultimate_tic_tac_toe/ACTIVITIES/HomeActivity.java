@@ -5,6 +5,11 @@ import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -12,11 +17,14 @@ import androidx.core.view.WindowInsetsCompat;
 import com.emil_z.model.GameType;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
+import com.emil_z.viewmodel.UsersViewModel;
 
 public class HomeActivity extends BaseActivity {
 	private Button btnLocal;
 	private Button btnOnline;
 
+	private UsersViewModel viewModel;
+	private ActivityResultLauncher<Intent> launcher;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -31,9 +39,20 @@ public class HomeActivity extends BaseActivity {
 		});
 
 		setBottomNavigationVisibility(true);
-
 		initializeViews();
 		setListeners();
+		setViewModel();
+		launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+						new ActivityResultCallback<ActivityResult>() {
+							@Override
+							public void onActivityResult(ActivityResult o) {
+								GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
+								if (o.getResultCode() == RESULT_OK && gameType == GameType.Online) {
+									viewModel.get(currentUser.getIdFs());
+								}
+							}
+						}
+				);
 	}
 
 	@Override
@@ -45,17 +64,26 @@ public class HomeActivity extends BaseActivity {
 	@Override
 	protected void setListeners() {
 		btnLocal.setOnClickListener(v -> {
-			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
-			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), GameType.LOCAL);
-			startActivity(intent);
+			startGameActivity(GameType.LOCAL);
 		});
 		btnOnline.setOnClickListener(v -> {
-			Intent intent = new Intent(HomeActivity.this, GameActivity.class);
-			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), GameType.Online);
-			startActivity(intent);
+			startGameActivity(GameType.Online);
 		});
 	}
+	private void startGameActivity(GameType gameType) {
 
+
+		Intent intent = new Intent(HomeActivity.this, GameActivity.class);
+		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+		launcher.launch(intent);
+	}
 	@Override
-	protected void setViewModel() {}
+	protected void setViewModel() {
+		viewModel = new UsersViewModel(getApplication());
+		viewModel.getLiveDataEntity().observe(this, user -> {
+			if (user != null) {
+				currentUser = user;
+			}
+		});
+	}
 }

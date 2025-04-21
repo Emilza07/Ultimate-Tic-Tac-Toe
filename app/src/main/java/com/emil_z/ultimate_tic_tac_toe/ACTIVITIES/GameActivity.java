@@ -42,8 +42,11 @@ public class GameActivity extends BaseActivity {
 	private Button btnAbort;
 	private TextView tvP1Name;
 	private TextView tvP1Elo;
+	private TextView tvP1Sign;
 	private TextView tvP2Name;
 	private TextView tvP2Elo;
+	private TextView tvP2Sign;
+	private TextView tvCurrentPlayer;
 
 	private GamesViewModel viewModel;
 	GameType gameType;
@@ -70,14 +73,17 @@ public class GameActivity extends BaseActivity {
 		errorCodes = getResources().getStringArray(R.array.error_codes);
 		Intent intent = getIntent();
 		gameType = (GameType) intent.getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
+		tvCurrentPlayer = findViewById(R.id.tvCurrentPlayer);
 
 		clLoading = findViewById(R.id.clLoading);
 		btnAbort = findViewById(R.id.btnAbort);
 
 		tvP1Name = findViewById(R.id.tvP1Name);
 		tvP1Elo = findViewById(R.id.tvP1Elo);
+		tvP1Sign = findViewById(R.id.tvP1Sign);
 		tvP2Name = findViewById(R.id.tvP2Name);
 		tvP2Elo = findViewById(R.id.tvP2Elo);
+		tvP2Sign = findViewById(R.id.tvP2Sign);
 
 		createBoard();
 	}
@@ -88,6 +94,8 @@ public class GameActivity extends BaseActivity {
 				viewModel.removeGame();
 				Toast.makeText(this, "Online game aborted", Toast.LENGTH_SHORT).show();
 			}
+			Intent intent = new Intent();
+			setResult(RESULT_CANCELED, intent);
 			finish();
 		});
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -106,6 +114,14 @@ public class GameActivity extends BaseActivity {
 							if (gameType == GameType.Online) {
 								viewModel.removeGame();
 							}
+							Intent intent = new Intent();
+							if (viewModel.getLvGame().getValue().isStarted())
+							{
+								intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+								setResult(RESULT_OK, intent);
+							}
+							else
+								setResult(RESULT_CANCELED, intent);
 							finish();
 						}),
 						null,
@@ -125,7 +141,10 @@ public class GameActivity extends BaseActivity {
 			public void onChanged(Integer code) {
 				if (code != null) {
 					if(code == 0)
+					{
 						btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
+						tvCurrentPlayer.setText("Current Player: " + (viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? "X" : "O"));
+					}
 					else
 						Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
 					viewModel.resetLvCode();
@@ -152,8 +171,21 @@ public class GameActivity extends BaseActivity {
 		});
 
 		viewModel.getLvGame().observe(this, game -> {
-			if (game == null)
+			if (game == null){
+				Intent intent = new Intent();
+				setResult(RESULT_CANCELED, intent);
 				finish();
+			}
+			else if (!game.getMoves().isEmpty()) { //Remote player made a move
+				int innerGridIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
+				int btnIndex = game.getMoves().get(game.getMoves().size() - 1).getInner().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getInner().y;
+				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
+				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
+				btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
+				tvCurrentPlayer.setText("Current Player: " + (viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? "X" : "O"));
+
+
+			}
 		});
 
 		viewModel.getLvOuterBoardWinners().observe(this, new Observer<char[][]>() {
@@ -173,6 +205,7 @@ public class GameActivity extends BaseActivity {
 
 		viewModel.getLvIsFinished().observe(this, new Observer<Boolean>() {
 			@Override
+
 			public void onChanged(Boolean aBoolean) {
 				AlertUtil.alert(GameActivity.this,
 						"Game Over",
@@ -182,7 +215,12 @@ public class GameActivity extends BaseActivity {
 						"Return",
 						null,
 						null,
-						() -> finish(),
+						(() -> {
+							Intent intent = new Intent();
+							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+							setResult(RESULT_OK, intent);
+							finish();
+						}),
 						null,
 						null);
 			}
@@ -195,6 +233,7 @@ public class GameActivity extends BaseActivity {
 					// Game started
 					Toast.makeText(GameActivity.this, "Game started", Toast.LENGTH_SHORT).show();
 					clLoading.setVisibility(View.GONE);
+					tvCurrentPlayer.setVisibility(View.VISIBLE);
 					gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
 					setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
 				}
@@ -229,25 +268,33 @@ public class GameActivity extends BaseActivity {
 			// For local games, display as is
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
+			tvP1Sign.setText("X");
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
+			tvP2Sign.setText("O");
 		} else {
 			// For online games
 			if(!viewModel.getLvIsStarted().getValue())
 			{
 				tvP1Name.setText(currentUser.getName());
-				tvP1Elo.setText("(" + currentUser.getElo() + ")");
+				tvP1Elo.setText("(" + Math.round(currentUser.getElo()) + ")");
+				tvP1Sign.setText("");
 				tvP2Name.setText( "Waiting for opponent...");
 				tvP2Elo.setText("");
+				tvP2Sign.setText("");
 			}
 			else {
 				boolean isHost = Objects.equals(viewModel.getLvGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 				if (isHost) {
 					tvP2Name.setText(p2.getName());
-					tvP2Elo.setText("(" + p2.getElo() + ")");
+					tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
+					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
+					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
 				} else {
 					tvP2Name.setText(p1.getName());
-					tvP2Elo.setText("(" + p1.getElo() + ")");
+					tvP2Elo.setText("(" + Math.round(p1.getElo()) + ")");
+					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
 				}
 			}
 		}

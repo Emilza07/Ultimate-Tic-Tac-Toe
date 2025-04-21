@@ -43,7 +43,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			android:gravity="right"
-			android:text="{PLAYER_TWO_NAME}:"
+			android:text="{PLAYER_2_NAME}:"
 			android:textSize="20sp" />
 
 		<Space
@@ -58,6 +58,19 @@
 			android:layout_weight="0"
 			android:text="{PLAYER_2_ELO}"
 			android:textSize="20sp" />
+
+		<Space
+			android:layout_width="10dp"
+			android:layout_height="match_parent"
+			android:layout_weight="0" />
+
+		<TextView
+			android:id="@+id/tvP2Sign"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="0"
+			android:text="{SIGN}"
+			android:textSize="20sp" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -71,7 +84,7 @@
 
 		<Space
 			android:layout_width="20dp"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
 		<TextView
@@ -80,7 +93,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			android:gravity="right"
-			android:text="{PLAYER_ONE_NAME}:"
+			android:text="{PLAYER_1_NAME}:"
 			android:textSize="20sp" />
 
 		<Space
@@ -93,7 +106,20 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:text="{PLAYER_ONE_ELO}"
+			android:text="{PLAYER_1_ELO}"
+			android:textSize="20sp" />
+
+		<Space
+			android:layout_width="10dp"
+			android:layout_height="match_parent"
+			android:layout_weight="0" />
+
+		<TextView
+			android:id="@+id/tvP1Sign"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="0"
+			android:text="{SIGN}"
 			android:textSize="20sp" />
 	</LinearLayout>
 
@@ -118,5 +144,17 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 	</androidx.constraintlayout.widget.ConstraintLayout>
+
+	<TextView
+		android:id="@+id/tvCurrentPlayer"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="100dp"
+		android:text="Player X turn"
+		android:textSize="34sp"
+		android:visibility="invisible"
+		app:layout_constraintBottom_toTopOf="@+id/gridBoard"
+		app:layout_constraintEnd_toEndOf="@+id/gridBoard"
+		app:layout_constraintStart_toStartOf="@+id/gridBoard" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
