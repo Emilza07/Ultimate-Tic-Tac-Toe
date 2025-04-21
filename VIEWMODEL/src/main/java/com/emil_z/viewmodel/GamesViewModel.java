@@ -13,6 +13,7 @@ import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 
+import com.emil_z.model.OnlineGame;
 import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.emil_z.repository.GamesRepository;
@@ -136,6 +137,8 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 			@Override
 			public void onSuccess(Boolean aBoolean) {
 				lvCode.setValue(0);
+				if(lvGame.getValue() instanceof OnlineGame)
+					repository.update(lvGame.getValue());
 			}
 		}).addOnFailureListener(new OnFailureListener() {
 			@Override

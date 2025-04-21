@@ -1,6 +1,7 @@
 package com.emil_z.repository;
 
 import android.app.Application;
+import android.graphics.Point;
 import android.util.Log;
 
 
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -117,15 +119,15 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return tcs.getTask();
 	}
 
-	private String getGameIdWithSimilarElo(int userElo, Games games) throws NoSuchElementException {
+	private String getGameIdWithSimilarElo(float userElo, Games games) throws NoSuchElementException {
 		final int eloRange = 100;
 		ListIterator<Game> iGames = games.listIterator();
 
 		Game closestGame = iGames.next();
-		int closestElo = Math.abs(closestGame.getPlayer1().getElo() - userElo);
+		float closestElo = Math.abs(closestGame.getPlayer1().getElo() - userElo);
 		while (iGames.hasNext()) {
 			Game currentGame = iGames.next();
-			int currentElo = Math.abs(currentGame.getPlayer1().getElo() - userElo);
+			float currentElo = Math.abs(currentGame.getPlayer1().getElo() - userElo);
 			if (currentElo <= closestElo) {
 				closestGame = currentGame;
 				closestElo = currentElo;
@@ -224,7 +226,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			boolean isLocal = snapshot != null && snapshot.getMetadata().hasPendingWrites();
 			if(!isLocal){
 				if (snapshot != null && snapshot.exists()) {
-					if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
+					if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(Objects.requireNonNull(lvGame.getValue()).getPlayer1().getIdFs(), localPlayerIdFs)) {
 						//the joiner joined the game
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						startOnlineGame();
@@ -235,8 +237,19 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 						((OnlineGame)(lvGame.getValue())).startGameForJoiner();
 						lvIsStarted.setValue(true);
 					}
-					else {
+					else if (snapshot.getBoolean("finished") == true && snapshot.get("winner") != null)
+					{
+						lvGame.getValue().setFinished(true);
+						lvGame.getValue().setWinner(snapshot.get("winner").toString());
+						lvIsFinished.setValue(true);
+					}
+					else if (!((List<BoardLocation>) snapshot.get("moves")).isEmpty()){
 						//it's a move and send it to handle a move
+						BoardLocation lastMove = getLastMoveAsBoardLocation(snapshot.get("moves"));
+						lvGame.getValue().makeTurn(lastMove);
+						lvGame.setValue(lvGame.getValue());
+						CheckInnerBoardFinish(lastMove.getOuter());
+						Log.d("qqq",  "move happened");
 					}
 				} else {
 					// The document does not exist (deleted
@@ -246,6 +259,32 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		});
 	}
 
+	private BoardLocation getLastMoveAsBoardLocation(Object firestoreMoves) {
+		if (firestoreMoves instanceof List<?>) {
+			List<?> movesList = (List<?>) firestoreMoves;
+
+			if (!movesList.isEmpty()) {
+				Object lastMove = movesList.get(movesList.size() - 1);
+
+				if (lastMove instanceof Map) {
+					Map<String, Object> moveMap = (Map<String, Object>) lastMove;
+
+					// Get outer coordinates
+					Map<String, Object> outerMap = (Map<String, Object>) moveMap.get("outer");
+					int outerX = ((Number) outerMap.get("x")).intValue();
+					int outerY = ((Number) outerMap.get("y")).intValue();
+
+					// Get inner coordinates
+					Map<String, Object> innerMap = (Map<String, Object>) moveMap.get("inner");
+					int innerX = ((Number) innerMap.get("x")).intValue();
+					int innerY = ((Number) innerMap.get("y")).intValue();
+
+					return new BoardLocation(outerX, outerY, innerX, innerY);
+				}
+			}
+		}
+		return null;
+	}
 	public Task<Boolean> deleteOnlineGame(){
 		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
 		if(lvGame.getValue() == null) {
@@ -281,26 +320,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		if(Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			if(lvGame.getValue().isLegal(location)) {
 				lvGame.getValue().makeTurn(location);
-				if(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).isFinished()){			//check if the inner board is finished
-					if(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).getWinner() != 0){	//check if the inner board isn't a tie
-						char[][] tmp = new char[3][3];
-						for (int i = 0; i < 3; i++) {
-							for (int j = 0; j < 3; j++) {
-								tmp[i][j] = lvOuterBoardWinners.getValue()[i][j];
-							}
-						}
-						tmp[location.getOuter().x][location.getOuter().y] = lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).getWinner();
-						lvOuterBoardWinners.setValue(tmp);
-					}
-					else {
-						lvOuterBoardWinners.getValue()[location.getOuter().x][location.getOuter().y] = 'T';
-					}
-					if(lvGame.getValue().getOuterBoard().isGameOver()){
-						lvGame.getValue().setWinner(lvGame.getValue().getOuterBoard().getBoard(location.getOuter()).getWinner() == 'X' ? "X" : "O");
-						lvGame.getValue().setFinished(true);
-						lvIsFinished.setValue(true);
-					}
-				}
+				CheckInnerBoardFinish(location.getOuter());
 				taskMakeMove.setResult(true);
 			}
 			else taskMakeMove.setException(new Exception("2"));
@@ -309,6 +329,63 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return taskMakeMove.getTask();
 	}
 
+	private void CheckInnerBoardFinish(Point innerBoard) {
+		if(lvGame.getValue().getOuterBoard().getBoard(innerBoard).isFinished()){			//check if the inner board is finished
+			if(lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() != 0){	//check if the inner board isn't a tie
+				char[][] tmp = new char[3][3];
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						tmp[i][j] = lvOuterBoardWinners.getValue()[i][j];
+					}
+				}
+				tmp[innerBoard.x][innerBoard.y] = lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner();
+				lvOuterBoardWinners.setValue(tmp);
+			}
+			else {
+				lvOuterBoardWinners.getValue()[innerBoard.x][innerBoard.y] = 'T';
+			}
+			if(lvGame.getValue().getOuterBoard().isGameOver()){
+				lvGame.getValue().setWinner(lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() == 'X' ? "X" : "O");
+				lvGame.getValue().setFinished(true);
+				if(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
+					finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
+						@Override
+						public void onSuccess(Boolean aBoolean) {
+							lvIsFinished.setValue(true);
+							Log.d("qqq", "game finished");
+						}
+					}).addOnFailureListener(new OnFailureListener() {
+						@Override
+						public void onFailure(@NonNull Exception e) {
+							Log.d("qqq", "game not finished");
+						}
+					});
+				}
+				else {
+					lvIsFinished.setValue(true);
+				}
+			}
+
+		}
+	}
+	private Task<Boolean> finishGame(String player1IdFs, String player2IdFs) {
+		Map<String, Object> data = new HashMap<>();
+		data.put("player_1_id", player1IdFs);
+		data.put("player_2_id", player2IdFs);
+		data.put("score", lvGame.getValue().getWinner() == null ? 0.5 :
+				(lvGame.getValue().getWinner().equals(player1IdFs) ? 1.0 : 0.0));
+		return function
+				.getHttpsCallable("finish_game")
+				.call(data).continueWith(task -> {
+					if (task.isSuccessful()) {
+						return true;
+					} else if (task.getException() instanceof FirebaseFunctionsException) {
+						if (((FirebaseFunctionsException) task.getException()).getCode() == FirebaseFunctionsException.Code.ABORTED)
+							throw new FirebaseTooManyRequestsException("");
+					}
+					throw task.getException();
+				});
+	}
 	public Task<OnlineGame> getOnlineGame(String idFs) {
 		TaskCompletionSource<OnlineGame> taskMember = new TaskCompletionSource<>();
 
