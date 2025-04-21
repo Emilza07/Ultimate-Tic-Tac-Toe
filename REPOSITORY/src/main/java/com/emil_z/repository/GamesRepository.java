@@ -224,32 +224,29 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			}
 
 			boolean isLocal = snapshot != null && snapshot.getMetadata().hasPendingWrites();
-			if(!isLocal){
+			if (!isLocal) {
 				if (snapshot != null && snapshot.exists()) {
-					if(!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(Objects.requireNonNull(lvGame.getValue()).getPlayer1().getIdFs(), localPlayerIdFs)) {
+					if (!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(snapshot.toObject(OnlineGame.class).getPlayer1().getIdFs(), localPlayerIdFs)) {
 						//the joiner joined the game
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						startOnlineGame();
-					} else if((Boolean) snapshot.get("started") && ((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
+					} else if ((Boolean) snapshot.get("started") && ((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
 						//the Host started the game
 						//the joiner get it, the host ignores it
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
-						((OnlineGame)(lvGame.getValue())).startGameForJoiner();
+						((OnlineGame) (lvGame.getValue())).startGameForJoiner();
 						lvIsStarted.setValue(true);
-					}
-					else if (snapshot.getBoolean("finished") == true && snapshot.get("winner") != null)
-					{
+					} else if (snapshot.getBoolean("finished") == true && snapshot.get("winner") != null) {
 						lvGame.getValue().setFinished(true);
 						lvGame.getValue().setWinner(snapshot.get("winner").toString());
 						lvIsFinished.setValue(true);
-					}
-					else if (!((List<BoardLocation>) snapshot.get("moves")).isEmpty()){
+					} else if (!((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
 						//it's a move and send it to handle a move
 						BoardLocation lastMove = getLastMoveAsBoardLocation(snapshot.get("moves"));
 						lvGame.getValue().makeTurn(lastMove);
 						lvGame.setValue(lvGame.getValue());
 						CheckInnerBoardFinish(lastMove.getOuter());
-						Log.d("qqq",  "move happened");
+						Log.d("qqq", "move happened");
 					}
 				} else {
 					// The document does not exist (deleted

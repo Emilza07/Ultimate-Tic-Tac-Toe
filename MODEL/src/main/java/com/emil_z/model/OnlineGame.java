@@ -28,7 +28,7 @@ public class OnlineGame extends Game{
 		}
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
-			winner = currentPlayerIdFs == player2.getIdFs() ? player1.getIdFs() : player2.getIdFs();
+			winner = Objects.equals(currentPlayerIdFs, player2.getIdFs()) ? player1.getIdFs() : player2.getIdFs();
 		}
 	}
 }
