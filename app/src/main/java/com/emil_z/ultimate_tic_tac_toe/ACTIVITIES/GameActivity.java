@@ -207,22 +207,50 @@ public class GameActivity extends BaseActivity {
 			@Override
 
 			public void onChanged(Boolean aBoolean) {
-				AlertUtil.alert(GameActivity.this,
-						"Game Over",
-						 "Player " + viewModel.getLvGame().getValue().getWinner() + " wins!",
-						false,
-						0,
-						"Return",
-						null,
-						null,
-						(() -> {
-							Intent intent = new Intent();
-							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-							setResult(RESULT_OK, intent);
-							finish();
-						}),
-						null,
-						null);
+				String winner;
+				switch (gameType) {
+					case CPU:
+						break;
+					case LOCAL:
+						winner = viewModel.getLvGame().getValue().getWinner();
+						AlertUtil.alert(GameActivity.this,
+								"Game Over",
+								"Player " + winner + " wins!",
+								false,
+								0,
+								"Return",
+								null,
+								null,
+								(() -> {
+									Intent intent = new Intent();
+									intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+									setResult(RESULT_OK, intent);
+									finish();
+								}),
+								null,
+								null);
+						break;
+					case Online:
+						winner = Objects.equals(viewModel.getLvGame().getValue().getWinner(), viewModel.getLvGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
+						AlertUtil.alert(GameActivity.this,
+								"Game Over",
+								"Player " + winner + " wins!",
+								false,
+								0,
+								"Return",
+								null,
+								null,
+								(() -> {
+									Intent intent = new Intent();
+									intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+									setResult(RESULT_OK, intent);
+									finish();
+								}),
+								null,
+								null);
+						break;
+				}
+
 			}
 		});
 

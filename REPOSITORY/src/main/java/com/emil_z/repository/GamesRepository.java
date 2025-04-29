@@ -287,7 +287,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		if(lvGame.getValue() == null) {
 			taskAbortGame.setResult(true);
 		}
-		else if (lvGame.getValue().getMoves().isEmpty()) {
+		else if (lvGame.getValue().getMoves().isEmpty()) { //if game hasn't start yet (game is aborted and it's a tie)
 			delete(lvGame.getValue()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
 				@Override
 				public void onSuccess(Boolean aBoolean) {
@@ -342,7 +342,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 				lvOuterBoardWinners.getValue()[innerBoard.x][innerBoard.y] = 'T';
 			}
 			if(lvGame.getValue().getOuterBoard().isGameOver()){
-				lvGame.getValue().setWinner(lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() == 'X' ? "X" : "O");
+				//lvGame.getValue().setWinner(lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() == 'X' ? "X" : "O");
 				lvGame.getValue().setFinished(true);
 				if(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
 					finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
