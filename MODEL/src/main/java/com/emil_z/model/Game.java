@@ -17,6 +17,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 	protected Player player1;
 	protected Player player2;
 	protected String currentPlayerIdFs;
+	protected String crossPlayerIdFs;
 
 	public Game() {
 		this.isStarted = false;
@@ -102,6 +103,14 @@ public abstract class Game extends BaseEntity implements Serializable {
 
 	public void setCurrentPlayerIdFs(String currentPlayerIdFs) {
 		this.currentPlayerIdFs = currentPlayerIdFs;
+	}
+
+	public String getCrossPlayerIdFs() {
+		return crossPlayerIdFs;
+	}
+
+	public void setCrossPlayerIdFs(String crossPlayerIdFs) {
+		this.crossPlayerIdFs = crossPlayerIdFs;
 	}
 	//endregion
 
