@@ -20,6 +20,7 @@ import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
 public class HomeActivity extends BaseActivity {
+	private Button btnCPU;
 	private Button btnLocal;
 	private Button btnOnline;
 
@@ -57,12 +58,16 @@ public class HomeActivity extends BaseActivity {
 
 	@Override
 	protected void initializeViews() {
+		btnCPU = findViewById(R.id.btnCpu);
 		btnLocal = findViewById(R.id.btnLocal);
 		btnOnline = findViewById(R.id.btnOnline);
 	}
 
 	@Override
 	protected void setListeners() {
+		btnCPU.setOnClickListener(v -> {
+			startGameActivity(GameType.CPU);
+		});
 		btnLocal.setOnClickListener(v -> {
 			startGameActivity(GameType.LOCAL);
 		});

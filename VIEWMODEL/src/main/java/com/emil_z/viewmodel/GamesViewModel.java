@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.emil_z.model.BoardLocation;
+import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 
@@ -68,7 +69,11 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return lvIsStarted;
 	}
 
-	//region start gaFme
+	//region start game
+	public void startCpuGame(){
+		repository.startCpuGame();
+	}
+
 	public void startLocalGame(){
 		repository.startLocalGame();
 	}
@@ -139,6 +144,10 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 				lvCode.setValue(0);
 				if(lvGame.getValue() instanceof OnlineGame)
 					repository.update(lvGame.getValue());
+				else if (lvGame.getValue() instanceof CpuGame)
+				{
+					//TODO: make move for cpu
+				}
 			}
 		}).addOnFailureListener(new OnFailureListener() {
 			@Override

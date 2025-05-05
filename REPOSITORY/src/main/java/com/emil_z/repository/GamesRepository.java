@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.emil_z.helper.PreferenceManager;
 import com.emil_z.model.BoardLocation;
+import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 import com.emil_z.model.LocalGame;
@@ -77,6 +78,12 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 	}
 
 	//region start game
+
+	public void startCpuGame() {
+		lvGame.setValue(new CpuGame(localPlayerIdFs));
+		lvIsStarted.setValue(true);
+	}
+
 	public void startLocalGame() {
 		lvGame.setValue(new LocalGame(localPlayerIdFs));
 		lvIsStarted.setValue(true);
@@ -282,6 +289,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 		return null;
 	}
+
 	public Task<Boolean> deleteOnlineGame(){
 		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
 		if(lvGame.getValue() == null) {

@@ -274,6 +274,7 @@ public class GameActivity extends BaseActivity {
 		switch (gameType) {
 			case CPU:
 				// Initialize SP game
+				viewModel.startCpuGame();
 				break;
 			case LOCAL:
 				// Initialize local game
