@@ -311,7 +311,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 		else {
 			lvGame.getValue().setFinished(true);
-			lvGame.getValue().setWinner(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs) ?
+			lvGame.getValue().setWinnerIdFs(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs) ?
 					lvGame.getValue().getPlayer2().getIdFs():
 					lvGame.getValue().getPlayer1().getIdFs());
 			update(lvGame.getValue());
@@ -377,8 +377,8 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		Map<String, Object> data = new HashMap<>();
 		data.put("player_1_id", player1IdFs);
 		data.put("player_2_id", player2IdFs);
-		data.put("score", lvGame.getValue().getWinner() == null ? 0.5 :
-				(lvGame.getValue().getWinner().equals(player1IdFs) ? 1.0 : 0.0));
+		data.put("score", lvGame.getValue().getWinnerIdFs() == null ? 0.5 :
+				(lvGame.getValue().getWinnerIdFs().equals(player1IdFs) ? 1.0 : 0.0));
 		return function
 				.getHttpsCallable("finish_game")
 				.call(data).continueWith(task -> {

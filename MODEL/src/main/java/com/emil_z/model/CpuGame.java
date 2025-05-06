@@ -23,7 +23,7 @@ public class CpuGame extends Game{
 		}
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
-			winner = String.valueOf(outerBoard.getWinner());
+			winnerIdFs = String.valueOf(outerBoard.getWinner());
 		}
 	}
 }

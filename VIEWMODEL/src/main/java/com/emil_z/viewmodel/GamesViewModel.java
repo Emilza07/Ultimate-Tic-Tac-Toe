@@ -125,7 +125,6 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		repository.deleteOnlineGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
 				@Override
 				public void onSuccess(Boolean aBoolean) {
-					lvGame.setValue(null);
 					lvSuccess.setValue(true);
 				}
 		}).addOnFailureListener(new OnFailureListener() {

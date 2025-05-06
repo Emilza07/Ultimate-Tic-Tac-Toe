@@ -212,7 +212,7 @@ public class GameActivity extends BaseActivity {
 					case CPU:
 						break;
 					case LOCAL:
-						winner = viewModel.getLvGame().getValue().getWinner();
+						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
 						AlertUtil.alert(GameActivity.this,
 								"Game Over",
 								"Player " + winner + " wins!",
@@ -231,7 +231,7 @@ public class GameActivity extends BaseActivity {
 								null);
 						break;
 					case Online:
-						winner = Objects.equals(viewModel.getLvGame().getValue().getWinner(), viewModel.getLvGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
+						winner = Objects.equals(viewModel.getLvGame().getValue().getWinnerIdFs(), viewModel.getLvGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
 						AlertUtil.alert(GameActivity.this,
 								"Game Over",
 								"Player " + winner + " wins!",

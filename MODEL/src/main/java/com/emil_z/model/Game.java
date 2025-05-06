@@ -10,7 +10,7 @@ import java.util.List;
 public abstract class Game extends BaseEntity implements Serializable {
 	protected boolean isStarted;
 	protected boolean isFinished;
-	protected String winner;
+	protected String winnerIdFs;
 	protected List<BoardLocation> moves;
 	@Exclude
 	protected OuterBoard outerBoard;
@@ -22,7 +22,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 	public Game() {
 		this.isStarted = false;
 		this.isFinished = false;
-		this.winner = null;
+		this.winnerIdFs = null;
 		this.moves = new ArrayList<>();
 		this.outerBoard = new OuterBoard();
 		this.player1 = new Player();
@@ -31,7 +31,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 	public Game(Game game){
 		this.isStarted = game.isStarted;
 		this.isFinished = game.isFinished;
-		this.winner = game.winner;
+		this.winnerIdFs = game.winnerIdFs;
 		this.moves = new ArrayList<>(game.moves);
 		this.outerBoard = new OuterBoard();
 		this.player1 = new Player(game.player1);
@@ -56,12 +56,12 @@ public abstract class Game extends BaseEntity implements Serializable {
 		isFinished = finished;
 	}
 
-	public String getWinner() {
-		return winner;
+	public String getWinnerIdFs() {
+		return winnerIdFs;
 	}
 
-	public void setWinner(String winner) {
-		this.winner = winner;
+	public void setWinnerIdFs(String winnerIdFs) {
+		this.winnerIdFs = winnerIdFs;
 	}
 
 	public List<BoardLocation> getMoves() {

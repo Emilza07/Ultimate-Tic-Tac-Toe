@@ -15,7 +15,7 @@ public class LocalGame extends Game{
 		super.makeTurn(location);
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
-			winner = String.valueOf(outerBoard.getWinner());
+			winnerIdFs = String.valueOf(outerBoard.getWinner());
 		}
 	}
 }
