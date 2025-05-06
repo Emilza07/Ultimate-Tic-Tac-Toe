@@ -11,6 +11,7 @@ public class BoardLocation {
 		this.inner = inner;
 	}
 
+	public BoardLocation (){}
 	public BoardLocation(int oRow, int oCol, int iRow, int iCol) {
 		{
 			this.outer = new Point(oRow, oCol);
@@ -33,5 +34,16 @@ public class BoardLocation {
 
 	public void setInner(Point inner) {
 		this.inner = inner;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof BoardLocation)) return false;
+
+		BoardLocation that = (BoardLocation) o;
+
+		if (!outer.equals(that.outer)) return false;
+		return inner.equals(that.inner);
 	}
 }

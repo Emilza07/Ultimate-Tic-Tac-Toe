@@ -69,6 +69,9 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return lvIsStarted;
 	}
 
+	public void getUserGames(String userId) {
+		lvCollection = repository.getUserGames(userId);
+	}
 	//region start game
 	public void startCpuGame(){
 		repository.startCpuGame();

@@ -8,7 +8,7 @@
 	tools:context=".ACTIVITIES.HomeActivity">
 
 	<ImageButton
-		android:id="@+id/imageButton"
+		android:id="@+id/iBtnProfile"
 		android:layout_width="100dp"
 		android:layout_height="100dp"
 		app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +20,7 @@
 		android:layout_width="100dp"
 		android:layout_height="100dp"
 		android:scaleType="fitXY"
-		app:layout_constraintStart_toEndOf="@+id/imageButton"
+		app:layout_constraintStart_toEndOf="@+id/iBtnProfile"
 		app:layout_constraintTop_toTopOf="parent"
 		app:srcCompat="@drawable/top_players" />
 

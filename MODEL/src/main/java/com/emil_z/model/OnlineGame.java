@@ -1,8 +1,11 @@
 package com.emil_z.model;
 
+import com.google.firebase.Timestamp;
+
 import java.util.Objects;
 
 public class OnlineGame extends Game{
+	private Timestamp startedAt;
 	public OnlineGame(){
 		super();
 	}
@@ -13,6 +16,14 @@ public class OnlineGame extends Game{
 	}
 
 	public OnlineGame(Game game) {
+	}
+
+	public Timestamp getStartedAt() {
+		return startedAt;
+	}
+
+	public void setStartedAt(Timestamp startedAt) {
+		this.startedAt = startedAt;
 	}
 
 	public void startGameForJoiner() {

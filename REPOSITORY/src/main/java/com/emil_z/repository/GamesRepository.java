@@ -26,7 +26,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.functions.FirebaseFunctionsException;
@@ -75,6 +77,54 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public LiveData<Boolean> getLvIsStarted() {
 		return lvIsStarted;
+	}
+
+	public LiveData<Games> getUserGames(String userId) {
+		MutableLiveData<Games> result = new MutableLiveData<>();
+
+		// Create a query for games where the user is player1
+		Query player1Query = getCollection()
+				.whereEqualTo("player1.idFs", userId);
+
+		player1Query.get().addOnSuccessListener(queryDocuments -> {
+			Games games = new Games();
+
+			// Add all games where user is player1
+			for (QueryDocumentSnapshot document : queryDocuments) {
+				games.add(document.toObject(OnlineGame.class));
+			}
+
+			// Now query for games where user is player2
+			getCollection()
+					.whereEqualTo("player2.idFs", userId)
+					.get()
+					.addOnSuccessListener(player2Docs -> {
+						// Add all games where user is player2
+						for (QueryDocumentSnapshot document : player2Docs) {
+							games.add(document.toObject(OnlineGame.class));
+						}
+
+						// Sort games by timestamp (newest first)
+						games.sort((g1, g2) -> {
+							Timestamp t1 = ((OnlineGame)g1).getStartedAt();
+							Timestamp t2 = ((OnlineGame)g2).getStartedAt();
+							return t2.compareTo(t1);
+						});
+
+						// Set the result with all games
+						result.setValue(games);
+					})
+					.addOnFailureListener(e -> {
+						Log.e("GamesRepository", "Error getting player2 games: " + e.getMessage());
+						// Either return nothing or set error state
+						result.setValue(new Games()); // OR handle as complete failure
+					});
+		}).addOnFailureListener(e -> {
+			Log.e("GamesRepository", "Error getting player1 games: " + e.getMessage());
+			result.setValue(new Games());
+		});
+
+		return result;
 	}
 
 	//region start game
@@ -170,7 +220,21 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 	public void startOnlineGame() {
 		lvGame.getValue().setStarted(true);
-		update(lvGame.getValue());
+		getCollection().document(lvGame.getValue().getIdFs())
+				.update(
+						"started", true,
+						"startedAt", FieldValue.serverTimestamp()
+				).addOnSuccessListener(voidTask -> {
+					// Fetch the updated document with the actual server timestamp
+
+					getCollection().document(lvGame.getValue().getIdFs()).get()
+							.addOnSuccessListener(documentSnapshot -> {
+								if (documentSnapshot.exists()) {
+									Timestamp serverTimestamp = documentSnapshot.getTimestamp("startedAt");
+									((OnlineGame) lvGame.getValue()).setStartedAt(serverTimestamp);
+								}
+							});
+				});
 		lvIsStarted.setValue(true);
 	}
 
@@ -254,6 +318,9 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 						lvGame.setValue(lvGame.getValue());
 						CheckInnerBoardFinish(lastMove.getOuter());
 						Log.d("qqq", "move happened");
+					} else if(((OnlineGame) lvGame.getValue()).getStartedAt() == null){
+						Timestamp serverTimestamp = snapshot.getTimestamp("startedAt");
+						((OnlineGame) lvGame.getValue()).setStartedAt(serverTimestamp);
 					}
 				} else {
 					// The document does not exist (deleted
@@ -383,6 +450,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 
 		}
 	}
+
 	private Task<Boolean> finishGame(String player1IdFs, String player2IdFs) {
 		Map<String, Object> data = new HashMap<>();
 		data.put("player_1_id", player1IdFs);
@@ -401,6 +469,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 					throw task.getException();
 				});
 	}
+
 	public Task<OnlineGame> getOnlineGame(String idFs) {
 		TaskCompletionSource<OnlineGame> taskMember = new TaskCompletionSource<>();
 

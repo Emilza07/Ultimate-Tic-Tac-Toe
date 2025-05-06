@@ -3,6 +3,7 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 
@@ -23,6 +24,7 @@ public class HomeActivity extends BaseActivity {
 	private Button btnCPU;
 	private Button btnLocal;
 	private Button btnOnline;
+	private ImageButton iBtnProfile;
 
 	private UsersViewModel viewModel;
 	private ActivityResultLauncher<Intent> launcher;
@@ -61,10 +63,15 @@ public class HomeActivity extends BaseActivity {
 		btnCPU = findViewById(R.id.btnCpu);
 		btnLocal = findViewById(R.id.btnLocal);
 		btnOnline = findViewById(R.id.btnOnline);
+		iBtnProfile = findViewById(R.id.iBtnProfile);
 	}
 
 	@Override
 	protected void setListeners() {
+		iBtnProfile.setOnClickListener(v -> {
+			Intent intent = new Intent(HomeActivity.this, UserActivity.class);
+			startActivity(intent);
+		});
 		btnCPU.setOnClickListener(v -> {
 			startGameActivity(GameType.CPU);
 		});
