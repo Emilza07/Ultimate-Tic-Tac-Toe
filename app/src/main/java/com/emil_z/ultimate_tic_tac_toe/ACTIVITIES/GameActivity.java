@@ -111,18 +111,23 @@ public class GameActivity extends BaseActivity {
 						"No",
 						null,
 						(() -> {
-							if (gameType == GameType.Online) {
+							if (gameType == GameType.Online)
+							{
 								viewModel.removeGame();
 							}
 							Intent intent = new Intent();
-							if (viewModel.getLvGame().getValue().isStarted())
+							if (!viewModel.getLvGame().getValue().getMoves().isEmpty())
 							{
 								intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
 								setResult(RESULT_OK, intent);
 							}
 							else
+							{
 								setResult(RESULT_CANCELED, intent);
-							finish();
+								finish();
+							}
+							if (gameType != GameType.Online)
+								finish();
 						}),
 						null,
 						null
@@ -176,7 +181,7 @@ public class GameActivity extends BaseActivity {
 				setResult(RESULT_CANCELED, intent);
 				finish();
 			}
-			else if (!game.getMoves().isEmpty()) { //Remote player made a move
+			else if (!game.getMoves().isEmpty() && !game.isFinished()) { //Remote player made a move
 				int innerGridIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
 				int btnIndex = game.getMoves().get(game.getMoves().size() - 1).getInner().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getInner().y;
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);

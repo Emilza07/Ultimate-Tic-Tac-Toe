@@ -237,15 +237,15 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 						//the joiner joined the game
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						startOnlineGame();
-					} else if ((Boolean) snapshot.get("started") && ((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
+					} else if ((Boolean) snapshot.get("started") && lvGame.getValue() == null && ((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
 						//the Host started the game
 						//the joiner get it, the host ignores it
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						((OnlineGame) (lvGame.getValue())).startGameForJoiner();
 						lvIsStarted.setValue(true);
-					} else if (snapshot.getBoolean("finished") == true && snapshot.get("winner") != null) {
-						lvGame.getValue().setFinished(true);
-						lvGame.getValue().setWinner(snapshot.get("winner").toString());
+					} else if (snapshot.getBoolean("finished") && getLastMoveAsBoardLocation(snapshot.get("moves")).equals(lvGame.getValue().getMoves().get(lvGame.getValue().getMoves().size() - 1))) {
+						//the opponent resigns
+						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						lvIsFinished.setValue(true);
 					} else if (!((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
 						//it's a move and send it to handle a move
@@ -315,6 +315,16 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 					lvGame.getValue().getPlayer2().getIdFs():
 					lvGame.getValue().getPlayer1().getIdFs());
 			update(lvGame.getValue());
+			finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
+				@Override
+				public void onSuccess(Boolean aBoolean) {
+					lvIsFinished.setValue(true);
+				}
+			}).addOnFailureListener(new OnFailureListener() {
+				@Override
+				public void onFailure(@NonNull Exception e) {
+				}
+			});
 			taskAbortGame.setResult(true);
 		}
 		return taskAbortGame.getTask();
