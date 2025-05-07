@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId = "com.emil_z.ultimate_tic_tac_toe"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
