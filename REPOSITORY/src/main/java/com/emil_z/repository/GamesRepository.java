@@ -5,7 +5,6 @@ import android.graphics.Point;
 import android.util.Log;
 
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -20,8 +19,6 @@ import com.emil_z.model.Player;
 import com.emil_z.model.exceptions.EmptyQueryException;
 import com.emil_z.model.exceptions.GameFullException;
 import com.emil_z.repository.BASE.BaseRepository;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -48,7 +45,6 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 	private final MutableLiveData<Boolean> lvIsFinished;
 	private final MutableLiveData<Boolean> lvIsStarted;
 	private int retryCounter = 0;
-	private final int MAX_TRIES = 10;
 	private final String localPlayerIdFs;
 
 
@@ -127,8 +123,12 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return result;
 	}
 
-	//region start game
+	@Override
+	protected Query getQueryForExist(Game entity) {
+		return getCollection().whereEqualTo("idFs", entity.getIdFs());
+	}
 
+	//region start game
 	public void startCpuGame() {
 		lvGame.setValue(new CpuGame(localPlayerIdFs));
 		lvIsStarted.setValue(true);
@@ -147,8 +147,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			Tasks.await(joinGame(gameId, player));
 			//joined successfully because joinGame returns true or throws exception
 			OnlineGame game = Tasks.await(getOnlineGame(gameId));
-			//lvGame.setValue(game);
-			addSnapshotListener(gameId);//will inform the user when the host started the game
+			addSnapshotListener(gameId);
 			lvGame.setValue(game);
 			tcs.setResult(false); //will inform the ViewModel that he is a joiner
 		} catch (NoSuchElementException e) { //game with elo in range not found, create a new game
@@ -161,19 +160,42 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 				addSnapshotListener(gameId);
 				tcs.setResult(true); //will inform the ViewModel that he is a host
 			} else if (cause instanceof GameFullException) {
+				int MAX_TRIES = 10;
 				if (retryCounter < MAX_TRIES) {
 					retryCounter++;
 					// Recursive call within the background thread
 					Tasks.await(startOnlineGame(player));
 				} else {
-					Log.d("GameViewModel", "Max retries reached, hosting new game");
-					//return Tasks.await(hostOnlineGame(player));
+					Log.d("qqq", "Max retries reached, hosting new game");
 				}
 			}
 
 			throw e; // Rethrow other execution exceptions
 		}
 		return tcs.getTask();
+	}
+
+	public Task<Games> getNotStartedGames() {
+		TaskCompletionSource<Games> taskGetNotStartedGames = new TaskCompletionSource<>();
+		Games games = new Games();
+		getQueryForNotStarted().get()
+				.addOnSuccessListener(queryDocumentSnapshots -> {
+					if (!queryDocumentSnapshots.isEmpty()) {
+						for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+							games.add(document.toObject(OnlineGame.class));
+						}
+						games.sort((g1, g2) -> g1.getPlayer1().compareElo(g2.getPlayer1()));
+						taskGetNotStartedGames.setResult(games);
+					} else {
+						taskGetNotStartedGames.setException(new EmptyQueryException());
+					}
+				})
+				.addOnFailureListener(taskGetNotStartedGames::setException);
+		return taskGetNotStartedGames.getTask();
+	}
+
+	private Query getQueryForNotStarted() {
+		return getCollection().whereEqualTo("started", false);
 	}
 
 	private String getGameIdWithSimilarElo(float userElo, Games games) throws NoSuchElementException {
@@ -199,26 +221,36 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 	}
 
+	public Task<OnlineGame> getOnlineGame(String idFs) {
+		TaskCompletionSource<OnlineGame> taskGame = new TaskCompletionSource<>();
+
+		super.getCollection().document(idFs).get()
+				.addOnSuccessListener(documentSnapshot -> {
+					OnlineGame game = documentSnapshot.toObject(OnlineGame.class);
+					taskGame.setResult(game);
+				})
+				.addOnFailureListener(e -> {
+					Log.e("qqq", "Error getting game: " + e.getMessage());
+					taskGame.setResult(null);
+				});
+
+		return taskGame.getTask();
+	}
+
 	public Task<String> hostOnlineGame(Player player) {
 
 		TaskCompletionSource<String> taskCreateGame = new TaskCompletionSource<>();
 		OnlineGame game = new OnlineGame(player);
-		add(game).addOnSuccessListener(new OnSuccessListener<Boolean>() {
-			@Override
-			public void onSuccess(Boolean aBoolean) {
-					lvGame.setValue(game);
-					taskCreateGame.setResult(game.getIdFs()); // inform the viewmodel that the game was created and uploaded to the database
-			}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception e) {
-				taskCreateGame.setException(e);
-			}
-		});
+		add(game)
+				.addOnSuccessListener(aBoolean -> {
+				lvGame.setValue(game);
+				taskCreateGame.setResult(game.getIdFs()); // inform the viewmodel that the game was created and uploaded to the database
+				})
+				.addOnFailureListener(taskCreateGame::setException);
 		return taskCreateGame.getTask();
 	}
 
-	public void startOnlineGame() {
+	public void beginOnlineGame() {
 		lvGame.getValue().setStarted(true);
 		getCollection().document(lvGame.getValue().getIdFs())
 				.update(
@@ -236,34 +268,6 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 							});
 				});
 		lvIsStarted.setValue(true);
-	}
-
-	@Override
-	protected Query getQueryForExist(Game entity) {
-		return getCollection().whereEqualTo("idFs", entity.getIdFs());
-	}
-
-	private Query getQueryForNotStarted() {
-		return getCollection().whereEqualTo("started", false);
-	}
-
-	public Task<Games> getNotStartedGames() {
-		TaskCompletionSource<Games> taskGetNotStartedGames = new TaskCompletionSource<>();
-		Games games = new Games();
-		getQueryForNotStarted().get()
-				.addOnSuccessListener(queryDocumentSnapshots -> {
-					if (!queryDocumentSnapshots.isEmpty()) {
-						for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-							games.add(document.toObject(OnlineGame.class));
-						}
-						games.sort((g1, g2) -> g1.getPlayer1().compareElo(g2.getPlayer1()));
-						taskGetNotStartedGames.setResult(games);
-					} else {
-						taskGetNotStartedGames.setException(new EmptyQueryException());
-					}
-				})
-				.addOnFailureListener(taskGetNotStartedGames::setException);
-		return taskGetNotStartedGames.getTask();
 	}
 
 	public Task<Boolean> joinGame(String gameId, Player player) {
@@ -287,6 +291,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 	}
 	//endregion
 
+	@SuppressWarnings("unchecked")
 	public void addSnapshotListener(String gameId) {
 		final DocumentReference gameRef = getCollection().document(gameId);
 		gameRef.addSnapshotListener((snapshot, e) -> {
@@ -300,10 +305,9 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 					if (!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(snapshot.toObject(OnlineGame.class).getPlayer1().getIdFs(), localPlayerIdFs)) {
 						//the joiner joined the game
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
-						startOnlineGame();
+						beginOnlineGame();
 					} else if ((Boolean) snapshot.get("started") && lvGame.getValue() == null && ((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
-						//the Host started the game
-						//the joiner get it, the host ignores it
+						//the Host started the game. the joiner get it, the host ignores it
 						lvGame.setValue(snapshot.toObject(OnlineGame.class));
 						((OnlineGame) (lvGame.getValue())).startGameForJoiner();
 						lvIsStarted.setValue(true);
@@ -323,13 +327,14 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 						((OnlineGame) lvGame.getValue()).setStartedAt(serverTimestamp);
 					}
 				} else {
-					// The document does not exist (deleted
+					// The document does not exist (deleted)
 					lvGame.setValue(null);
 				}
 			}
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	private BoardLocation getLastMoveAsBoardLocation(Object firestoreMoves) {
 		if (firestoreMoves instanceof List<?>) {
 			List<?> movesList = (List<?>) firestoreMoves;
@@ -357,45 +362,6 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return null;
 	}
 
-	public Task<Boolean> deleteOnlineGame(){
-		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
-		if(lvGame.getValue() == null) {
-			taskAbortGame.setResult(true);
-		}
-		else if (lvGame.getValue().getMoves().isEmpty()) { //if game hasn't start yet (game is aborted and it's a tie)
-			delete(lvGame.getValue()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
-				@Override
-				public void onSuccess(Boolean aBoolean) {
-					lvGame.setValue(null);
-					taskAbortGame.setResult(true);
-				}
-			}).addOnFailureListener(new OnFailureListener() {
-				@Override
-				public void onFailure(@NonNull Exception e) {
-				taskAbortGame.setResult(false);
-				}
-			});
-		}
-		else {
-			lvGame.getValue().setFinished(true);
-			lvGame.getValue().setWinnerIdFs(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs) ?
-					lvGame.getValue().getPlayer2().getIdFs():
-					lvGame.getValue().getPlayer1().getIdFs());
-			update(lvGame.getValue());
-			finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
-				@Override
-				public void onSuccess(Boolean aBoolean) {
-					lvIsFinished.setValue(true);
-				}
-			}).addOnFailureListener(new OnFailureListener() {
-				@Override
-				public void onFailure(@NonNull Exception e) {
-				}
-			});
-			taskAbortGame.setResult(true);
-		}
-		return taskAbortGame.getTask();
-	}
 
 	public Task<Boolean> makeMove(BoardLocation location) {
 		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
@@ -427,21 +393,14 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 				lvOuterBoardWinners.getValue()[innerBoard.x][innerBoard.y] = 'T';
 			}
 			if(lvGame.getValue().getOuterBoard().isGameOver()){
-				//lvGame.getValue().setWinner(lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() == 'X' ? "X" : "O");
 				lvGame.getValue().setFinished(true);
 				if(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
-					finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs()).addOnSuccessListener(new OnSuccessListener<Boolean>() {
-						@Override
-						public void onSuccess(Boolean aBoolean) {
-							lvIsFinished.setValue(true);
-							Log.d("qqq", "game finished");
-						}
-					}).addOnFailureListener(new OnFailureListener() {
-						@Override
-						public void onFailure(@NonNull Exception e) {
-							Log.d("qqq", "game not finished");
-						}
-					});
+					finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs())
+							.addOnSuccessListener(aBoolean -> {
+								lvIsFinished.setValue(true);
+								Log.d("qqq", "game finished");
+							})
+							.addOnFailureListener(e -> Log.d("qqq", "game not finished"));
 				}
 				else {
 					lvIsFinished.setValue(true);
@@ -470,23 +429,32 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 				});
 	}
 
-	public Task<OnlineGame> getOnlineGame(String idFs) {
-		TaskCompletionSource<OnlineGame> taskMember = new TaskCompletionSource<>();
+	public Task<Boolean> deleteOnlineGame(){
+		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
 
-		super.getCollection().document(idFs).get()
-				.addOnSuccessListener(documentSnapshot -> {
-					OnlineGame member = documentSnapshot.toObject(OnlineGame.class);
-					if (member != null) {
-						taskMember.setResult(member);
-					} else {
-						taskMember.setResult(null);
-					}
-				})
-				.addOnFailureListener(e -> {
-					Log.e("qqq", "Error getting member: " + e.getMessage());
-					taskMember.setResult(null);
-				});
-
-		return taskMember.getTask();
+		if(lvGame.getValue() == null) {
+			taskAbortGame.setResult(true);
+		} else if (lvGame.getValue().getMoves().isEmpty()) { // Game not started
+			delete(lvGame.getValue())
+					.addOnSuccessListener(aBoolean -> {
+						lvGame.setValue(null);
+						taskAbortGame.setResult(true);
+					})
+					.addOnFailureListener(e -> taskAbortGame.setResult(false));
+		} else { //Game in progress
+			lvGame.getValue().setFinished(true);
+			lvGame.getValue().setWinnerIdFs(
+					Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs) ?
+							lvGame.getValue().getPlayer2().getIdFs():
+							lvGame.getValue().getPlayer1().getIdFs());
+			update(lvGame.getValue());
+			finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs())
+					.addOnSuccessListener(aBoolean -> lvIsFinished.setValue(true))
+					.addOnFailureListener(e -> {
+					});
+			taskAbortGame.setResult(true);
+		}
+		return taskAbortGame.getTask();
 	}
+
 }

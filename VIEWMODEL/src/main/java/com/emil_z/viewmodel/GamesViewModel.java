@@ -72,6 +72,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	public void getUserGames(String userId) {
 		lvCollection = repository.getUserGames(userId);
 	}
+
 	//region start game
 	public void startCpuGame(){
 		repository.startCpuGame();
@@ -92,7 +93,6 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 			}
 		});
 	}
-
 	//endregion
 
 	private void isStartedObserver(){
@@ -125,18 +125,11 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	public void removeGame(){
 		removeLvGameObserver();
-		repository.deleteOnlineGame().addOnSuccessListener(new OnSuccessListener<Boolean>() {
-				@Override
-				public void onSuccess(Boolean aBoolean) {
-					lvSuccess.setValue(true);
-				}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception e) {
-				setObservers();
-				lvSuccess.setValue(false);
-			}
-		});
+		repository.deleteOnlineGame().addOnSuccessListener(aBoolean -> lvSuccess.setValue(aBoolean))
+				.addOnFailureListener(e -> {
+					setObservers();
+					lvSuccess.setValue(false);
+				});
 	}
 
 	public void makeMove(int oRow, int oCol, int iRow, int iCol) {
