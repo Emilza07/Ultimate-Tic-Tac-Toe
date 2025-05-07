@@ -23,6 +23,7 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="56dp"
 		android:text="{USERNAME}"
+		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/ivAvatar"
 		app:layout_constraintHorizontal_bias="0.507"
 		app:layout_constraintStart_toStartOf="@+id/ivAvatar"
@@ -34,6 +35,7 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="32dp"
 		android:text="Elo: {ELO}"
+		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/tvUsername"
 		app:layout_constraintStart_toStartOf="@+id/tvUsername"
 		app:layout_constraintTop_toBottomOf="@+id/tvUsername" />
@@ -52,8 +54,8 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="36dp"
 		android:text="Recent games"
+		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/tvElo"
-		app:layout_constraintHorizontal_bias="0.666"
 		app:layout_constraintStart_toStartOf="@+id/tvElo"
 		app:layout_constraintTop_toBottomOf="@+id/tvElo" />
 </androidx.constraintlayout.widget.ConstraintLayout>
