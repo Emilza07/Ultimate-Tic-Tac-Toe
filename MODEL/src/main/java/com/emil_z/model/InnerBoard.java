@@ -17,6 +17,20 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		winner = 0;
 	}
 
+	public InnerBoard(InnerBoard innerBoard){
+		board = new char[3][3];
+		isFinished = innerBoard.isFinished;
+		winner = innerBoard.winner;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3 ; j++) {
+				board[i][j] = innerBoard.getBoard(new Point(i,j));
+			}
+		}
+	}
+
+	public char getBoard(Point inner){
+		return board[inner.x][inner.y];
+	}
 	public boolean isTie(){
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3 ; j++) {
@@ -80,7 +94,7 @@ public class InnerBoard extends BaseEntity implements Serializable {
 	public boolean isLegal(Point inner){
 		return board[inner.x][inner.y] == 0  && !isFinished;
 	}
-	public void makeTurn(Point inner, char currentPlayer){
+	public void makeMove(Point inner, char currentPlayer){
 		board[inner.x][inner.y] = currentPlayer;
 	}
 }

@@ -1,146 +1,178 @@
 package com.emil_z.model;
 
+import android.graphics.Point;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CPU {
+    private static final int MAX_DEPTH = 5;
 
-	private static final int PLAYER = 1;
-	private static final int AI = -1;
-	private static final int BOARD_SIZE = 9;
+    /**
+     * Finds the best move for the CPU using the minimax algorithm
+     * @param outerBoard The current board state
+     * @param player The CPU player (X or O)
+     * @return The best move as a BoardLocation object
+     */
+    public static BoardLocation findBestMove(OuterBoard outerBoard, char player) {
+        // Keep track of the best move and its score
+        BoardLocation bestMove = null;
+        int bestScore = Integer.MIN_VALUE;
 
-	// Helper method to check win conditions for a standard Tic Tac Toe board
-	private int checkWinCondition(int[] map) {
-		int a = PLAYER;
+        // Get all possible moves
+        List<BoardLocation> availableMoves = getPossibleMoves(outerBoard);
 
-		// Check rows, columns, and diagonals
-		if (map[0] + map[1] + map[2] == a * 3 || map[3] + map[4] + map[5] == a * 3 || map[6] + map[7] + map[8] == a * 3 ||
-				map[0] + map[3] + map[6] == a * 3 || map[1] + map[4] + map[7] == a * 3 || map[2] + map[5] + map[8] == a * 3 ||
-				map[0] + map[4] + map[8] == a * 3 || map[2] + map[4] + map[6] == a * 3) {
-			return a;
-		}
+        // Evaluate each move using minimax
+        for (BoardLocation move : availableMoves) {
+            // Make the move
+            OuterBoard boardCopy = deepCopyOuterBoard(outerBoard);
+            // Set current player to ensure correct player makes the move
+            boardCopy.makeMove(move);
 
-		a = AI;
-		if (map[0] + map[1] + map[2] == a * 3 || map[3] + map[4] + map[5] == a * 3 || map[6] + map[7] + map[8] == a * 3 ||
-				map[0] + map[3] + map[6] == a * 3 || map[1] + map[4] + map[7] == a * 3 || map[2] + map[5] + map[8] == a * 3 ||
-				map[0] + map[4] + map[8] == a * 3 || map[2] + map[4] + map[6] == a * 3) {
-			return a;
-		}
+            // Calculate score for this move using minimax
+            int score = minimax(boardCopy, MAX_DEPTH, false, player,
+                               Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-		return 0;
-	}
+            // Update best move if this move has a better score
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
 
-	// Evaluate the game state
-	private int evaluateGame(int[][] position, int currentBoard) {
-		int eval = 0;
-		int[] mainBd = new int[BOARD_SIZE];
-		double[] evaluatorMul = {1.4, 1, 1.4, 1, 1.75, 1, 1.4, 1, 1.4};
+        return bestMove;
+    }
 
-		for (int i = 0; i < BOARD_SIZE; i++) {
-			eval += realEvaluateSquare(position[i]) * 1.5 * evaluatorMul[i];
-			if (i == currentBoard) {
-				eval += realEvaluateSquare(position[i]) * evaluatorMul[i];
-			}
-			int tmpEv = checkWinCondition(position[i]);
-			eval -= tmpEv * evaluatorMul[i];
-			mainBd[i] = tmpEv;
-		}
-		eval -= checkWinCondition(mainBd) * 5000;
-		eval += realEvaluateSquare(mainBd) * 150;
+    /**
+     * The minimax algorithm with alpha-beta pruning
+     * @param outerBoard The current board state
+     * @param depth Current depth in the game tree
+     * @param isMaximizing Whether it's the maximizing player's turn
+     * @param cpuPlayer The CPU player symbol (X or O)
+     * @param alpha Alpha value for pruning
+     * @param beta Beta value for pruning
+     * @return The best score for the current board state
+     */
+    private static int minimax(OuterBoard outerBoard, int depth, boolean isMaximizing,
+                       char cpuPlayer, int alpha, int beta) {
+        char opponent = (cpuPlayer == 'X') ? 'O' : 'X';
 
-		return eval;
-	}
+        // Terminal conditions: reached max depth or game over
+        if (depth == 0 || outerBoard.isGameOver()) {
+            return evaluateBoard(outerBoard, cpuPlayer);
+        }
 
-	// Minimax algorithm
-	private Result miniMax(int[][] position, int boardToPlayOn, int depth, int alpha, int beta, boolean maximizingPlayer) {
-		if (depth <= 0 || Math.abs(evaluateGame(position, boardToPlayOn)) > 5000) {
-			return new Result(evaluateGame(position, boardToPlayOn), -1);
-		}
+        List<BoardLocation> availableMoves = getPossibleMoves(outerBoard);
 
-		if (boardToPlayOn != -1 && checkWinCondition(position[boardToPlayOn]) != 0) {
-			boardToPlayOn = -1;
-		}
+        if (isMaximizing) {
+            int maxScore = Integer.MIN_VALUE;
+            for (BoardLocation move : availableMoves) {
+                OuterBoard boardCopy = deepCopyOuterBoard(outerBoard);
+                boardCopy.makeMove(move);
 
-		if (boardToPlayOn != -1 && !containsZero(position[boardToPlayOn])) {
-			boardToPlayOn = -1;
-		}
+                int score = minimax(boardCopy, depth - 1, false, cpuPlayer, alpha, beta);
+                maxScore = Math.max(maxScore, score);
 
-		if (maximizingPlayer) {
-			int maxEval = Integer.MIN_VALUE;
-			int tmpPlay = -1;
+                // Alpha-beta pruning
+                alpha = Math.max(alpha, score);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return maxScore;
+        } else {
+            int minScore = Integer.MAX_VALUE;
+            for (BoardLocation move : availableMoves) {
+                OuterBoard boardCopy = deepCopyOuterBoard(outerBoard);
+                boardCopy.makeMove(move);
 
-			for (int boardIndex = 0; boardIndex < BOARD_SIZE; boardIndex++) {
-				if (boardToPlayOn == -1 || boardIndex == boardToPlayOn) {
-					for (int cell = 0; cell < BOARD_SIZE; cell++) {
-						if (position[boardIndex][cell] == 0) {
-							position[boardIndex][cell] = AI;
-							int eval = miniMax(position, cell, depth - 1, alpha, beta, false).evaluation;
-							position[boardIndex][cell] = 0;
+                int score = minimax(boardCopy, depth - 1, true, cpuPlayer, alpha, beta);
+                minScore = Math.min(minScore, score);
 
-							if (eval > maxEval) {
-								maxEval = eval;
-								tmpPlay = boardIndex;
-							}
-							alpha = Math.max(alpha, eval);
-							if (beta <= alpha) break;
-						}
-					}
-				}
-			}
-			return new Result(maxEval, tmpPlay);
-		} else {
-			int minEval = Integer.MAX_VALUE;
-			int tmpPlay = -1;
+                // Alpha-beta pruning
+                beta = Math.min(beta, score);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return minScore;
+        }
+    }
 
-			for (int boardIndex = 0; boardIndex < BOARD_SIZE; boardIndex++) {
-				if (boardToPlayOn == -1 || boardIndex == boardToPlayOn) {
-					for (int cell = 0; cell < BOARD_SIZE; cell++) {
-						if (position[boardIndex][cell] == 0) {
-							position[boardIndex][cell] = PLAYER;
-							int eval = miniMax(position, cell, depth - 1, alpha, beta, true).evaluation;
-							position[boardIndex][cell] = 0;
+    /**
+     * Creates a deep copy of the OuterBoard
+     * @param original The original board to copy
+     * @return A deep copy of the board
+     */
+    private static OuterBoard deepCopyOuterBoard(OuterBoard original) {
+        // Implement a deep copy of the OuterBoard
+        // This is a placeholder - you'll need to create a proper deep copy method
+        // either here or in the OuterBoard class
+        OuterBoard copy = new OuterBoard(original);
+        // You need to implement the actual copying of the board state
+        return copy;
+    }
 
-							if (eval < minEval) {
-								minEval = eval;
-								tmpPlay = boardIndex;
-							}
-							beta = Math.min(beta, eval);
-							if (beta <= alpha) break;
-						}
-					}
-				}
-			}
-			return new Result(minEval, tmpPlay);
-		}
-	}
+    /**
+     * Evaluates the board state and returns a score
+     * @param outerBoard The current board state
+     * @param player The CPU player
+     * @return A score representing how favorable the board is for the CPU
+     */
+    private static int evaluateBoard(OuterBoard outerBoard, char player) {
+        int score = 0;
 
-	// Utility to check if an array contains zero
-	private boolean containsZero(int[] array) {
-		for (int value : array) {
-			if (value == 0) return true;
-		}
-		return false;
-	}
+        // Check each small board (subgame)
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                InnerBoard innerBoard = outerBoard.getBoard(new Point(i, j));
+                char winner = innerBoard.getWinner();
 
-	// Evaluate a single board's state
-	private int realEvaluateSquare(int[] pos) {
-		int evaluation = 0;
-		double[] points = {0.2, 0.17, 0.2, 0.17, 0.22, 0.17, 0.2, 0.17, 0.2};
+                if (winner == player) {
+                    score += 10;
+                } else if (winner != '\0' && winner != '-') {
+                    score -= 10;
+                }
+            }
+        }
 
-		for (int i = 0; i < pos.length; i++) {
-			evaluation -= pos[i] * points[i];
-		}
+        // Check overall game winner
+        char gameWinner = outerBoard.getWinner();
+        if (gameWinner == player) {
+            score += 1000;
+        } else if (gameWinner != '\0' && gameWinner != '-') {
+            score -= 1000;
+        }
 
-		return evaluation;
-	}
+        return score;
+    }
 
-	// Result class to handle minimax output
-	private static class Result {
-		int evaluation;
-		int board;
+    /**
+     * Gets all possible moves for the current board state
+     * @param outerBoard The current board state
+     * @return A list of all possible moves
+     */
+    private static List<BoardLocation> getPossibleMoves(OuterBoard outerBoard) {
+        List<BoardLocation> moves = new ArrayList<>();
 
-		Result(int evaluation, int board) {
-			this.evaluation = evaluation;
-			this.board = board;
-		}
-	}
+        // Check all possible positions
+        for (int outerRow = 0; outerRow < 3; outerRow++) {
+            for (int outerCol = 0; outerCol < 3; outerCol++) {
+                Point outer = new Point(outerRow, outerCol);
+
+                for (int innerRow = 0; innerRow < 3; innerRow++) {
+                    for (int innerCol = 0; innerCol < 3; innerCol++) {
+                        Point inner = new Point(innerRow, innerCol);
+                        BoardLocation location = new BoardLocation(outer, inner);
+
+                        // Check if the move is legal according to the rules
+                        if (outerBoard.isLegal(location)) {
+                            moves.add(location);
+                        }
+                    }
+                }
+            }
+        }
+
+        return moves;
+    }
 }

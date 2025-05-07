@@ -318,7 +318,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 					} else if (!((List<BoardLocation>) snapshot.get("moves")).isEmpty()) {
 						//it's a move and send it to handle a move
 						BoardLocation lastMove = getLastMoveAsBoardLocation(snapshot.get("moves"));
-						lvGame.getValue().makeTurn(lastMove);
+						lvGame.getValue().makeMove(lastMove);
 						lvGame.setValue(lvGame.getValue());
 						CheckInnerBoardFinish(lastMove.getOuter());
 						Log.d("qqq", "move happened");
@@ -367,13 +367,25 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
 		if(Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			if(lvGame.getValue().isLegal(location)) {
-				lvGame.getValue().makeTurn(location);
+				lvGame.getValue().makeMove(location);
 				CheckInnerBoardFinish(location.getOuter());
 				taskMakeMove.setResult(true);
 			}
 			else taskMakeMove.setException(new Exception("2"));
 		}
 		else taskMakeMove.setException(new Exception("1"));
+		return taskMakeMove.getTask();
+	}
+
+	public Task<Boolean> makeCpuMove(BoardLocation location) {
+		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
+			if(lvGame.getValue().isLegal(location)) {
+				lvGame.getValue().makeMove(location);
+				lvGame.setValue(lvGame.getValue());
+				CheckInnerBoardFinish(location.getOuter());
+				taskMakeMove.setResult(true);
+			}
+			else taskMakeMove.setException(new Exception("2"));
 		return taskMakeMove.getTask();
 	}
 

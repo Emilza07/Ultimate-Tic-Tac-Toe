@@ -30,8 +30,8 @@ public class OnlineGame extends Game{
 		outerBoard = new OuterBoard();
 	}
 
-	public void makeTurn(BoardLocation location){
-		super.makeTurn(location);
+	public void makeMove(BoardLocation location){
+		super.makeMove(location);
 		outerBoard.getBoard(location.getOuter()).isFinished();
 		if (Objects.equals(currentPlayerIdFs, player1.getIdFs())) {
 			currentPlayerIdFs = player2.getIdFs();

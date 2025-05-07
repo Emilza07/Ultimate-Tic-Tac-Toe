@@ -11,8 +11,8 @@ public class LocalGame extends Game{
 		currentPlayerIdFs = player1.getIdFs();
 	}
 
-	public void makeTurn(BoardLocation location) {
-		super.makeTurn(location);
+	public void makeMove(BoardLocation location) {
+		super.makeMove(location);
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
 			winnerIdFs = String.valueOf(outerBoard.getWinner());

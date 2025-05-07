@@ -118,8 +118,8 @@ public abstract class Game extends BaseEntity implements Serializable {
 		return outerBoard.isLegal(location);
 	}
 
-	public void makeTurn(BoardLocation location) {
-		outerBoard.makeTurn(location);
+	public void makeMove(BoardLocation location) {
+		outerBoard.makeMove(location);
 		moves.add(location);
 	}
 }

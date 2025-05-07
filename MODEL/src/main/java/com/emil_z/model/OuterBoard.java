@@ -19,6 +19,18 @@ public class OuterBoard {
 			}
 		}
 	}
+	public OuterBoard(OuterBoard outerBoard){
+		board = new InnerBoard[3][3];
+		winner = outerBoard.winner;
+		currentPlayer = outerBoard.currentPlayer;
+		freeMove = outerBoard.freeMove;
+		lastMove = outerBoard.lastMove;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3 ; j++) {
+				board[i][j] = new InnerBoard(outerBoard.getBoard(new Point(i,j)));
+			}
+		}
+	}
 	public InnerBoard getBoard(Point outer){
 		return board[outer.x][outer.y];
 	}
@@ -74,8 +86,8 @@ public class OuterBoard {
 
 	}
 
-	public void makeTurn(BoardLocation location) {
-			board[location.getOuter().x][location.getOuter().y].makeTurn(location.getInner(), currentPlayer);
+	public void makeMove(BoardLocation location) {
+			board[location.getOuter().x][location.getOuter().y].makeMove(location.getInner(), currentPlayer);
 			lastMove = location.getInner();
 			freeMove = board[location.getInner().x][location.getInner().y].isFinished();
 			currentPlayer = currentPlayer == 'X' ? 'O' : 'X';
