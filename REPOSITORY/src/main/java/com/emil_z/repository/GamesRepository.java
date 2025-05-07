@@ -170,7 +170,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 				}
 			}
 
-			throw e; // Rethrow other execution exceptions
+			tcs.setException(e); // Rethrow other execution exceptions
 		}
 		return tcs.getTask();
 	}

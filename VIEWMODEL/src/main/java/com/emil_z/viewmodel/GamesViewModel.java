@@ -3,11 +3,9 @@ package com.emil_z.viewmodel;
 import android.app.Application;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.CpuGame;
@@ -19,8 +17,6 @@ import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.emil_z.repository.GamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 
 import java.util.concurrent.Executors;
@@ -86,37 +82,32 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		Tasks.call(Executors.newSingleThreadExecutor(), () -> {
 			Tasks.await(repository.startOnlineGame(player));
 			return true;
-		}).addOnSuccessListener(new OnSuccessListener<Boolean>() {
-			@Override
-			public void onSuccess(Boolean aBoolean) {
-				Log.d("qqq", "started");
-			}
-		});
+		}).addOnSuccessListener(aBoolean -> Log.d("qqq", "started"))
+				.addOnFailureListener(e -> {
+					//TODO: handle error
+				});
 	}
 	//endregion
 
 	private void isStartedObserver(){
 		lvIsStarted.addSource(
-				repository.getLvIsStarted(), new Observer<Boolean>() {
-					@Override
-					public void onChanged(Boolean aBoolean) {
-						if (aBoolean)
-							setObservers();
-						lvIsStarted.setValue(aBoolean);
-					}
+				repository.getLvIsStarted(), aBoolean -> {
+					if (aBoolean)
+						setObservers();
+					lvIsStarted.setValue(aBoolean);
 				});
 	}
 
 	private void setObservers() {
 		lvGame.addSource(
 				repository.getLvGame(),
-				game -> lvGame.setValue(game));
+				lvGame::setValue);
 		lvOuterBoardWinners.addSource(
 				repository.getLvOuterBoardWinners(),
-				chars -> lvOuterBoardWinners.setValue(chars));
+				lvOuterBoardWinners::setValue);
 		lvIsFinished.addSource(
 				repository.getLvIsFinished(),
-				aBoolean -> lvIsFinished.setValue(aBoolean));
+				lvIsFinished::setValue);
 	}
 
 	private void removeLvGameObserver() {
@@ -133,23 +124,17 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	public void makeMove(int oRow, int oCol, int iRow, int iCol) {
-		repository.makeMove(new BoardLocation(oRow, oCol, iRow, iCol)).addOnSuccessListener( new OnSuccessListener<Boolean>() {
-			@Override
-			public void onSuccess(Boolean aBoolean) {
-				lvCode.setValue(0);
-				if(lvGame.getValue() instanceof OnlineGame)
-					repository.update(lvGame.getValue());
-				else if (lvGame.getValue() instanceof CpuGame)
-				{
-					//TODO: make move for cpu
-				}
-			}
-		}).addOnFailureListener(new OnFailureListener() {
-			@Override
-			public void onFailure(@NonNull Exception e) {
-				lvCode.setValue(Integer.valueOf(e.getMessage()));
-			}
-		});
+		repository.makeMove(new BoardLocation(oRow, oCol, iRow, iCol))
+				.addOnSuccessListener(aBoolean -> {
+					lvCode.setValue(0);
+					if(lvGame.getValue() instanceof OnlineGame)
+						repository.update(lvGame.getValue());
+					else if (lvGame.getValue() instanceof CpuGame)
+					{
+						//TODO: make move for cpu
+					}
+				})
+				.addOnFailureListener(e -> lvCode.setValue(Integer.valueOf(e.getMessage())));
 	}
 
 	public void resetLvCode() {
