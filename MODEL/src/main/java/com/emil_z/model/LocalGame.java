@@ -9,6 +9,7 @@ public class LocalGame extends Game{
 		player2.setName("Player 2");
 		player2.setIdFs(localPlayerIdFs);
 		currentPlayerIdFs = player1.getIdFs();
+		crossPlayerIdFs = player1.getIdFs();
 	}
 
 	public void makeMove(BoardLocation location) {

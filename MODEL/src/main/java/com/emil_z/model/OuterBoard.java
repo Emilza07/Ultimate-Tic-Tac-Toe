@@ -31,13 +31,20 @@ public class OuterBoard {
 			}
 		}
 	}
+
 	public InnerBoard getBoard(Point outer){
 		return board[outer.x][outer.y];
 	}
-	public char getCurrentPlayer(){return currentPlayer;}
+
+	public boolean isFreeMove() {
+		return freeMove;
+	}
 
 	public char getWinner(){return winner;}
 
+	public char getCurrentPlayer(){return currentPlayer;}
+
+	public Point getLastMove(){return lastMove;}
 	public boolean isTie(){
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3 ; j++) {

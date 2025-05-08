@@ -1,6 +1,7 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 
@@ -31,6 +32,7 @@ import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
 
 import java.util.Objects;
+import java.util.Random;
 
 public class GameActivity extends BaseActivity {
 
@@ -145,12 +147,7 @@ public class GameActivity extends BaseActivity {
 			@Override
 			public void onChanged(Integer code) {
 				if (code != null) {
-					if(code == 0)
-					{
-						btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
-						tvCurrentPlayer.setText("Current Player: " + (viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? "X" : "O"));
-					}
-					else
+					if(code != 0)
 						Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
 					viewModel.resetLvCode();
 					viewModel.getLvCode().removeObserver(this);
@@ -182,11 +179,18 @@ public class GameActivity extends BaseActivity {
 				finish();
 			}
 			else if (!game.getMoves().isEmpty() && !game.isFinished()) { //Remote player made a move
+				if(game.getMoves().size() > 1) {
+					int previewsMoveIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
+					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previewsMoveIndex);
+					prevInnerGrid.setBackgroundColor(Color.TRANSPARENT);
+				}
 				int innerGridIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
 				int btnIndex = game.getMoves().get(game.getMoves().size() - 1).getInner().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getInner().y;
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
 				btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
+				GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
+				nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
 				tvCurrentPlayer.setText("Current Player: " + (viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? "X" : "O"));
 
 
@@ -215,6 +219,23 @@ public class GameActivity extends BaseActivity {
 				String winner;
 				switch (gameType) {
 					case CPU:
+						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
+						AlertUtil.alert(GameActivity.this,
+								"Game Over",
+								"Player " + winner + " wins!",
+								false,
+								0,
+								"Return",
+								null,
+								null,
+								(() -> {
+									Intent intent = new Intent();
+									intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+									setResult(RESULT_OK, intent);
+									finish();
+								}),
+								null,
+								null);
 						break;
 					case LOCAL:
 						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
@@ -279,7 +300,23 @@ public class GameActivity extends BaseActivity {
 		switch (gameType) {
 			case CPU:
 				// Initialize SP game
-				viewModel.startCpuGame();
+				AlertUtil.alert(this,
+						"Start game",
+						"choose your sign",
+						false,
+						0,
+						"Cross",
+						"Random",
+						"Nought",
+						(() -> {
+							viewModel.startCpuGame(currentUser.getIdFs());
+						}),
+						(() -> {
+							viewModel.startCpuGame(new Random().nextBoolean() ? currentUser.getIdFs() : "CPU");
+						}),
+						(() -> {
+							viewModel.startCpuGame("CPU");
+						}));
 				break;
 			case LOCAL:
 				// Initialize local game
@@ -306,6 +343,13 @@ public class GameActivity extends BaseActivity {
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
+			if (viewModel.getLvGame().getValue().getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
+					tvCurrentPlayer.setText("Current Player: X");
+				} else {
+				tvCurrentPlayer.setText("Current Player: O");
+				tvP1Sign.setText("O");
+				tvP2Sign.setText("X");
+			}
 		} else {
 			// For online games
 			if(!viewModel.getLvIsStarted().getValue())

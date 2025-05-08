@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.emil_z.helper.PreferenceManager;
 import com.emil_z.model.BoardLocation;
+import com.emil_z.model.CPU;
 import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
@@ -129,8 +130,8 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 	}
 
 	//region start game
-	public void startCpuGame() {
-		lvGame.setValue(new CpuGame(localPlayerIdFs));
+	public void startCpuGame(String crossPlayerIdFs) {
+		lvGame.setValue(new CpuGame(localPlayerIdFs, crossPlayerIdFs));
 		lvIsStarted.setValue(true);
 	}
 
@@ -368,6 +369,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		if(Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			if(lvGame.getValue().isLegal(location)) {
 				lvGame.getValue().makeMove(location);
+				lvGame.setValue(lvGame.getValue());
 				CheckInnerBoardFinish(location.getOuter());
 				taskMakeMove.setResult(true);
 			}
@@ -377,16 +379,14 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return taskMakeMove.getTask();
 	}
 
-	public Task<Boolean> makeCpuMove(BoardLocation location) {
-		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
-			if(lvGame.getValue().isLegal(location)) {
-				lvGame.getValue().makeMove(location);
-				lvGame.setValue(lvGame.getValue());
-				CheckInnerBoardFinish(location.getOuter());
-				taskMakeMove.setResult(true);
-			}
-			else taskMakeMove.setException(new Exception("2"));
-		return taskMakeMove.getTask();
+	public Task<Boolean> makeCpuMove() {
+		TaskCompletionSource <Boolean> tcs = new TaskCompletionSource<>();
+		BoardLocation location = CPU.findBestMove(lvGame.getValue().getOuterBoard());
+		lvGame.getValue().makeMove(location);
+		lvGame.setValue(lvGame.getValue());
+		CheckInnerBoardFinish(location.getOuter());
+		tcs.setResult(true);
+		return tcs.getTask();
 	}
 
 	private void CheckInnerBoardFinish(Point innerBoard) {

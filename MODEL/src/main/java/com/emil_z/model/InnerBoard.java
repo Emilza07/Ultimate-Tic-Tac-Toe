@@ -23,12 +23,15 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		winner = innerBoard.winner;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3 ; j++) {
-				board[i][j] = innerBoard.getBoard(new Point(i,j));
+				board[i][j] = innerBoard.getCell(new Point(i,j));
 			}
 		}
 	}
 
-	public char getBoard(Point inner){
+	public char[][] getBoard(){
+		return board;
+	}
+	public char getCell(Point inner){
 		return board[inner.x][inner.y];
 	}
 	public boolean isTie(){

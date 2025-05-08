@@ -3,14 +3,15 @@ package com.emil_z.model;
 import java.util.Objects;
 
 public class CpuGame extends Game{
-	public CpuGame(String localPlayerIdFs) {
+	public CpuGame(String localPlayerIdFs, String crossPlayerIdFs) {
 		super();
 		setStarted(true);
 		player1.setName("Player 1");
 		player1.setIdFs(localPlayerIdFs);
 		player2.setName("CPU");
 		player2.setIdFs("CPU");
-		currentPlayerIdFs = player1.getIdFs();
+		this.crossPlayerIdFs = crossPlayerIdFs;
+		this.currentPlayerIdFs = crossPlayerIdFs;
 	}
 
 	public void makeMove(BoardLocation location) {

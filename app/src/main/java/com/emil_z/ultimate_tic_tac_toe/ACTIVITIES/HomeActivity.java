@@ -73,6 +73,8 @@ public class HomeActivity extends BaseActivity {
 			startActivity(intent);
 		});
 		btnCPU.setOnClickListener(v -> {
+			//TODO: add an option to choose the sign here instead of game activity because of player names
+			//TODO: add an option to choose the level of the CPU
 			startGameActivity(GameType.CPU);
 		});
 		btnLocal.setOnClickListener(v -> {

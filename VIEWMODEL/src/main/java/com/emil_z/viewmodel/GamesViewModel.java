@@ -8,7 +8,6 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.emil_z.model.BoardLocation;
-import com.emil_z.model.CPU;
 import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
@@ -20,6 +19,7 @@ import com.emil_z.repository.GamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
 import com.google.android.gms.tasks.Tasks;
 
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 public class GamesViewModel extends BaseViewModel<Game, Games> {
@@ -71,8 +71,10 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	//region start game
-	public void startCpuGame(){
-		repository.startCpuGame();
+	public void startCpuGame(String crossPlayerIdFs) {
+		repository.startCpuGame(crossPlayerIdFs);
+		if(Objects.equals(crossPlayerIdFs, "CPU"))
+			repository.makeCpuMove();
 	}
 
 	public void startLocalGame(){
@@ -133,7 +135,8 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 					else if (lvGame.getValue() instanceof CpuGame)
 					{
 						//TODO: make move for cpu
-						repository.makeCpuMove(CPU.findBestMove(lvGame.getValue().getOuterBoard(), 'O'));
+						if(!lvGame.getValue().isFinished())
+							repository.makeCpuMove();
 					}
 				})
 				.addOnFailureListener(e -> lvCode.setValue(Integer.valueOf(e.getMessage())));
