@@ -140,40 +140,32 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		lvIsStarted.setValue(true);
 	}
 
-	public Task<Boolean> startOnlineGame(Player player) throws Exception {
-		TaskCompletionSource<Boolean> tcs = new TaskCompletionSource<>();
+	public void startOnlineGame(Player player) {
 		try {
 			Games games = Tasks.await(getNotStartedGames());
 			String gameId = getGameIdWithSimilarElo(player.getElo(), games);
 			Tasks.await(joinGame(gameId, player));
 			//joined successfully because joinGame returns true or throws exception
-			OnlineGame game = Tasks.await(getOnlineGame(gameId));
 			addSnapshotListener(gameId);
-			lvGame.setValue(game);
-			tcs.setResult(false); //will inform the ViewModel that he is a joiner
-		} catch (NoSuchElementException e) { //game with elo in range not found, create a new game
-			Tasks.await(hostOnlineGame(player));
-		} catch (ExecutionException e) {
+		} catch (ExecutionException | NoSuchElementException e) {
 			Throwable cause = e.getCause();
 
-			if (cause instanceof EmptyQueryException) {
-				String gameId = Tasks.await(hostOnlineGame(player));
-				addSnapshotListener(gameId);
-				tcs.setResult(true); //will inform the ViewModel that he is a host
+			if (cause instanceof EmptyQueryException || e instanceof NoSuchElementException) {
+				hostOnlineGame(player).continueWith(gameId->{
+					addSnapshotListener(gameId.getResult());
+					return null;
+				});
 			} else if (cause instanceof GameFullException) {
 				int MAX_TRIES = 10;
 				if (retryCounter < MAX_TRIES) {
 					retryCounter++;
 					// Recursive call within the background thread
-					Tasks.await(startOnlineGame(player));
-				} else {
-					Log.d("qqq", "Max retries reached, hosting new game");
+					startOnlineGame(player);
 				}
 			}
-
-			tcs.setException(e); // Rethrow other execution exceptions
+		} catch (InterruptedException e) {
+			// TODO: handle the exception
 		}
-		return tcs.getTask();
 	}
 
 	public Task<Games> getNotStartedGames() {
@@ -222,24 +214,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 	}
 
-	public Task<OnlineGame> getOnlineGame(String idFs) {
-		TaskCompletionSource<OnlineGame> taskGame = new TaskCompletionSource<>();
-
-		super.getCollection().document(idFs).get()
-				.addOnSuccessListener(documentSnapshot -> {
-					OnlineGame game = documentSnapshot.toObject(OnlineGame.class);
-					taskGame.setResult(game);
-				})
-				.addOnFailureListener(e -> {
-					Log.e("qqq", "Error getting game: " + e.getMessage());
-					taskGame.setResult(null);
-				});
-
-		return taskGame.getTask();
-	}
-
 	public Task<String> hostOnlineGame(Player player) {
-
 		TaskCompletionSource<String> taskCreateGame = new TaskCompletionSource<>();
 		OnlineGame game = new OnlineGame(player);
 		add(game)
@@ -271,7 +246,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		lvIsStarted.setValue(true);
 	}
 
-	public Task<Boolean> joinGame(String gameId, Player player) {
+	public Task<Void> joinGame(String gameId, Player player) {
 		Map<String, Object> data = new HashMap<>();
 		Gson gson = new Gson();
 		String json = gson.toJson(player);
@@ -281,13 +256,13 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return function
 				.getHttpsCallable("join_game")
 				.call(data).continueWith(task -> {
-					if (task.isSuccessful()) {
-						return true;
-					} else if (task.getException() instanceof FirebaseFunctionsException) {
+					if (task.getException() instanceof FirebaseFunctionsException) {
 						if (((FirebaseFunctionsException) task.getException()).getCode() == FirebaseFunctionsException.Code.ABORTED)
 							throw new GameFullException();
+					} else if (!task.isSuccessful()) {
+						throw task.getException();
 					}
-					throw task.getException();
+					return null;
 				});
 	}
 	//endregion
@@ -364,14 +339,13 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 	}
 
 
-	public Task<Boolean> makeMove(BoardLocation location) {
-		TaskCompletionSource<Boolean> taskMakeMove = new TaskCompletionSource<>();
+	public Task<Void> makeMove(BoardLocation location) {
+		TaskCompletionSource<Void> taskMakeMove = new TaskCompletionSource<>();
 		if(Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			if(lvGame.getValue().isLegal(location)) {
 				lvGame.getValue().makeMove(location);
 				lvGame.setValue(lvGame.getValue());
 				CheckInnerBoardFinish(location.getOuter());
-				taskMakeMove.setResult(true);
 			}
 			else taskMakeMove.setException(new Exception("2"));
 		}
@@ -379,14 +353,12 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return taskMakeMove.getTask();
 	}
 
-	public Task<Boolean> makeCpuMove() {
-		TaskCompletionSource <Boolean> tcs = new TaskCompletionSource<>();
+	public Task<Void> makeCpuMove() {
 		BoardLocation location = CPU.findBestMove(lvGame.getValue().getOuterBoard());
 		lvGame.getValue().makeMove(location);
 		lvGame.setValue(lvGame.getValue());
 		CheckInnerBoardFinish(location.getOuter());
-		tcs.setResult(true);
-		return tcs.getTask();
+		return null;
 	}
 
 	private void CheckInnerBoardFinish(Point innerBoard) {
@@ -426,7 +398,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		}
 	}
 
-	private Task<Boolean> finishGame(String player1IdFs, String player2IdFs) {
+	private Task<Void> finishGame(String player1IdFs, String player2IdFs) {
 		Map<String, Object> data = new HashMap<>();
 		data.put("player_1_id", player1IdFs);
 		data.put("player_2_id", player2IdFs);
@@ -435,13 +407,12 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		return function
 				.getHttpsCallable("finish_game")
 				.call(data).continueWith(task -> {
-					if (task.isSuccessful()) {
-						return true;
-					} else if (task.getException() instanceof FirebaseFunctionsException) {
+					if (task.getException() instanceof FirebaseFunctionsException) {
 						if (((FirebaseFunctionsException) task.getException()).getCode() == FirebaseFunctionsException.Code.ABORTED)
 							throw new FirebaseTooManyRequestsException("");
-					}
-					throw task.getException();
+					} else if(task.getException() != null)
+						throw task.getException();
+					return null;
 				});
 	}
 

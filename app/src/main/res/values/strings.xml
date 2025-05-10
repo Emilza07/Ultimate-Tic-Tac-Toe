@@ -15,6 +15,7 @@
 	<string name="by_emil_zalessky">by Emil Zalessky</string>
 
 	<string name="EXTRA_GAME_TYPE">com.emil_z.GAME_TYPE</string>
+	<string name="EXTRA_SIGN">SIGN</string>
 	<string-array name="error_codes">
 		<item>OK</item>
 		<item>Not your turn</item>

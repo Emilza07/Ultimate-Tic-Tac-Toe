@@ -25,6 +25,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.AlertUtil;
+import com.emil_z.model.BoardLocation;
+import com.emil_z.model.Game;
 import com.emil_z.model.GameType;
 import com.emil_z.model.Player;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
@@ -103,9 +105,10 @@ public class GameActivity extends BaseActivity {
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
 			@Override
 			public void handleOnBackPressed() {
+				Game game = viewModel.getLvGame().getValue();
 				AlertUtil.alert(
 						GameActivity.this,
-						viewModel.getLvGame().getValue().isStarted() ? "Resign" : "Abort",
+						(game != null && game.isStarted())? "Resign" : "Abort",
 						"Are you sure you want to exit the game?",
 						true,
 						0,
@@ -113,21 +116,11 @@ public class GameActivity extends BaseActivity {
 						"No",
 						null,
 						(() -> {
-							if (gameType == GameType.Online)
-							{
-								viewModel.removeGame();
-							}
 							Intent intent = new Intent();
-							if (!viewModel.getLvGame().getValue().getMoves().isEmpty())
-							{
-								intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-								setResult(RESULT_OK, intent);
-							}
-							else
-							{
-								setResult(RESULT_CANCELED, intent);
-								finish();
-							}
+							if (gameType == GameType.Online)
+								viewModel.removeGame();
+							setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
+							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
 							if (gameType != GameType.Online)
 								finish();
 						}),
@@ -141,17 +134,14 @@ public class GameActivity extends BaseActivity {
 	private void handleBoardButtonClick(ImageView btn) {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
-		//Toast.makeText(this, "Button clicked: " + tag, Toast.LENGTH_SHORT).show();
-		viewModel.makeMove(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0');
+		viewModel.makeMove(new BoardLocation(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0'));
 		viewModel.getLvCode().observe(this, new Observer<Integer>() {
 			@Override
 			public void onChanged(Integer code) {
-				if (code != null) {
-					if(code != 0)
-						Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
-					viewModel.resetLvCode();
-					viewModel.getLvCode().removeObserver(this);
-					}
+				if(code != 0)
+					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
+				viewModel.resetLvCode();
+				viewModel.getLvCode().removeObserver(this);
 				}
 		});
 	}
@@ -160,22 +150,14 @@ public class GameActivity extends BaseActivity {
 		viewModel = new ViewModelProvider(this).get(GamesViewModel.class);
 
 		viewModel.getSuccess().observe(this, success -> {
-			//if LocalGame
 			if (success) {
-				switch (gameType) {
-					case Online:
-						if (viewModel.getLvGame() == null) {
-							Toast.makeText(GameActivity.this, "Game removed successfully", Toast.LENGTH_SHORT).show();
-						}
-						break;
-				}
 			}
 		});
 
 		viewModel.getLvGame().observe(this, game -> {
 			if (game == null){
 				Intent intent = new Intent();
-				setResult(RESULT_CANCELED, intent);
+				setResult(RESULT_OK, intent);
 				finish();
 			}
 			else if (!game.getMoves().isEmpty() && !game.isFinished()) { //Remote player made a move
@@ -224,66 +206,34 @@ public class GameActivity extends BaseActivity {
 
 			public void onChanged(Boolean aBoolean) {
 				String winner;
+
 				switch (gameType) {
 					case CPU:
-						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
-						AlertUtil.alert(GameActivity.this,
-								"Game Over",
-								"Player " + winner + " wins!",
-								false,
-								0,
-								"Return",
-								null,
-								null,
-								(() -> {
-									Intent intent = new Intent();
-									intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-									setResult(RESULT_OK, intent);
-									finish();
-								}),
-								null,
-								null);
-						break;
 					case LOCAL:
 						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
-						AlertUtil.alert(GameActivity.this,
-								"Game Over",
-								"Player " + winner + " wins!",
-								false,
-								0,
-								"Return",
-								null,
-								null,
-								(() -> {
-									Intent intent = new Intent();
-									intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-									setResult(RESULT_OK, intent);
-									finish();
-								}),
-								null,
-								null);
 						break;
 					case Online:
 						winner = Objects.equals(viewModel.getLvGame().getValue().getWinnerIdFs(), viewModel.getLvGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
-						AlertUtil.alert(GameActivity.this,
-								"Game Over",
-								"Player " + winner + " wins!",
-								false,
-								0,
-								"Return",
-								null,
-								null,
-								(() -> {
-									Intent intent = new Intent();
-									intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-									setResult(RESULT_OK, intent);
-									finish();
-								}),
-								null,
-								null);
 						break;
+					default:
+						throw new IllegalStateException("Unexpected value: " + gameType);
 				}
-
+				AlertUtil.alert(GameActivity.this,
+						"Game Over",
+						(!Objects.equals(viewModel.getLvGame().getValue().getWinnerIdFs(), "T")) ? "Player " + winner + " wins!" : "Game is a tie!",
+						false,
+						0,
+						"Return",
+						null,
+						null,
+						(() -> {
+							Intent intent = new Intent();
+							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+							setResult(RESULT_OK, intent);
+							finish();
+						}),
+						null,
+						null);
 			}
 		});
 
@@ -307,23 +257,9 @@ public class GameActivity extends BaseActivity {
 		switch (gameType) {
 			case CPU:
 				// Initialize SP game
-				AlertUtil.alert(this,
-						"Start game",
-						"choose your sign",
-						false,
-						0,
-						"Cross",
-						"Random",
-						"Nought",
-						(() -> {
-							viewModel.startCpuGame(currentUser.getIdFs());
-						}),
-						(() -> {
-							viewModel.startCpuGame(new Random().nextBoolean() ? currentUser.getIdFs() : "CPU");
-						}),
-						(() -> {
-							viewModel.startCpuGame("CPU");
-						}));
+				Intent intent = getIntent();
+				char sign = intent.getCharExtra(getString(R.string.EXTRA_SIGN), 'X');
+				viewModel.startCpuGame(sign == 'X' ? currentUser.getIdFs() : "CPU");
 				break;
 			case LOCAL:
 				// Initialize local game

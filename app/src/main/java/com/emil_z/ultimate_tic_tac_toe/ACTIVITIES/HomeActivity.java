@@ -15,10 +15,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.emil_z.helper.AlertUtil;
 import com.emil_z.model.GameType;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
+
+import java.util.Random;
 
 public class HomeActivity extends BaseActivity {
 	private Button btnCPU;
@@ -50,7 +53,7 @@ public class HomeActivity extends BaseActivity {
 							@Override
 							public void onActivityResult(ActivityResult o) {
 								GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
-								if (o.getResultCode() == RESULT_OK && gameType == GameType.Online) {
+								if (gameType == GameType.Online && o.getResultCode() == RESULT_OK) {
 									viewModel.get(currentUser.getIdFs());
 								}
 							}
@@ -75,7 +78,24 @@ public class HomeActivity extends BaseActivity {
 		btnCPU.setOnClickListener(v -> {
 			//TODO: add an option to choose the sign here instead of game activity because of player names
 			//TODO: add an option to choose the level of the CPU
-			startGameActivity(GameType.CPU);
+			AlertUtil.alert(this,
+					"Start game",
+					"choose your sign",
+					false,
+					0,
+					"Cross",
+					"Nought",
+					"Random",
+					() -> {
+						startCpuActivity(GameType.CPU, 'X');
+					},
+					() -> {
+						startCpuActivity(GameType.CPU, 'O');
+					},
+					() -> {
+							startCpuActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O');
+					});
+
 		});
 		btnLocal.setOnClickListener(v -> {
 			startGameActivity(GameType.LOCAL);
@@ -84,13 +104,20 @@ public class HomeActivity extends BaseActivity {
 			startGameActivity(GameType.Online);
 		});
 	}
+
+	private void startCpuActivity(GameType gameType, char sign) {
+		Intent intent = new Intent(HomeActivity.this, GameActivity.class);
+		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+		intent.putExtra(getString(R.string.EXTRA_SIGN), sign);
+		launcher.launch(intent);
+	}
+
 	private void startGameActivity(GameType gameType) {
-
-
 		Intent intent = new Intent(HomeActivity.this, GameActivity.class);
 		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
 		launcher.launch(intent);
 	}
+
 	@Override
 	protected void setViewModel() {
 		viewModel = new UsersViewModel(getApplication());

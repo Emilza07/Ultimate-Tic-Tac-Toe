@@ -81,14 +81,10 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		repository.startLocalGame();
 	}
 
-	public void startOnlineGame(Player player) throws Exception {
-		Tasks.call(Executors.newSingleThreadExecutor(), () -> {
-			Tasks.await(repository.startOnlineGame(player));
-			return true;
-		}).addOnSuccessListener(aBoolean -> Log.d("qqq", "started"))
-				.addOnFailureListener(e -> {
-					//TODO: handle error
-				});
+	public void startOnlineGame(Player player) {
+		Executors.newSingleThreadExecutor().execute(() -> {
+			repository.startOnlineGame(player);
+		});
 	}
 	//endregion
 
@@ -113,28 +109,21 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 				lvIsFinished::setValue);
 	}
 
-	private void removeLvGameObserver() {
-		lvGame.removeSource(repository.getLvGame());
-	}
-
 	public void removeGame(){
-		removeLvGameObserver();
 		repository.deleteOnlineGame().addOnSuccessListener(aBoolean -> lvSuccess.setValue(aBoolean))
 				.addOnFailureListener(e -> {
-					setObservers();
-					lvSuccess.setValue(false);
+					lvSuccess.setValue(false); //TODO: notify the user about error in deleting game
 				});
 	}
 
-	public void makeMove(int oRow, int oCol, int iRow, int iCol) {
-		repository.makeMove(new BoardLocation(oRow, oCol, iRow, iCol))
-				.addOnSuccessListener(aBoolean -> {
+	public void makeMove(BoardLocation boardLocation) {
+		repository.makeMove(boardLocation)
+				.addOnSuccessListener(voidTask -> {
 					lvCode.setValue(0);
 					if(lvGame.getValue() instanceof OnlineGame)
 						repository.update(lvGame.getValue());
 					else if (lvGame.getValue() instanceof CpuGame)
 					{
-						//TODO: make move for cpu
 						if(!lvGame.getValue().isFinished())
 							repository.makeCpuMove();
 					}
@@ -143,6 +132,6 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	public void resetLvCode() {
-		lvCode.setValue(null);
+		lvCode.setValue(0);
 	}
 }
