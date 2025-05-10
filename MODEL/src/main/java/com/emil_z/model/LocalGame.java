@@ -14,6 +14,7 @@ public class LocalGame extends Game{
 
 	public void makeMove(BoardLocation location) {
 		super.makeMove(location);
+		outerBoard.getBoard(location.getOuter()).isFinished();
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
 			winnerIdFs = String.valueOf(outerBoard.getWinner());
