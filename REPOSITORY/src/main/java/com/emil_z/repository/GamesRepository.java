@@ -406,13 +406,17 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 			}
 			if(lvGame.getValue().getOuterBoard().isGameOver()){
 				lvGame.getValue().setFinished(true);
-				if(Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
-					finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs())
-							.addOnSuccessListener(aBoolean -> {
-								lvIsFinished.setValue(true);
-								Log.d("qqq", "game finished");
-							})
-							.addOnFailureListener(e -> Log.d("qqq", "game not finished"));
+				if(lvGame.getValue() instanceof OnlineGame) {
+					if (Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
+						finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs())
+								.addOnSuccessListener(aBoolean -> {
+									lvIsFinished.setValue(true);
+									Log.d("qqq", "game finished");
+								})
+								.addOnFailureListener(e -> Log.d("qqq", "game not finished"));
+					} else {
+						lvIsFinished.setValue(true);
+					}
 				}
 				else {
 					lvIsFinished.setValue(true);
@@ -426,7 +430,7 @@ public class GamesRepository extends BaseRepository<Game, Games> {
 		Map<String, Object> data = new HashMap<>();
 		data.put("player_1_id", player1IdFs);
 		data.put("player_2_id", player2IdFs);
-		data.put("score", lvGame.getValue().getWinnerIdFs() == null ? 0.5 :
+		data.put("score", Objects.equals(lvGame.getValue().getWinnerIdFs(), "T") ? 0.5 :
 				(lvGame.getValue().getWinnerIdFs().equals(player1IdFs) ? 1.0 : 0.0));
 		return function
 				.getHttpsCallable("finish_game")

@@ -48,7 +48,7 @@ public class OuterBoard {
 	public boolean isTie(){
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3 ; j++) {
-				if(!board[i][j].isTie()){
+				if(!board[i][j].isFinished()){
 					return false;
 				}
 			}
@@ -58,9 +58,6 @@ public class OuterBoard {
 
 	public boolean isGameOver(){
 		//check if the game is a tie
-		if(isTie()){
-			return true;
-		}
 		//check rows
 		for (int i = 0; i < 3; i++) {
 			if(board[i][0].getWinner() != 0 && board[i][0].getWinner() == board[i][1].getWinner() && board[i][0].getWinner() == board[i][2].getWinner()){
@@ -80,6 +77,10 @@ public class OuterBoard {
 		}
 		if(board[0][2].getWinner() != 0 && board[0][2].getWinner() == board[1][1].getWinner() && board[0][2].getWinner() == board[2][0].getWinner()){
 			winner = board[0][2].getWinner();
+			return true;
+		}
+		if(isTie()){
+			winner = 'T';
 			return true;
 		}
 		return false;

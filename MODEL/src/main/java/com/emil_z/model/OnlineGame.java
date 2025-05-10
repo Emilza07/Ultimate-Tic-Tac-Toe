@@ -40,7 +40,10 @@ public class OnlineGame extends Game{
 		}
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
-			winnerIdFs = Objects.equals(currentPlayerIdFs, player2.getIdFs()) ? player1.getIdFs() : player2.getIdFs();
+			if(outerBoard.getWinner() == 'T')
+				winnerIdFs = "T";
+			else
+				winnerIdFs = Objects.equals(currentPlayerIdFs, player2.getIdFs()) ? player1.getIdFs() : player2.getIdFs();
 		}
 	}
 }

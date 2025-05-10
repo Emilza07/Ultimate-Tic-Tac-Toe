@@ -90,7 +90,12 @@ public class UserActivity extends BaseActivity {
 					//((ImageView) holder.getView("ivAvatar")).setImageBitmap(opponent.getAvatar()); TODO: add avatar
 					((TextView) holder.getView("tvUsername")).setText(opponent.getName());
 					((TextView) holder.getView("tvElo")).setText("(" + Math.round(opponent.getElo()) + ")");
-					((ImageView) holder.getView("ivGameResult")).setImageResource(Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()) ? R.drawable.ok : R.drawable.not_ok);
+					if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.ok);
+					else if (Objects.equals(item.getWinnerIdFs(), "T"))
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.t);
+					else
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.x);
 				})
 		);
 

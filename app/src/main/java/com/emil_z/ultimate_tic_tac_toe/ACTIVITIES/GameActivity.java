@@ -189,8 +189,10 @@ public class GameActivity extends BaseActivity {
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
 				btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
-				GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
-				nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+				if (!game.getOuterBoard().isFreeMove()) {
+					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
+					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+				}
 				tvCurrentPlayer.setText("Current Player: " + (viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? "X" : "O"));
 
 
@@ -204,8 +206,13 @@ public class GameActivity extends BaseActivity {
 					for (int j = 0; j < 3; j++) {
 						if (chars[i][j] != 0) {
 							// Set the background of the outer board to indicate the winner
-							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), chars[i][j] == 'X' ? R.drawable.x : R.drawable.o, null));
-							//((GridLayout) gridBoard.getChildAt(1)).getChildAt(1)
+							if (chars[i][j] == 'X') {
+								gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
+							} else if (chars[i][j] == 'O') {
+								gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
+							} else {
+								gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
+							}
 						}
 					}
 				}

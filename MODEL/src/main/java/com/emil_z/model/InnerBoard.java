@@ -52,6 +52,7 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		//check if the game is a tie
 		if(isTie()){
 			isFinished = true;
+			winner = 'T';
 			return true;
 		}
 		//check rows
