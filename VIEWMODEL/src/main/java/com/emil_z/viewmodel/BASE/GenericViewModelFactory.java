@@ -35,4 +35,8 @@ public class GenericViewModelFactory<T extends ViewModel>
                 "Unknown ViewModel class: " +
                         modelClass.getName());
     }
+
+    public Application getApplication() {
+        return application;
+    }
 }

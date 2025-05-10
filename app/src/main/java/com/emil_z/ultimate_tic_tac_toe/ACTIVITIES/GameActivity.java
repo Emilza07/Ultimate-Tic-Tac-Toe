@@ -32,9 +32,9 @@ import com.emil_z.model.Player;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
+import com.emil_z.viewmodel.GamesViewModelFactory;
 
 import java.util.Objects;
-import java.util.Random;
 
 public class GameActivity extends BaseActivity {
 
@@ -94,8 +94,8 @@ public class GameActivity extends BaseActivity {
 
 	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
-			if (gameType.equals(GameType.Online)) {
-				viewModel.removeGame();
+			if (gameType.equals(GameType.ONLINE)) {
+				viewModel.exitGame();
 				Toast.makeText(this, "Online game aborted", Toast.LENGTH_SHORT).show();
 			}
 			Intent intent = new Intent();
@@ -117,11 +117,11 @@ public class GameActivity extends BaseActivity {
 						null,
 						(() -> {
 							Intent intent = new Intent();
-							if (gameType == GameType.Online)
-								viewModel.removeGame();
+							if (gameType == GameType.ONLINE)
+								viewModel.exitGame();
 							setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
 							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-							if (gameType != GameType.Online)
+							if (gameType != GameType.ONLINE)
 								finish();
 						}),
 						null,
@@ -147,7 +147,9 @@ public class GameActivity extends BaseActivity {
 	}
 
 	protected void setViewModel() {
-		viewModel = new ViewModelProvider(this).get(GamesViewModel.class);
+		viewModel = new ViewModelProvider(this,
+				new GamesViewModelFactory(getApplication(), gameType))
+				.get(GamesViewModel.class);
 
 		viewModel.getSuccess().observe(this, success -> {
 			if (success) {
@@ -170,8 +172,8 @@ public class GameActivity extends BaseActivity {
 				int btnIndex = game.getMoves().get(game.getMoves().size() - 1).getInner().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getInner().y;
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
-				btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
 				if (!game.getOuterBoard().isFreeMove()) {
+					btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
 					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
 					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
 				}
@@ -212,7 +214,7 @@ public class GameActivity extends BaseActivity {
 					case LOCAL:
 						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
 						break;
-					case Online:
+					case ONLINE:
 						winner = Objects.equals(viewModel.getLvGame().getValue().getWinnerIdFs(), viewModel.getLvGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
 						break;
 					default:
@@ -265,7 +267,7 @@ public class GameActivity extends BaseActivity {
 				// Initialize local game
 				viewModel.startLocalGame();
 				break;
-			case Online:
+			case ONLINE:
 				// Initialize online game as joiner
 				try {
 					viewModel.startOnlineGame(new Player(currentUser));

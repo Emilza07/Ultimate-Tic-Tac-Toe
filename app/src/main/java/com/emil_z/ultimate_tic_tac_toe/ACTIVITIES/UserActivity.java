@@ -13,12 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emil_z.model.Game;
+import com.emil_z.model.GameType;
 import com.emil_z.model.Player;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.ADPTERS.BASE.GenericAdapter;
 import com.emil_z.ultimate_tic_tac_toe.ADPTERS.GamesAdapter;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
+import com.emil_z.viewmodel.GamesViewModelFactory;
 
 import java.util.Objects;
 
@@ -64,7 +66,7 @@ public class UserActivity extends BaseActivity {
 
 	@Override
 	protected void setViewModel() {
-		viewModel = new ViewModelProvider(this).get(GamesViewModel.class);
+		viewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
 		showProgressDialog("Games", "Loading games...");
 		viewModel.getUserGames(currentUser.getIdFs());
 

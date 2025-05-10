@@ -1,7 +1,6 @@
 package com.emil_z.viewmodel;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -10,12 +9,16 @@ import androidx.lifecycle.MutableLiveData;
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
+import com.emil_z.model.GameType;
 import com.emil_z.model.Games;
 
 import com.emil_z.model.OnlineGame;
 import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
-import com.emil_z.repository.GamesRepository;
+import com.emil_z.repository.CpuGamesRepository;
+import com.emil_z.repository.BaseGamesRepository;
+import com.emil_z.repository.LocalGamesRepository;
+import com.emil_z.repository.OnlineGamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
 import com.google.android.gms.tasks.Tasks;
 
@@ -23,26 +26,48 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 
 public class GamesViewModel extends BaseViewModel<Game, Games> {
-	private GamesRepository repository;
+	private BaseGamesRepository repository;
 	private final MutableLiveData<Integer> lvCode;
 	private final MediatorLiveData<Game> lvGame;
 	private final MediatorLiveData<char[][]> lvOuterBoardWinners;
 	private final MediatorLiveData<Boolean> lvIsFinished;
 	private final MediatorLiveData<Boolean> lvIsStarted;
+	private final GameType gameType;
 
-	public GamesViewModel(Application application) {
+	public GamesViewModel(Application application, GameType gameType) {
 		super(Game.class, Games.class, application);
+		this.gameType 		= gameType;
 		lvGame				= new MediatorLiveData<>();
 		lvCode				= new MutableLiveData<>();
 		lvOuterBoardWinners = new MediatorLiveData<>();
 		lvIsFinished		= new MediatorLiveData<>();
 		lvIsStarted			= new MediatorLiveData<>(false);
+		super.repository	= createRepository(application);
 		isStartedObserver();
 	}
 
 	@Override
 	protected BaseRepository<Game, Games> createRepository(Application application) {
-		repository = new GamesRepository(application);
+		if (gameType == null) {
+			// We're being called from parent constructor before gameType is initialized
+			return null;
+		}
+
+		if (repository == null) {
+			switch (gameType) {
+				case CPU:
+					repository = new CpuGamesRepository(application);
+					break;
+				case LOCAL:
+					repository = new LocalGamesRepository(application);
+					break;
+				case ONLINE:
+					repository = new OnlineGamesRepository(application);
+					break;
+				default:
+					throw new IllegalStateException("Unknown GameType: " + gameType);
+			}
+		}
 		return repository;
 	}
 
@@ -72,18 +97,21 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	//region start game
 	public void startCpuGame(String crossPlayerIdFs) {
-		repository.startCpuGame(crossPlayerIdFs);
-		if(Objects.equals(crossPlayerIdFs, "CPU"))
-			repository.makeCpuMove();
+		repository.startGame(null, crossPlayerIdFs);
+		if (Objects.equals(crossPlayerIdFs, "CPU")) {
+			Executors.newSingleThreadExecutor().execute(() -> {
+				((CpuGamesRepository) repository).makeCpuMove();
+			});
+		}
 	}
 
 	public void startLocalGame(){
-		repository.startLocalGame();
+		repository.startGame(null, null);
 	}
 
 	public void startOnlineGame(Player player) {
 		Executors.newSingleThreadExecutor().execute(() -> {
-			repository.startOnlineGame(player);
+			repository.startGame(player, null);
 		});
 	}
 	//endregion
@@ -109,8 +137,8 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 				lvIsFinished::setValue);
 	}
 
-	public void removeGame(){
-		repository.deleteOnlineGame().addOnSuccessListener(aBoolean -> lvSuccess.setValue(aBoolean))
+	public void exitGame(){
+		((OnlineGamesRepository) repository).exitGame().addOnSuccessListener(aBoolean -> lvSuccess.setValue(aBoolean))
 				.addOnFailureListener(e -> {
 					lvSuccess.setValue(false); //TODO: notify the user about error in deleting game
 				});
@@ -125,8 +153,9 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 					else if (lvGame.getValue() instanceof CpuGame)
 					{
 						if(!lvGame.getValue().isFinished())
-							repository.makeCpuMove();
-					}
+							Executors.newSingleThreadExecutor().execute(() -> {
+								((CpuGamesRepository) repository).makeCpuMove();
+							});					}
 				})
 				.addOnFailureListener(e -> lvCode.setValue(Integer.valueOf(e.getMessage())));
 	}

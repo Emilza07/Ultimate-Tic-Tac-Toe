@@ -53,7 +53,7 @@ public class HomeActivity extends BaseActivity {
 							@Override
 							public void onActivityResult(ActivityResult o) {
 								GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
-								if (gameType == GameType.Online && o.getResultCode() == RESULT_OK) {
+								if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
 									viewModel.get(currentUser.getIdFs());
 								}
 							}
@@ -101,7 +101,7 @@ public class HomeActivity extends BaseActivity {
 			startGameActivity(GameType.LOCAL);
 		});
 		btnOnline.setOnClickListener(v -> {
-			startGameActivity(GameType.Online);
+			startGameActivity(GameType.ONLINE);
 		});
 	}
 
