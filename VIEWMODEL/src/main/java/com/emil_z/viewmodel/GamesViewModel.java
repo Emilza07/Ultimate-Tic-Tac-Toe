@@ -147,10 +147,9 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	public void makeMove(BoardLocation boardLocation) {
 		repository.makeMove(boardLocation)
 				.addOnSuccessListener(voidTask -> {
-					lvCode.setValue(0);
-					if(lvGame.getValue() instanceof OnlineGame)
+					if(repository instanceof OnlineGamesRepository)
 						repository.update(lvGame.getValue());
-					else if (lvGame.getValue() instanceof CpuGame)
+					else if (repository instanceof CpuGamesRepository)
 					{
 						if(!lvGame.getValue().isFinished())
 							Executors.newSingleThreadExecutor().execute(() -> {

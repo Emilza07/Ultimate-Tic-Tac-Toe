@@ -174,7 +174,6 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 
 			boolean isLocal = snapshot != null && snapshot.getMetadata().hasPendingWrites();
 			try {
-
 				if (!isLocal) {
 					if (snapshot != null && snapshot.exists()) {
 						if (!snapshot.getBoolean("started") && !snapshot.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty() && Objects.equals(snapshot.toObject(OnlineGame.class).getPlayer1().getIdFs(), localPlayerIdFs)) {
