@@ -5,7 +5,8 @@
 	<string name="password">Password</string>
 	<string name="back">Back</string>
 	<string name="abort_search">Abort search</string>
-	<string name="player_x_turn">Player X turn</string>
+	<string name="player_x_turn">Current Player: X</string>
+	<string name="player_o_turn">Current Player: O</string>
 	<string name="single_player">Single Player</string>
 	<string name="local_multiplayer">Local Multiplayer</string>
 	<string name="online_game">Online Game</string>
@@ -14,8 +15,9 @@
 	<string name="confirm_password">Confirm Password</string>
 	<string name="by_emil_zalessky">by Emil Zalessky</string>
 
-	<string name="EXTRA_GAME_TYPE">com.emil_z.GAME_TYPE</string>
+	<string name="EXTRA_GAME_TYPE">GAME_TYPE</string>
 	<string name="EXTRA_SIGN">SIGN</string>
+	<string name="EXTRA_GAME_IDFS">>GAME_IDFS</string>
 	<string-array name="error_codes">
 		<item>OK</item>
 		<item>Not your turn</item>

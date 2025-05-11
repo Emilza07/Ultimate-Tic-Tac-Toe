@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,11 @@ public class GameActivity extends BaseActivity {
 	private TextView tvP2Sign;
 	private TextView tvCurrentPlayer;
 
+	private LinearLayout llReview;
+	private Button btnForward;
+	private Button btnBackward;
+	private int moveIndex = 0;
+
 	private GamesViewModel viewModel;
 	GameType gameType;
 	String[] errorCodes;
@@ -78,6 +84,10 @@ public class GameActivity extends BaseActivity {
 		Intent intent = getIntent();
 		gameType = (GameType) intent.getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
 		tvCurrentPlayer = findViewById(R.id.tvCurrentPlayer);
+
+		llReview = findViewById(R.id.llReview);
+		btnForward = findViewById(R.id.btnForward);
+		btnBackward = findViewById(R.id.btnBackward);
 
 		clLoading = findViewById(R.id.clLoading);
 		btnAbort = findViewById(R.id.btnAbort);
@@ -129,6 +139,54 @@ public class GameActivity extends BaseActivity {
 				);
 			}
 		});
+
+		btnForward.setOnClickListener(v -> {
+			Game game = viewModel.getLvGame().getValue();
+//				if (game.getMoves().size() > 1) {
+//					int previewsMoveIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
+//					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previewsMoveIndex);
+//					prevInnerGrid.setBackgroundColor(Color.TRANSPARENT);
+//				}
+			if (moveIndex >= game.getMoves().size()) {
+				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
+				return;
+			}
+			BoardLocation lastMove = game.getMoves().get(moveIndex);
+			int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
+			int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
+			GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
+			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
+			btn.setImageResource(moveIndex % 2 == 1 ? R.drawable.o : R.drawable.x);
+//				if (!game.getOuterBoard().isFreeMove()) { //TODO: resolve how to handle the grid highlights
+//					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
+//					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+//				}
+			//TODO: check if the game or an inner grid is finished
+			tvCurrentPlayer.setText(moveIndex % 2 == 1 ? R.string.player_x_turn : R.string.player_o_turn);
+			moveIndex++;
+		});
+		btnBackward.setOnClickListener(v -> {
+			moveIndex--;
+			if (moveIndex < 0) {
+				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
+				moveIndex = 0;
+				return;
+			}
+			Game game = viewModel.getLvGame().getValue();
+			BoardLocation lastMove = game.getMoves().get(moveIndex);
+			int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
+			int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
+			GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
+			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
+			btn.setImageDrawable(null);
+
+//				if (!game.getOuterBoard().isFreeMove()) { //TODO: resolve how to handle the grid highlights
+//					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
+//					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+//				}
+			//TODO: check if the game or an inner grid was finished on the previous move
+			tvCurrentPlayer.setText(moveIndex % 2 == 0 ? R.string.player_x_turn : R.string.player_o_turn);
+		});
 	}
 
 	private void handleBoardButtonClick(ImageView btn) {
@@ -157,27 +215,27 @@ public class GameActivity extends BaseActivity {
 		});
 
 		viewModel.getLvGame().observe(this, game -> {
-			if (game == null){
+			if (game == null) {
 				Intent intent = new Intent();
 				setResult(RESULT_OK, intent);
 				finish();
-			}
-			else if (!game.getMoves().isEmpty() && !game.isFinished()) { //Remote player made a move
-				if(game.getMoves().size() > 1) {
+			} else if (!game.getMoves().isEmpty() && !game.isFinished()) { //Remote player made a move
+				if (game.getMoves().size() > 1) {
 					int previewsMoveIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
 					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previewsMoveIndex);
 					prevInnerGrid.setBackgroundColor(Color.TRANSPARENT);
 				}
-				int innerGridIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
-				int btnIndex = game.getMoves().get(game.getMoves().size() - 1).getInner().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getInner().y;
+				BoardLocation lastMove = game.getMoves().get(game.getMoves().size() - 1);
+				int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
+				int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
+				btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
 				if (!game.getOuterBoard().isFreeMove()) {
-					btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
 					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
 					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
 				}
-				tvCurrentPlayer.setText("Current Player: " + (viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? "X" : "O"));
+				tvCurrentPlayer.setText(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? R.string.player_x_turn : R.string.player_o_turn);
 
 
 			}
@@ -249,8 +307,16 @@ public class GameActivity extends BaseActivity {
 					tvCurrentPlayer.setVisibility(View.VISIBLE);
 					gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
 					setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
+					if(gameType == GameType.HISTORY)
+						llReview.setVisibility(View.VISIBLE);
+//					else
+//						llReview.setVisibility(View.GONE);
 				}
 			}
+		});
+
+		viewModel.getEntity().observe(this, game -> {
+			viewModel.startHistoryGame(game);
 		});
 	}
 
@@ -276,6 +342,10 @@ public class GameActivity extends BaseActivity {
 					Toast.makeText(this, "Error starting game: " + e.getMessage() + " Try again", Toast.LENGTH_SHORT).show();
 				}
 				break;
+			case HISTORY:
+				intent = getIntent();
+				viewModel.get(intent.getStringExtra(getString(R.string.EXTRA_GAME_IDFS)));
+				break;
 		}
 	}
 
@@ -289,13 +359,13 @@ public class GameActivity extends BaseActivity {
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
 			if (viewModel.getLvGame().getValue().getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
-					tvCurrentPlayer.setText("Current Player: X");
+					tvCurrentPlayer.setText(R.string.player_x_turn);
 				} else {
-				tvCurrentPlayer.setText("Current Player: O");
+				tvCurrentPlayer.setText(R.string.player_o_turn);
 				tvP1Sign.setText("O");
 				tvP2Sign.setText("X");
 			}
-		} else {
+		} else if (gameType == GameType.ONLINE){
 			// For online games
 			if(!viewModel.getLvIsStarted().getValue())
 			{
@@ -311,15 +381,23 @@ public class GameActivity extends BaseActivity {
 				if (isHost) {
 					tvP2Name.setText(p2.getName());
 					tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
-					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
-					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
+					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
+					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
 				} else {
 					tvP2Name.setText(p1.getName());
 					tvP2Elo.setText("(" + Math.round(p1.getElo()) + ")");
-					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCurrentPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
+					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
 				}
 			}
+		} else {
+			// For history games
+			tvP1Name.setText(p1.getName());
+			tvP1Elo.setText("(" + Math.round(p1.getElo()) + ")");
+			tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+			tvP2Name.setText(p2.getName());
+			tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
+			tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
 		}
 	}
 

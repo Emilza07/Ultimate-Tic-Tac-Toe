@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Game extends BaseEntity implements Serializable {
+public class Game extends BaseEntity implements Serializable {
 	protected boolean isStarted;
 	protected boolean isFinished;
 	protected String winnerIdFs;
@@ -37,6 +37,7 @@ public abstract class Game extends BaseEntity implements Serializable {
 		this.player1 = new Player(game.player1);
 		this.player2 = new Player(game.player2);
 		this.currentPlayerIdFs = game.currentPlayerIdFs;
+		this.crossPlayerIdFs = game.crossPlayerIdFs;
 	}
 
 	//region getters and setters

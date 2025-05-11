@@ -1,5 +1,6 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -106,6 +107,10 @@ public class UserActivity extends BaseActivity {
 
 		adapter.setOnItemClickListener((item, position) -> {
 			//TODO: start watching game;
+			Intent intent = new Intent(this, GameActivity.class);
+			intent.putExtra(getString(R.string.EXTRA_GAME_IDFS), item.getIdFs());
+			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), GameType.HISTORY);
+			startActivity(intent);
 		});
 	}
 

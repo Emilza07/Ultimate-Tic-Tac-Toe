@@ -17,9 +17,11 @@ import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.emil_z.repository.CpuGamesRepository;
 import com.emil_z.repository.BaseGamesRepository;
+import com.emil_z.repository.HistoryGameRepository;
 import com.emil_z.repository.LocalGamesRepository;
 import com.emil_z.repository.OnlineGamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Tasks;
 
 import java.util.Objects;
@@ -64,6 +66,9 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 				case ONLINE:
 					repository = new OnlineGamesRepository(application);
 					break;
+				case HISTORY:
+					repository = new HistoryGameRepository(application);
+					break;
 				default:
 					throw new IllegalStateException("Unknown GameType: " + gameType);
 			}
@@ -95,6 +100,16 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		lvCollection = repository.getUserGames(userId);
 	}
 
+	public void getOnlineGame(String gameId) {
+		OnlineGame game = null;
+		((HistoryGameRepository) repository).getOnlineGame(gameId).addOnSuccessListener(new OnSuccessListener<OnlineGame>() {
+			@Override
+			public void onSuccess(OnlineGame onlineGame) {
+				lvEntity.setValue(onlineGame);
+			}
+		});
+	}
+
 	//region start game
 	public void startCpuGame(String crossPlayerIdFs) {
 		repository.startGame(null, crossPlayerIdFs);
@@ -113,6 +128,10 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		Executors.newSingleThreadExecutor().execute(() -> {
 			repository.startGame(player, null);
 		});
+	}
+
+	public void startHistoryGame(Game game) {
+		((HistoryGameRepository) repository).startGame(game);
 	}
 	//endregion
 

@@ -74,6 +74,7 @@
 	</LinearLayout>
 
 	<LinearLayout
+		android:id="@+id/linearLayout2"
 		android:layout_width="match_parent"
 		android:layout_height="50dp"
 		android:layout_gravity="bottom"
@@ -156,5 +157,31 @@
 		app:layout_constraintBottom_toTopOf="@+id/gridBoard"
 		app:layout_constraintEnd_toEndOf="@+id/gridBoard"
 		app:layout_constraintStart_toStartOf="@+id/gridBoard" />
+
+	<LinearLayout
+		android:id="@+id/llReview"
+		android:layout_width="285dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="32dp"
+		android:orientation="horizontal"
+		android:visibility="gone"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/gridBoard">
+
+		<Button
+			android:id="@+id/btnBackward"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Back" />
+
+		<Button
+			android:id="@+id/btnForward"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Forward" />
+	</LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
