@@ -163,7 +163,7 @@ public class CPU {
 						maxEval = blop;
 						//Saves which board you should play on, so that this can be passed on when the AI is allowed to play in any board
 						// This tmpPlay seems to track the square index within the boardToPlayOn
-						tmpPlay = mm; // This seems inconsistent with the boardToPlayOn == -1 case where tmpPlay tracks the board index. Preserving original logic.
+						tmpPlay = evalutResult.tP; // This seems inconsistent with the boardToPlayOn == -1 case where tmpPlay tracks the board index. Preserving original logic.
 					}
 					alpha = Math.max(alpha, blop);
 					if(beta <= alpha){
@@ -209,7 +209,7 @@ public class CPU {
 					if(blep < minEval){
 						minEval = blep;
 						// This tmpPlay seems to track the square index within the boardToPlayOn
-						tmpPlay = mm; // This seems inconsistent with the boardToPlayOn == -1 case where tmpPlay tracks the board index. Preserving original logic.
+						tmpPlay = evaluaResult.tP; // This seems inconsistent with the boardToPlayOn == -1 case where tmpPlay tracks the board index. Preserving original logic.
 					}
 					beta = Math.min(beta, blep);
 					if(beta <= alpha){
@@ -334,7 +334,7 @@ public class CPU {
 	}
 
 	public static BoardLocation findBestMove(OuterBoard outerBoard) {
-
+		// Assuming moves is a property of OuterBoard
 		//AI HANDLER
 		int bestMove = -1;
 		double[] bestScore = new double[9]; // Ensure bestScore is initialized as a double array of size 9
@@ -449,7 +449,7 @@ public class CPU {
 					bestMove = i; // Update bestMove if a higher score is found
 				}
 			}
-
+			moves += 2; // Increment moves by 2 for the AI's turn
 			return new BoardLocation(new Point(boardToPlayOn / 3, boardToPlayOn % 3), new Point(bestMove / 3, bestMove % 3)); // Return the best move as a BoardLocation object
 			//Actually places the cross/nought
 			// Assuming boards[currentBoard] is an int[]
