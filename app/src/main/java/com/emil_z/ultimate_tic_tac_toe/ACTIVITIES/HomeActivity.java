@@ -30,7 +30,8 @@ public class HomeActivity extends BaseActivity {
 	private ImageButton iBtnProfile;
 
 	private UsersViewModel viewModel;
-	private ActivityResultLauncher<Intent> launcher;
+	private ActivityResultLauncher<Intent> gameLauncher;
+	private ActivityResultLauncher<Intent> profileLauncher;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,17 +49,8 @@ public class HomeActivity extends BaseActivity {
 		initializeViews();
 		setListeners();
 		setViewModel();
-		launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-						new ActivityResultCallback<ActivityResult>() {
-							@Override
-							public void onActivityResult(ActivityResult o) {
-								GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
-								if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
-									viewModel.get(currentUser.getIdFs());
-								}
-							}
-						}
-				);
+		registerLaunchers();
+
 	}
 
 	@Override
@@ -67,13 +59,14 @@ public class HomeActivity extends BaseActivity {
 		btnLocal = findViewById(R.id.btnLocal);
 		btnOnline = findViewById(R.id.btnOnline);
 		iBtnProfile = findViewById(R.id.iBtnProfile);
+		iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
 	}
 
 	@Override
 	protected void setListeners() {
 		iBtnProfile.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, UserActivity.class);
-			startActivity(intent);
+			profileLauncher.launch(intent);
 		});
 		btnCPU.setOnClickListener(v -> {
 			//TODO: add an option to choose the sign here instead of game activity because of player names
@@ -87,13 +80,13 @@ public class HomeActivity extends BaseActivity {
 					"Nought",
 					"Random",
 					() -> {
-						startCpuActivity(GameType.CPU, 'X');
+						startGameActivity(GameType.CPU, 'X');
 					},
 					() -> {
-						startCpuActivity(GameType.CPU, 'O');
+						startGameActivity(GameType.CPU, 'O');
 					},
 					() -> {
-							startCpuActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O');
+							startGameActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O');
 					});
 
 		});
@@ -105,17 +98,15 @@ public class HomeActivity extends BaseActivity {
 		});
 	}
 
-	private void startCpuActivity(GameType gameType, char sign) {
+	private void startGameActivity(GameType gameType, char sign) {
 		Intent intent = new Intent(HomeActivity.this, GameActivity.class);
 		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
 		intent.putExtra(getString(R.string.EXTRA_SIGN), sign);
-		launcher.launch(intent);
+		gameLauncher.launch(intent);
 	}
 
 	private void startGameActivity(GameType gameType) {
-		Intent intent = new Intent(HomeActivity.this, GameActivity.class);
-		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-		launcher.launch(intent);
+		startGameActivity(gameType, '-');
 	}
 
 	@Override
@@ -126,5 +117,28 @@ public class HomeActivity extends BaseActivity {
 				currentUser = user;
 			}
 		});
+	}
+
+	private void registerLaunchers() {
+		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+				new ActivityResultCallback<ActivityResult>() {
+					@Override
+					public void onActivityResult(ActivityResult o) {
+						GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
+						if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
+							viewModel.get(currentUser.getIdFs());
+						}
+					}
+				}
+		);
+		profileLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK) {
+						// Refresh user data to get the updated profile picture
+						iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
+					}
+				}
+		);
 	}
 }

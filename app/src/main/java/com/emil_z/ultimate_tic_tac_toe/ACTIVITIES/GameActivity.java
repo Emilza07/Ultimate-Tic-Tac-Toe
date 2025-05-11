@@ -1,6 +1,7 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -45,9 +46,11 @@ public class GameActivity extends BaseActivity {
 
 	private ConstraintLayout clLoading;
 	private Button btnAbort;
+	private ImageView ivP1Avatar;
 	private TextView tvP1Name;
 	private TextView tvP1Elo;
 	private TextView tvP1Sign;
+	private ImageView ivP2Avatar;
 	private TextView tvP2Name;
 	private TextView tvP2Elo;
 	private TextView tvP2Sign;
@@ -92,9 +95,11 @@ public class GameActivity extends BaseActivity {
 		clLoading = findViewById(R.id.clLoading);
 		btnAbort = findViewById(R.id.btnAbort);
 
+		ivP1Avatar = findViewById(R.id.ivP1Avatar);
 		tvP1Name = findViewById(R.id.tvP1Name);
 		tvP1Elo = findViewById(R.id.tvP1Elo);
 		tvP1Sign = findViewById(R.id.tvP1Sign);
+		ivP2Avatar = findViewById(R.id.ivP2Avatar);
 		tvP2Name = findViewById(R.id.tvP2Name);
 		tvP2Elo = findViewById(R.id.tvP2Elo);
 		tvP2Sign = findViewById(R.id.tvP2Sign);
@@ -352,9 +357,11 @@ public class GameActivity extends BaseActivity {
 	private void setPlayers(Player p1, Player p2) {
 		if (gameType == GameType.CPU || gameType == GameType.LOCAL) {
 			// For local games, display as is
+			ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
 			tvP1Sign.setText("X");
+			ivP2Avatar.setImageBitmap(p2.getPictureBitmap());
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
@@ -369,9 +376,11 @@ public class GameActivity extends BaseActivity {
 			// For online games
 			if(!viewModel.getLvIsStarted().getValue())
 			{
-				tvP1Name.setText(currentUser.getName());
+				ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
+				tvP1Name.setText(currentUser.getUsername());
 				tvP1Elo.setText("(" + Math.round(currentUser.getElo()) + ")");
 				tvP1Sign.setText("");
+				ivP2Avatar.setImageBitmap((BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default)));
 				tvP2Name.setText( "Waiting for opponent...");
 				tvP2Elo.setText("");
 				tvP2Sign.setText("");
@@ -379,11 +388,13 @@ public class GameActivity extends BaseActivity {
 			else {
 				boolean isHost = Objects.equals(viewModel.getLvGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 				if (isHost) {
+					ivP2Avatar.setImageBitmap(viewModel.getLvGame().getValue().getPlayer2().getPictureBitmap());
 					tvP2Name.setText(p2.getName());
 					tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
 					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
 					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
 				} else {
+					ivP2Avatar.setImageBitmap(viewModel.getLvGame().getValue().getPlayer1().getPictureBitmap());
 					tvP2Name.setText(p1.getName());
 					tvP2Elo.setText("(" + Math.round(p1.getElo()) + ")");
 					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");

@@ -37,6 +37,12 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0" />
 
+		<ImageView
+			android:id="@+id/ivP2Avatar"
+			android:layout_width="50dp"
+			android:layout_height="50dp"
+			tools:srcCompat="@tools:sample/avatars" />
+
 		<TextView
 			android:id="@+id/tvP2Name"
 			android:layout_width="wrap_content"
@@ -87,6 +93,13 @@
 			android:layout_width="20dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0" />
+
+		<ImageView
+			android:id="@+id/ivP1Avatar"
+			android:layout_width="50dp"
+			android:layout_height="50dp"
+			android:layout_weight="0"
+			tools:srcCompat="@tools:sample/avatars" />
 
 		<TextView
 			android:id="@+id/tvP1Name"

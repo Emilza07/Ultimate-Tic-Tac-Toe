@@ -1,10 +1,14 @@
 package com.emil_z.model;
 
+import android.graphics.Bitmap;
+
+import com.emil_z.helper.BitMapHelper;
 import com.emil_z.model.BASE.BaseEntity;
 
 public class Player extends BaseEntity {
 	private String name;
 	private float elo;
+	private String picture;
 
 	public Player (){}
 
@@ -12,12 +16,14 @@ public class Player extends BaseEntity {
 		this.idFs = player.idFs;
 		this.name = player.name;
 		this.elo = player.elo;
+		this.picture = player.picture;
 	}
 
 	public Player(User user) {
 		this.idFs = user.getIdFs();
-		this.name = user.getName();
+		this.name = user.getUsername();
 		this.elo = user.getElo();
+		this.picture = user.getPicture();
 	}
 
 	public String getName() {
@@ -34,6 +40,18 @@ public class Player extends BaseEntity {
 
 	public void setElo(float elo){
 		this.elo = elo;
+	}
+
+	public String getPicture() {
+		return picture;
+	}
+
+	public Bitmap getPictureBitmap() {
+		return BitMapHelper.decodeBase64(picture);
+	}
+
+	public void setPicture(String picture) {
+		this.picture = picture;
 	}
 
 	public int compareElo(Player player){

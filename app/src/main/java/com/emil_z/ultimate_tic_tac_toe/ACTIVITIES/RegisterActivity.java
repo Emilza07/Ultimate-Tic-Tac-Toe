@@ -1,6 +1,8 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emil_z.helper.BitMapHelper;
 import com.emil_z.helper.inputValidators.CompareRule;
 import com.emil_z.helper.inputValidators.NameRule;
 import com.emil_z.helper.inputValidators.Rule;
@@ -89,11 +92,12 @@ public class RegisterActivity extends BaseActivity {
 	}
 
 	protected void registerUser() {
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default);
 		User user = new User(etUsername.getText().toString(),
-				etPassword.getText().toString());
+				etPassword.getText().toString(),
+				BitMapHelper.encodeTobase64(bitmap));
 		viewModel.save(user);
 		startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-
 	}
 
 	protected void setViewModel() {
