@@ -505,15 +505,26 @@ public class GameActivity extends BaseActivity {
 				}
 			}
 		} else {
-			// For history games
-			ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
-			tvP1Name.setText(p1.getName());
-			tvP1Elo.setText("(" + Math.round(p1.getElo()) + ")");
-			tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-			ivP2Avatar.setImageBitmap(p2.getPictureBitmap());
-			tvP2Name.setText(p2.getName());
-			tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
-			tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
+			boolean isHost = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
+			if (isHost) {
+				ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
+				tvP1Name.setText(p1.getName());
+				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
+				tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+				ivP2Avatar.setImageBitmap(p2.getPictureBitmap());
+				tvP2Name.setText(p2.getName());
+				tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
+				tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
+			} else {
+				ivP1Avatar.setImageBitmap(p2.getPictureBitmap());
+				tvP1Name.setText(p2.getName());
+				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
+				tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
+				ivP2Avatar.setImageBitmap(p1.getPictureBitmap());
+				tvP2Name.setText(p1.getName());
+				tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
+				tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
+			}
 		}
 	}
 

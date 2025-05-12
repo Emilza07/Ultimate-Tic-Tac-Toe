@@ -1,19 +1,28 @@
 <resources>
 	<string name="app_name">Ultimate Tic Tac Toe</string>
+
+	<string name="ultimate_tic_tac_toe_online">Ultimate Tic Tac Toe Online</string>
+	<string name="by_emil_zalessky">by Emil Zalessky</string>
 	<string name="sign_in">Sign In</string>
+	<string name="register">Register</string>
+
+	<string name="back">Back</string>
 	<string name="username">Username</string>
 	<string name="password">Password</string>
-	<string name="back">Back</string>
-	<string name="abort_search">Abort search</string>
-	<string name="player_x_turn">Current Player: X</string>
-	<string name="player_o_turn">Current Player: O</string>
+	<string name="confirm_password">Confirm Password</string>
+
 	<string name="single_player">Single Player</string>
 	<string name="local_multiplayer">Local Multiplayer</string>
 	<string name="online_game">Online Game</string>
-	<string name="ultimate_tic_tac_toe_online">Ultimate Tic Tac Toe Online</string>
-	<string name="register">Register</string>
-	<string name="confirm_password">Confirm Password</string>
-	<string name="by_emil_zalessky">by Emil Zalessky</string>
+
+	<string name="abort_search">Abort search</string>
+	<string name="player_o_turn">Current Player: O</string>
+	<string name="player_x_turn">Current Player: X</string>
+	<string name="searching_for_opponent">Searching for opponent..</string>
+	<string name="player_elo_format">(%d)</string>
+
+	<string name="rank_format">#%d</string>
+	<string name="elo_format">ELO: %d</string>
 
 	<string name="EXTRA_GAME_TYPE">GAME_TYPE</string>
 	<string name="EXTRA_SIGN">SIGN</string>
