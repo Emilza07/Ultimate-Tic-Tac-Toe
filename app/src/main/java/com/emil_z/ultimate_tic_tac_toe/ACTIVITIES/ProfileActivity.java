@@ -32,7 +32,7 @@ import com.emil_z.viewmodel.UsersViewModel;
 
 import java.util.Objects;
 
-public class UserActivity extends BaseActivity {
+public class ProfileActivity extends BaseActivity {
 	private ImageView ivAvatar;
 	private TextView tvUsername;
 	private TextView tvElo;
@@ -48,7 +48,7 @@ public class UserActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
-		setContentView(R.layout.activity_user);
+		setContentView(R.layout.activity_profile);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

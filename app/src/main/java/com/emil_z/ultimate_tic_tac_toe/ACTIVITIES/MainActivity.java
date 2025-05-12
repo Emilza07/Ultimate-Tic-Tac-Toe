@@ -3,92 +3,158 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-
-import com.emil_z.helper.PreferenceManager;
-import com.emil_z.ultimate_tic_tac_toe.R;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatDelegate;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emil_z.helper.AlertUtil;
+import com.emil_z.model.GameType;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
+import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
-import java.util.Objects;
+import java.util.Random;
 
 public class MainActivity extends BaseActivity {
+	private Button btnCPU;
+	private Button btnLocal;
+	private Button btnOnline;
+	private ImageButton iBtnProfile;
+	private ImageButton iBtnLeaderboard;
+	private ImageButton iBtnSettings;
 
-	private Button btnLogin;
-	private Button btnRegister;
 	private UsersViewModel viewModel;
-	Object[][] prefsResult;
+	private ActivityResultLauncher<Intent> gameLauncher;
+	private ActivityResultLauncher<Intent> profileLauncher;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
-		//setContentView(R.layout.activity_main);
-		getLayoutInflater().inflate(R.layout.activity_main, findViewById(R.id.content_frame));
-		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-			return insets;
+		setContentView(R.layout.activity_main);
+		ViewCompat.setOnApplyWindowInsetsListener(
+			findViewById(R.id.main),
+			(v, insets) -> {
+				Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+				v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+				return insets;
 		});
-		setBottomNavigationVisibility(false);
+
+		setBottomNavigationVisibility(true);
 		initializeViews();
+		setListeners();
 		setViewModel();
-		checkForLogIn();
+		registerLaunchers();
+
 	}
 
 	@Override
 	protected void initializeViews() {
-		btnLogin	= findViewById(R.id.btnLogin);
-		btnRegister = findViewById(R.id.btnRegister);
-		showProgressDialog("Login", "Logging in...");
-
-		setListeners();
+		btnCPU = findViewById(R.id.btnCpu);
+		btnLocal = findViewById(R.id.btnLocal);
+		btnOnline = findViewById(R.id.btnOnline);
+		iBtnProfile = findViewById(R.id.iBtnProfile);
+		iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
+		iBtnLeaderboard = findViewById(R.id.iBtnLeaderboard);
+		iBtnSettings = findViewById(R.id.iBtnSettings);
 	}
 
 	@Override
 	protected void setListeners() {
-		btnLogin.setOnClickListener(v -> {
-			startActivity(new Intent(MainActivity.this, LoginActivity.class));
+		iBtnProfile.setOnClickListener(v -> {
+			Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+			profileLauncher.launch(intent);
 		});
-		btnRegister.setOnClickListener(v -> {
-			startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+		iBtnLeaderboard.setOnClickListener(v -> {
+			Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
+			startActivity(intent);
 		});
+		iBtnSettings.setOnClickListener(v -> {
+			Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+			startActivity(intent);
+		});
+		btnCPU.setOnClickListener(v -> {
+			//TODO: add an option to choose the sign here instead of game activity because of player names
+			//TODO: add an option to choose the level of the CPU
+			AlertUtil.alert(this,
+					"Start game",
+					"choose your sign",
+					false,
+					0,
+					"Cross",
+					"Nought",
+					"Random",
+					() -> startGameActivity(GameType.CPU, 'X'),
+					() -> startGameActivity(GameType.CPU, 'O'),
+					() -> startGameActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O'));
+
+		});
+		btnLocal.setOnClickListener(v -> startGameActivity(GameType.LOCAL));
+		btnOnline.setOnClickListener(v -> startGameActivity(GameType.ONLINE));
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				AlertUtil.alert(MainActivity.this,
+						"Exit",
+						"Are you sure you want to exit?",
+						true,
+						0,
+						"Yes",
+						"No",
+								null,
+						() -> finish(),
+						null,
+						null);
+			}
+		});
+	}
+
+	private void startGameActivity(GameType gameType, char sign) {
+		Intent intent = new Intent(MainActivity.this, GameActivity.class);
+		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+		intent.putExtra(getString(R.string.EXTRA_SIGN), sign);
+		gameLauncher.launch(intent);
+	}
+
+	private void startGameActivity(GameType gameType) {
+		startGameActivity(gameType, '-');
 	}
 
 	@Override
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
-
-		viewModel.getEntity().observe(this, user -> {
+		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
-				if(Objects.equals(user.getUsername(),prefsResult[1][1]) && Objects.equals(user.getPassword(), prefsResult[2][1])){
-					currentUser = user;
-					Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-					startActivity(intent);
-				}
-				hideProgressDialog();
+				currentUser = user;
 			}
 		});
 	}
 
-	private void checkForLogIn(){
-		prefsResult = PreferenceManager.readFromSharedPreferences(this, "user_prefs",
-				new Object[][]{{"UserIdFs", "String"}, {"Username", "String"}, {"Password", "String"}});
-		String idFs;
-		if (prefsResult != null && prefsResult[0] != null && prefsResult[0][1] != null) {
-			idFs = prefsResult[0][1].toString();
-			viewModel.get(idFs);
-		}
-		else {
-			hideProgressDialog();
-		}
+	private void registerLaunchers() {
+		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+				o -> {
+					GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
+					if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
+						viewModel.get(currentUser.getIdFs());
+					}
+				}
+		);
+		profileLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK) {
+						// Refresh user data to get the updated profile picture
+						iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
+					}
+				}
+		);
 	}
 }

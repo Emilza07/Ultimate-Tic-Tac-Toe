@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.emil_z.helper.BitMapHelper;
 import com.emil_z.model.BASE.BaseEntity;
+import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
 
@@ -52,6 +53,7 @@ public class User extends BaseEntity implements Serializable {
 		return picture;
 	}
 
+	@Exclude
 	public Bitmap getPictureBitmap() {
 		return BitMapHelper.decodeBase64(picture);
 	}

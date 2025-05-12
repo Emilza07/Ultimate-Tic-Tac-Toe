@@ -21,13 +21,13 @@
 			android:name=".ACTIVITIES.LeaderboardActivity"
 			android:exported="false" />
 		<activity
-			android:name=".ACTIVITIES.UserActivity"
+			android:name=".ACTIVITIES.ProfileActivity"
 			android:exported="false" />
 		<activity
 			android:name=".ACTIVITIES.GameActivity"
 			android:exported="false" />
 		<activity
-			android:name=".ACTIVITIES.HomeActivity"
+			android:name=".ACTIVITIES.MainActivity"
 			android:exported="false" />
 		<activity
 			android:name=".ACTIVITIES.LoginActivity"
@@ -39,7 +39,7 @@
 			android:name=".ACTIVITIES.BASE.BaseActivity"
 			android:exported="false" />
 		<activity
-			android:name=".ACTIVITIES.MainActivity"
+			android:name=".ACTIVITIES.AuthActivity"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />

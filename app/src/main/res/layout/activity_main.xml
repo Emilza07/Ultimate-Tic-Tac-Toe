@@ -1,63 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ACTIVITIES.MainActivity">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/main"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".ACTIVITIES.MainActivity">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="398dp"
-        android:layout_height="90dp"
-        android:layout_marginTop="76dp"
-        android:gravity="center"
-        android:text="@string/ultimate_tic_tac_toe_online"
-        android:textSize="33sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.461"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+	<ImageButton
+		android:id="@+id/iBtnProfile"
+		android:layout_width="100dp"
+		android:layout_height="100dp"
+		android:scaleType="fitXY"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:srcCompat="@tools:sample/avatars" />
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="150dp"
-        android:layout_height="85dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="476dp"
-        android:text="@string/sign_in"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+	<ImageButton
+		android:id="@+id/iBtnLeaderboard"
+		android:layout_width="100dp"
+		android:layout_height="100dp"
+		android:scaleType="fitXY"
+		app:layout_constraintStart_toEndOf="@+id/iBtnProfile"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/top_players" />
 
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="150dp"
-        android:layout_height="85dp"
-        android:layout_marginEnd="36dp"
-        android:text="@string/register"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btnLogin" />
+	<ImageButton
+		android:id="@+id/iBtnSettings"
+		android:layout_width="100dp"
+		android:layout_height="100dp"
+		android:scaleType="fitXY"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/settings" />
 
-    <TextView
-        android:id="@+id/tvGuest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:text="Continue as guest"
-        android:textColor="#0000EE"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
+	<Button
+		android:id="@+id/btnCpu"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="56dp"
+		android:text="@string/single_player"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/iBtnLeaderboard" />
 
-    <TextView
-        android:id="@+id/tvCreator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/by_emil_zalessky"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvTitle"
-        app:layout_constraintStart_toStartOf="@+id/tvTitle"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+	<Button
+		android:id="@+id/btnLocal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="52dp"
+		android:text="@string/local_multiplayer"
+		app:layout_constraintEnd_toEndOf="@+id/btnCpu"
+		app:layout_constraintStart_toStartOf="@+id/btnCpu"
+		app:layout_constraintTop_toBottomOf="@+id/btnCpu" />
+
+	<Button
+		android:id="@+id/btnOnline"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="52dp"
+		android:text="@string/online_game"
+		app:layout_constraintEnd_toEndOf="@+id/btnLocal"
+		app:layout_constraintStart_toStartOf="@+id/btnLocal"
+		app:layout_constraintTop_toBottomOf="@+id/btnLocal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

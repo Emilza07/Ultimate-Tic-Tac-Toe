@@ -41,7 +41,7 @@ public class SettingsActivity extends BaseActivity {
 			PreferenceManager.writeToSharedPreferences(SettingsActivity.this, "user_prefs", new Object[][] {{"UserIdFs", null, "String"}, {"Username", null, "String"}, {"Password", null, "String"}});
 
 			BaseActivity.currentUser = null;
-			Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+			Intent intent = new Intent(SettingsActivity.this, AuthActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			startActivity(intent);
 		});

@@ -84,7 +84,9 @@ public class LoginActivity extends BaseActivity {
 					BaseActivity.currentUser = user;
 					if(cbRememberMe.isChecked())
 						PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}, {"Username", user.getUsername(), "String"}, {"Password", user.getPassword(), "String"}});
-					Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+					else
+						PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}});
+					Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 					startActivity(intent);
 				}

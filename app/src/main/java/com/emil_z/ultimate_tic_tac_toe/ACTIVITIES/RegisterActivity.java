@@ -97,7 +97,9 @@ public class RegisterActivity extends BaseActivity {
 				etPassword.getText().toString(),
 				BitMapHelper.encodeTobase64(bitmap));
 		viewModel.save(user);
-		startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+		Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+		startActivity(intent);
+		finish();
 	}
 
 	protected void setViewModel() {
