@@ -9,6 +9,7 @@ import com.google.firebase.firestore.Exclude;
 public class Player extends BaseEntity {
 	private String name;
 	private float elo;
+	@Exclude
 	private String picture;
 
 	public Player (){}
@@ -43,6 +44,7 @@ public class Player extends BaseEntity {
 		this.elo = elo;
 	}
 
+	@Exclude
 	public String getPicture() {
 		return picture;
 	}
@@ -52,6 +54,7 @@ public class Player extends BaseEntity {
 		return BitMapHelper.decodeBase64(picture);
 	}
 
+	@Exclude
 	public void setPicture(String picture) {
 		this.picture = picture;
 	}
