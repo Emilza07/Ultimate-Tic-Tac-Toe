@@ -3,6 +3,7 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 
@@ -147,26 +148,36 @@ public class GameActivity extends BaseActivity {
 
 		btnForward.setOnClickListener(v -> {
 			Game game = viewModel.getLvGame().getValue();
-//				if (game.getMoves().size() > 1) {
-//					int previewsMoveIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
-//					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previewsMoveIndex);
-//					prevInnerGrid.setBackgroundColor(Color.TRANSPARENT);
-//				}
+
 			if (moveIndex >= game.getMoves().size()) {
 				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
 				return;
 			}
+			for (int i = 0; i < gridBoard.getChildCount(); i++) {
+				gridBoard.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
+			}
+
 			BoardLocation lastMove = game.getMoves().get(moveIndex);
 			int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
 			int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
 			GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
 			btn.setImageResource(moveIndex % 2 == 1 ? R.drawable.o : R.drawable.x);
-//				if (!game.getOuterBoard().isFreeMove()) { //TODO: resolve how to handle the grid highlights
-//					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
-//					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
-//				}
-			//TODO: check if the game or an inner grid is finished
+
+			if (moveIndex < game.getMoves().size() - 1) {
+				// The next grid is determined by the inner position of the current move
+				int nextGridIndex = btnIndex;
+				GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(nextGridIndex);
+
+				// Check if the next grid is already won or full (would be a free move)
+				boolean isNextGridPlayable = !game.getOuterBoard().getBoard(new Point(nextGridIndex / 3, nextGridIndex % 3)).isFinished();
+
+				if (isNextGridPlayable) {
+					// Highlight the specific grid
+					nextGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+				}
+			}
+
 			tvCurrentPlayer.setText(moveIndex % 2 == 1 ? R.string.player_x_turn : R.string.player_o_turn);
 			moveIndex++;
 		});
@@ -185,11 +196,21 @@ public class GameActivity extends BaseActivity {
 			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
 			btn.setImageDrawable(null);
 
-//				if (!game.getOuterBoard().isFreeMove()) { //TODO: resolve how to handle the grid highlights
-//					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
-//					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
-//				}
-			//TODO: check if the game or an inner grid was finished on the previous move
+			for (int i = 0; i < gridBoard.getChildCount(); i++) {
+				gridBoard.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
+			}
+
+			if (moveIndex > 0) {
+				BoardLocation previousMove = game.getMoves().get(moveIndex - 1);
+				int prevInnerPos = previousMove.getInner().x * 3 + previousMove.getInner().y;
+
+				boolean isNextGridPlayable = !game.getOuterBoard().getBoard(new Point(prevInnerPos / 3, prevInnerPos % 3)).isFinished();
+
+				if (isNextGridPlayable) {
+					GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(prevInnerPos);
+					nextGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+				}
+			}
 			tvCurrentPlayer.setText(moveIndex % 2 == 0 ? R.string.player_x_turn : R.string.player_o_turn);
 		});
 	}
@@ -205,7 +226,7 @@ public class GameActivity extends BaseActivity {
 					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
 				viewModel.resetLvCode();
 				viewModel.getLvCode().removeObserver(this);
-				}
+			}
 		});
 	}
 
@@ -366,8 +387,8 @@ public class GameActivity extends BaseActivity {
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
 			if (viewModel.getLvGame().getValue().getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
-					tvCurrentPlayer.setText(R.string.player_x_turn);
-				} else {
+				tvCurrentPlayer.setText(R.string.player_x_turn);
+			} else {
 				tvCurrentPlayer.setText(R.string.player_o_turn);
 				tvP1Sign.setText("O");
 				tvP2Sign.setText("X");

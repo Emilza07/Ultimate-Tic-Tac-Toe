@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.emil_z.helper.BitMapHelper;
 import com.emil_z.model.BASE.BaseEntity;
+import com.google.firebase.firestore.Exclude;
 
 public class Player extends BaseEntity {
 	private String name;
@@ -46,6 +47,7 @@ public class Player extends BaseEntity {
 		return picture;
 	}
 
+	@Exclude
 	public Bitmap getPictureBitmap() {
 		return BitMapHelper.decodeBase64(picture);
 	}
