@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,7 +27,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.AlertUtil;
-import com.emil_z.helper.BitMapHelper;
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.GameType;
@@ -44,10 +42,11 @@ import java.util.Objects;
 
 public class GameActivity extends BaseActivity {
 
+	GameType gameType;
+	String[] errorCodes;
 	private int boardSize;
 	private float conversionFactor;
 	private GridLayout gridBoard;
-
 	private ConstraintLayout clLoading;
 	private Button btnAbort;
 	private ImageView ivP1Avatar;
@@ -59,16 +58,12 @@ public class GameActivity extends BaseActivity {
 	private TextView tvP2Elo;
 	private TextView tvP2Sign;
 	private TextView tvCurrentPlayer;
-
 	private LinearLayout llReview;
 	private Button btnForward;
 	private Button btnBackward;
 	private int moveIndex = 0;
-
 	private GamesViewModel gamesViewModel;
 	private UsersViewModel usersViewModel;
-	GameType gameType;
-	String[] errorCodes;
 	private char[][] outerBoardState;
 
 	@Override
@@ -114,6 +109,7 @@ public class GameActivity extends BaseActivity {
 		outerBoardState = new char[3][3];
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
 			if (gameType.equals(GameType.ONLINE)) {
@@ -130,7 +126,7 @@ public class GameActivity extends BaseActivity {
 				Game game = gamesViewModel.getLiveDataGame().getValue();
 				AlertUtil.alert(
 						GameActivity.this,
-						(game != null && game.isStarted())? "Resign" : "Abort",
+						(game != null && game.isStarted()) ? "Resign" : "Abort",
 						"Are you sure you want to exit the game?",
 						true,
 						0,
@@ -158,7 +154,7 @@ public class GameActivity extends BaseActivity {
 			if (moveIndex >= game.getMoves().size()) {
 				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
 				return;
-				}
+			}
 
 			// Reset all inner board visuals to ensure clean state
 			for (int i = 0; i < gridBoard.getChildCount(); i++) {
@@ -179,11 +175,10 @@ public class GameActivity extends BaseActivity {
 			// Check next move highlighting
 			if (moveIndex < game.getMoves().size() - 1) {
 				// The next grid is determined by the inner position of the current move
-				int nextGridIndex = btnIndex;
-				GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(nextGridIndex);
+				GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
 
 				// Check if the next grid is already won or full (would be a free move)
-				boolean isNextGridPlayable = outerBoardState[nextGridIndex / 3][nextGridIndex % 3] == 0;
+				boolean isNextGridPlayable = outerBoardState[btnIndex / 3][btnIndex % 3] == 0;
 
 				if (isNextGridPlayable) {
 					// Highlight the specific grid
@@ -252,6 +247,7 @@ public class GameActivity extends BaseActivity {
 	/**
 	 * Rebuilds the game state up to the specified move index
 	 */
+	@SuppressWarnings("ConstantConditions")
 	private void rebuildGameStateToMove(int targetMoveIndex) {
 		Game game = gamesViewModel.getLiveDataGame().getValue();
 		OuterBoard tempBoard = new OuterBoard();
@@ -295,7 +291,7 @@ public class GameActivity extends BaseActivity {
 		gamesViewModel.getLiveDataCode().observe(this, new Observer<Integer>() {
 			@Override
 			public void onChanged(Integer code) {
-				if(code != 0)
+				if (code != 0)
 					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
 				gamesViewModel.resetLvCode();
 				gamesViewModel.getLiveDataCode().removeObserver(this);
@@ -303,16 +299,12 @@ public class GameActivity extends BaseActivity {
 		});
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	protected void setViewModel() {
 		gamesViewModel = new ViewModelProvider(this,
 				new GamesViewModelFactory(getApplication(), gameType))
 				.get(GamesViewModel.class);
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
-
-		gamesViewModel.getLiveDataSuccess().observe(this, success -> {
-			if (success) {
-			}
-		});
 
 		gamesViewModel.getLiveDataGame().observe(this, game -> {
 			if (game == null) {
@@ -341,99 +333,86 @@ public class GameActivity extends BaseActivity {
 			}
 		});
 
-		gamesViewModel.getLiveDataOuterBoardWinners().observe(this, new Observer<char[][]>() {
-			@Override
-			public void onChanged(char[][] chars) {
-				for (int i = 0; i < 3; i++) {
-					for (int j = 0; j < 3; j++) {
-						if (chars[i][j] != 0) {
-							// Set the background of the outer board to indicate the winner
-							if (chars[i][j] == 'X') {
-								gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
-							} else if (chars[i][j] == 'O') {
-								gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
-							} else {
-								gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
-							}
+		gamesViewModel.getLiveDataOuterBoardWinners().observe(this, chars -> {
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					if (chars[i][j] != 0) {
+						// Set the background of the outer board to indicate the winner
+						if (chars[i][j] == 'X') {
+							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
+						} else if (chars[i][j] == 'O') {
+							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
+						} else {
+							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
 						}
 					}
 				}
 			}
 		});
 
-		gamesViewModel.getLiveDataIsFinished().observe(this, new Observer<Boolean>() {
-			@Override
+		gamesViewModel.getLiveDataIsFinished().observe(this, aBoolean -> {
+			String winner;
 
-			public void onChanged(Boolean aBoolean) {
-				String winner;
+			switch (gameType) {
+				case CPU:
+				case LOCAL:
+					winner = gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs();
+					break;
+				case ONLINE:
+					winner = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs(), gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
+					break;
+				default:
+					throw new IllegalStateException("Unexpected value: " + gameType);
+			}
+			AlertUtil.alert(GameActivity.this,
+					"Game Over",
+					(!Objects.equals(gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs(), "T")) ? "Player " + winner + " wins!" : "Game is a tie!",
+					false,
+					0,
+					"Return",
+					null,
+					null,
+					(() -> {
+						Intent intent = new Intent();
+						intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+						setResult(RESULT_OK, intent);
+						finish();
+					}),
+					null,
+					null);
+		});
 
-				switch (gameType) {
-					case CPU:
-					case LOCAL:
-						winner = gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs();
-						break;
-					case ONLINE:
-						winner = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs(), gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
-						break;
-					default:
-						throw new IllegalStateException("Unexpected value: " + gameType);
-				}
-				AlertUtil.alert(GameActivity.this,
-						"Game Over",
-						(!Objects.equals(gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs(), "T")) ? "Player " + winner + " wins!" : "Game is a tie!",
-						false,
-						0,
-						"Return",
-						null,
-						null,
-						(() -> {
-							Intent intent = new Intent();
-							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-							setResult(RESULT_OK, intent);
-							finish();
-						}),
-						null,
-						null);
+		gamesViewModel.getLiveDataIsStarted().observe(this, aBoolean -> {
+			if (aBoolean) {
+				Game game = gamesViewModel.getLiveDataGame().getValue();
+				usersViewModel.get(Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs()) ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
 			}
 		});
 
-		gamesViewModel.getLiveDataIsStarted().observe(this, new Observer<Boolean>() {
-			@Override
-			public void onChanged(Boolean aBoolean) {
-				if (aBoolean) {
-					Game game = gamesViewModel.getLiveDataGame().getValue();
-					usersViewModel.get(Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs()) ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
-				}
-			}
-		});
-
-		gamesViewModel.getLiveDataEntity().observe(this, game -> {
-			gamesViewModel.startHistoryGame(game);
-		});
+		gamesViewModel.getLiveDataEntity().observe(this, game -> gamesViewModel.startHistoryGame(game));
 
 		usersViewModel.getLiveDataEntity().observe(this, user -> {
-				clLoading.setVisibility(View.GONE);
-				tvCurrentPlayer.setVisibility(View.VISIBLE);
-				gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
-				if(user != null) {
-					if (Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs()))
-						setPlayers(new Player(currentUser), new Player(user));
-					else
-						setPlayers(new Player(user), new Player(currentUser));
-				}
+			clLoading.setVisibility(View.GONE);
+			tvCurrentPlayer.setVisibility(View.VISIBLE);
+			gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
+			if (user != null) {
+				if (Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs()))
+					setPlayers(new Player(currentUser), new Player(user));
 				else
-					setPlayers(gamesViewModel.getLiveDataGame().getValue().getPlayer1(), gamesViewModel.getLiveDataGame().getValue().getPlayer2());
-			if(gameType == GameType.HISTORY)
-					llReview.setVisibility(View.VISIBLE);
+					setPlayers(new Player(user), new Player(currentUser));
+			} else
+				setPlayers(gamesViewModel.getLiveDataGame().getValue().getPlayer1(), gamesViewModel.getLiveDataGame().getValue().getPlayer2());
+			if (gameType == GameType.HISTORY)
+				llReview.setVisibility(View.VISIBLE);
 		});
 	}
 
 	//region GameInit
 	private void gameInit(GameType gameType) {
+		Intent intent = getIntent();
 		switch (gameType) {
 			case CPU:
 				// Initialize SP game
-				Intent intent = getIntent();
 				char sign = intent.getCharExtra(getString(R.string.EXTRA_SIGN), 'X');
 				gamesViewModel.startCpuGame(sign == 'X' ? currentUser.getIdFs() : "CPU");
 				break;
@@ -457,6 +436,7 @@ public class GameActivity extends BaseActivity {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private void setPlayers(Player p1, Player p2) {
 		if (gameType == GameType.CPU || gameType == GameType.LOCAL) {
 			// For local games, display as is
@@ -464,7 +444,7 @@ public class GameActivity extends BaseActivity {
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
 			tvP1Sign.setText("X");
-			ivP2Avatar.setImageResource(gameType == GameType.LOCAL ? R.drawable.avatar_default : R.drawable.avatar_default); //TODO: add CPU avatar
+			ivP2Avatar.setImageResource(gameType == GameType.LOCAL ? R.drawable.avatar_default : R.drawable.cpu_avatar); //TODO: add CPU avatar
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
@@ -475,31 +455,29 @@ public class GameActivity extends BaseActivity {
 				tvP1Sign.setText("O");
 				tvP2Sign.setText("X");
 			}
-		} else if (gameType == GameType.ONLINE){
+		} else if (gameType == GameType.ONLINE) {
 			// For online games
-			if(!gamesViewModel.getLiveDataIsStarted().getValue())
-			{
+			if (!gamesViewModel.getLiveDataIsStarted().getValue()) {
 				ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
 				tvP1Name.setText(currentUser.getUsername());
-				tvP1Elo.setText("(" + Math.round(currentUser.getElo()) + ")");
+				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(currentUser.getElo())));
 				tvP1Sign.setText("");
 				ivP2Avatar.setImageBitmap((BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default)));
-				tvP2Name.setText( "Waiting for opponent...");
+				tvP2Name.setText(R.string.searching_for_opponent);
 				tvP2Elo.setText("");
 				tvP2Sign.setText("");
-			}
-			else {
+			} else {
 				boolean isHost = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 				if (isHost) {
 					ivP2Avatar.setImageBitmap(p2.getPictureBitmap());
 					tvP2Name.setText(p2.getName());
-					tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
+					tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
 					tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
 				} else {
 					ivP2Avatar.setImageBitmap(p1.getPictureBitmap());
 					tvP2Name.setText(p1.getName());
-					tvP2Elo.setText("(" + Math.round(p1.getElo()) + ")");
+					tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
 				}
@@ -534,7 +512,7 @@ public class GameActivity extends BaseActivity {
 		boardSize = getBoardSize();
 		conversionFactor = boardSize / BOARD_DRAWABLE_SIZE;
 
-		gridBoard= findViewById(R.id.gridBoard);
+		gridBoard = findViewById(R.id.gridBoard);
 		setOuterGrid(gridBoard);
 		for (int row = 0; row < 3; row++) {
 			for (int col = 0; col < 3; col++) {
@@ -547,7 +525,7 @@ public class GameActivity extends BaseActivity {
 		GridLayout grid = new GridLayout(this);
 		setInnerGrid(row, col, grid);
 		for (int iRow = 0; iRow < 3; iRow++) {
-			for (int iCol = 0; iCol < 3; iCol++){
+			for (int iCol = 0; iCol < 3; iCol++) {
 				grid.addView(createBoardButton(row, col, iRow, iCol));
 			}
 		}
@@ -574,7 +552,7 @@ public class GameActivity extends BaseActivity {
 		btnParams.columnSpec = GridLayout.spec(iCol);
 		btn.setLayoutParams(btnParams);
 		btn.setOnClickListener(v -> handleBoardButtonClick((ImageView) v));
-		btn.setTag("btn" + row + col +  iRow +  iCol); // Set a tag for identification
+		btn.setTag("btn" + row + col + iRow + iCol); // Set a tag for identification
 		return btn;
 	}
 

@@ -6,7 +6,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -34,18 +33,19 @@ public class MainActivity extends BaseActivity {
 	private UsersViewModel viewModel;
 	private ActivityResultLauncher<Intent> gameLauncher;
 	private ActivityResultLauncher<Intent> profileLauncher;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
 		setContentView(R.layout.activity_main);
 		ViewCompat.setOnApplyWindowInsetsListener(
-			findViewById(R.id.main),
-			(v, insets) -> {
-				Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-				v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-				return insets;
-		});
+				findViewById(R.id.main),
+				(v, insets) -> {
+					Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+					v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+					return insets;
+				});
 
 		//setBottomNavigationVisibility(true);
 		initializeViews();
@@ -109,7 +109,7 @@ public class MainActivity extends BaseActivity {
 						0,
 						"Yes",
 						"No",
-								null,
+						null,
 						() -> finish(),
 						null,
 						null);
@@ -127,6 +127,7 @@ public class MainActivity extends BaseActivity {
 		});
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private void registerLaunchers() {
 		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
 				o -> {

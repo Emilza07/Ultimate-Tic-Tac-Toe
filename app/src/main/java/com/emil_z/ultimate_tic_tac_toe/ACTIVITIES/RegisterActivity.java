@@ -12,7 +12,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.BitMapHelper;
@@ -25,8 +24,6 @@ import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 public class RegisterActivity extends BaseActivity {
 	private EditText etUsername;
@@ -36,6 +33,7 @@ public class RegisterActivity extends BaseActivity {
 	private Button btnBack;
 
 	private UsersViewModel viewModel;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,34 +61,25 @@ public class RegisterActivity extends BaseActivity {
 
 	protected void setListeners() {
 		btnRegister.setOnClickListener(v -> {
-			if(validate()) {
+			if (validate()) {
 				viewModel.exist(etUsername.getText().toString());
 			}
 		});
-		btnBack.setOnClickListener(v -> {
-			finish();
-		});
+		btnBack.setOnClickListener(v -> finish());
 
 	}
 
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-		viewModel.getLiveDataSuccess().observe(this, new Observer<Boolean>() {
-			public void onChanged(Boolean aBoolean) {
-				Toast.makeText(RegisterActivity.this, aBoolean ? "Success" : "Error", Toast.LENGTH_SHORT).show();
-			}
-		});
+		viewModel.getLiveDataSuccess().observe(this, aBoolean -> Toast.makeText(RegisterActivity.this, aBoolean ? "Success" : "Error", Toast.LENGTH_SHORT).show());
 
-		viewModel.getLiveDataExist().observe(this, new Observer<Boolean>() {;
-			@Override
-			public void onChanged(Boolean exist) {
-				if (exist) {
-					etUsername.setError("Username already exists");
-				} else {
-					etUsername.setError(null);
-					registerUser();
-				}
+		viewModel.getLiveDataExist().observe(this, exist -> {
+			if (exist) {
+				etUsername.setError("Username already exists");
+			} else {
+				etUsername.setError(null);
+				registerUser();
 			}
 		});
 	}

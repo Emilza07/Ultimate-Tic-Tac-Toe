@@ -5,7 +5,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -20,9 +19,9 @@ import com.emil_z.viewmodel.UsersViewModel;
 
 public class LeaderboardActivity extends BaseActivity {
 	private RecyclerView rvLeaderboard;
-
-	private UsersAdapter adapter;
 	private UsersViewModel viewModel;
+	private UsersAdapter adapter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,9 +53,7 @@ public class LeaderboardActivity extends BaseActivity {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 		viewModel.getAll();
 
-		viewModel.getLiveDataCollection().observe(this, users -> {;
-			adapter.setItems(users);
-		});
+		viewModel.getLiveDataCollection().observe(this, users -> adapter.setItems(users));
 	}
 
 	private void setAdapter() {
@@ -67,12 +64,12 @@ public class LeaderboardActivity extends BaseActivity {
 					holder.putView("ivAvatar", holder.itemView.findViewById(R.id.ivAvatar));
 					holder.putView("tvUsername", holder.itemView.findViewById(R.id.tvUsername));
 					holder.putView("tvElo", holder.itemView.findViewById(R.id.tvElo));
-					},
+				},
 				((holder, item, position) -> {
-					((TextView) holder.getView("tvRank")).setText("#" + String.valueOf(position + 1));
+					((TextView) holder.getView("tvRank")).setText(getString(R.string.rank_format, position + 1));
 					((ImageView) holder.getView("ivAvatar")).setImageBitmap(item.getPictureBitmap());
 					((TextView) holder.getView("tvUsername")).setText(item.getUsername());
-					((TextView) holder.getView("tvElo")).setText("ELO: " + Math.round(item.getElo()));
+					((TextView) holder.getView("tvElo")).setText(getString(R.string.elo_format, Math.round(item.getElo())));
 				})
 		);
 		rvLeaderboard.setAdapter(adapter);

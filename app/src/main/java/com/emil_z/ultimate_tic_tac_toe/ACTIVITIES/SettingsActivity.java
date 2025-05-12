@@ -15,6 +15,7 @@ import com.emil_z.ultimate_tic_tac_toe.R;
 
 public class SettingsActivity extends BaseActivity {
 	private Button btnLogOut;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,7 +39,7 @@ public class SettingsActivity extends BaseActivity {
 	@Override
 	protected void setListeners() {
 		btnLogOut.setOnClickListener(v -> {
-			PreferenceManager.writeToSharedPreferences(SettingsActivity.this, "user_prefs", new Object[][] {{"UserIdFs", null, "String"}, {"Username", null, "String"}, {"Password", null, "String"}});
+			PreferenceManager.writeToSharedPreferences(SettingsActivity.this, "user_prefs", new Object[][]{{"UserIdFs", null, "String"}, {"Username", null, "String"}, {"Password", null, "String"}});
 
 			BaseActivity.currentUser = null;
 			Intent intent = new Intent(SettingsActivity.this, AuthActivity.class);

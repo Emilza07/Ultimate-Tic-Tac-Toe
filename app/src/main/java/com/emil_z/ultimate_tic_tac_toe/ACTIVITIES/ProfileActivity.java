@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -72,17 +72,12 @@ public class ProfileActivity extends BaseActivity {
 
 		ivAvatar.setImageBitmap(currentUser.getPictureBitmap());
 		tvUsername.setText(currentUser.getUsername());
-		tvElo.setText("ELO: " + Math.round(currentUser.getElo()));
+		tvElo.setText(getString(R.string.elo_format, Math.round(currentUser.getElo())));
 	}
 
 	@Override
 	protected void setListeners() {
-		ivAvatar.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showImageOptions();
-			}
-		});
+		ivAvatar.setOnClickListener(v -> showImageOptions());
 	}
 
 	private void showImageOptions() {
@@ -108,16 +103,15 @@ public class ProfileActivity extends BaseActivity {
 		showProgressDialog("Games", "Loading games...");
 		gamesViewModel.getUserGames(currentUser.getIdFs());
 
-		usersViewModel.getLiveDataSuccess().observe(this, success -> {;
+		usersViewModel.getLiveDataSuccess().observe(this, success -> {
 			if (success) {
 				ivAvatar.setImageBitmap(currentUser.getPictureBitmap());// Convert bitmap to base64 and save to user profile
 				setResult(RESULT_OK);
-			}
-			else {
+			} else {
 				usersViewModel.get(currentUser.getIdFs());
 			}
 		});
-		usersViewModel.getLiveDataEntity().observe(this, user -> {;
+		usersViewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
 				currentUser = user;
 			}
@@ -130,7 +124,7 @@ public class ProfileActivity extends BaseActivity {
 		});
 	}
 
-	public void setAdapter(){
+	public void setAdapter() {
 		adapter = new GamesAdapter(null,
 				R.layout.game_single_layout,
 				holder -> {
@@ -140,10 +134,10 @@ public class ProfileActivity extends BaseActivity {
 					holder.putView("ivGameResult", holder.itemView.findViewById(R.id.ivGameResult));
 				},
 				((holder, item, position) -> {
-					Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs())? item.getPlayer2(): item.getPlayer1());
+					Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs()) ? item.getPlayer2() : item.getPlayer1());
 					((ImageView) holder.getView("ivAvatar")).setImageBitmap(opponent.getPictureBitmap());
 					((TextView) holder.getView("tvUsername")).setText(opponent.getName());
-					((TextView) holder.getView("tvElo")).setText("(" + Math.round(opponent.getElo()) + ")");
+					((TextView) holder.getView("tvElo")).setText(getString(R.string.player_elo_format, Math.round(opponent.getElo())));
 					if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
 						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.ok);
 					else if (Objects.equals(item.getWinnerIdFs(), "T"))
@@ -184,14 +178,13 @@ public class ProfileActivity extends BaseActivity {
 				new ActivityResultContracts.StartActivityForResult(),
 				result -> {
 					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						// Handle gallery result - the image is in the data Uri
 						Uri selectedImage = result.getData().getData();
 						if (selectedImage != null) {
 							try {
 								Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
 								processNewProfileImage(bitmap);
-							} catch (Exception e) {
-								e.printStackTrace();
+							} catch (Exception ignored) {
+								Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
 							}
 						}
 					}
