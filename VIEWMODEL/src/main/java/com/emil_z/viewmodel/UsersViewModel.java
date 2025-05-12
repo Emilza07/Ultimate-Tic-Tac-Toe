@@ -2,6 +2,8 @@ package com.emil_z.viewmodel;
 
 import android.app.Application;
 
+import androidx.lifecycle.LiveData;
+
 import com.emil_z.model.User;
 import com.emil_z.model.Users;
 import com.emil_z.repository.BASE.BaseRepository;
@@ -10,8 +12,13 @@ import com.emil_z.viewmodel.BASE.BaseViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+/**
+ * ViewModel class for managing user-related operations.
+ * Extends the BaseViewModel to provide functionality for handling User and Users entities.
+ */
 public class UsersViewModel extends BaseViewModel<User, Users> {
 	private UsersRepository repository;
+
 
 	public UsersViewModel(Application application) {
 		super(User.class, Users.class, application);
@@ -23,6 +30,17 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 		return repository;
 	}
 
+	public LiveData<Boolean> getLiveDataExist() {
+		return lvExist;
+	}
+
+	/**
+	 * Logs in a user by verifying the provided username and password.
+	 * Updates the LiveData with the user entity if successful, or sets success to false if not.
+	 *
+	 * @param Username The username of the user.
+	 * @param password The password of the user.
+	 */
 	public void logIn(String Username, String password) {
 		repository.getCollection().whereEqualTo("username", Username).whereEqualTo("password", password).get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
@@ -39,16 +57,15 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 				});
 	}
 
-	public void getFirstUserByUsername(String username, OnSuccessListener<User> onSuccessListener, OnFailureListener onFailureListener) {
-		repository.getUsersByUsername(username).get()
-				.addOnSuccessListener(queryDocumentSnapshots -> {
-					if (!queryDocumentSnapshots.isEmpty()) {
-						User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-						onSuccessListener.onSuccess(user);
+	public void exist(String username) {
+		repository.exist(username)
+				.addOnSuccessListener(exist -> {
+					if (exist) {
+						lvExist.setValue(true);
 					} else {
-						onSuccessListener.onSuccess(null);
+						lvExist.setValue(false);
 					}
-				})
-				.addOnFailureListener(onFailureListener);
+				}).addOnFailureListener(e -> {
+				});
 	}
 }

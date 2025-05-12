@@ -63,32 +63,13 @@ public class RegisterActivity extends BaseActivity {
 	protected void setListeners() {
 		btnRegister.setOnClickListener(v -> {
 			if(validate()) {
-				checkIfUsernameExists();
+				viewModel.exist(etUsername.getText().toString());
 			}
 		});
 		btnBack.setOnClickListener(v -> {
 			finish();
 		});
 
-	}
-
-	protected void checkIfUsernameExists() {
-		viewModel.getFirstUserByUsername(etUsername.getText().toString(), new OnSuccessListener<User>() {
-			@Override
-			public void onSuccess(User user) {
-				if (user != null) {
-					etUsername.setError("Username already exists");
-				}
-				else {
-					etUsername.setError(null);
-					registerUser();
-				}
-			}
-		}, new OnFailureListener() {
-			@Override
-			public void onFailure(Exception e) {
-				Toast.makeText(RegisterActivity.this, "Error", Toast.LENGTH_SHORT).show();
-			}});
 	}
 
 	protected void registerUser() {
@@ -108,6 +89,18 @@ public class RegisterActivity extends BaseActivity {
 		viewModel.getSuccess().observe(this, new Observer<Boolean>() {
 			public void onChanged(Boolean aBoolean) {
 				Toast.makeText(RegisterActivity.this, aBoolean ? "Success" : "Error", Toast.LENGTH_SHORT).show();
+			}
+		});
+
+		viewModel.getLiveDataExist().observe(this, new Observer<Boolean>() {;
+			@Override
+			public void onChanged(Boolean exist) {
+				if (exist) {
+					etUsername.setError("Username already exists");
+				} else {
+					etUsername.setError(null);
+					registerUser();
+				}
 			}
 		});
 	}
