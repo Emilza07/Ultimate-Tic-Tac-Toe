@@ -39,6 +39,7 @@ public class AuthActivity extends BaseActivity {
 		});
 		setBottomNavigationVisibility(false);
 		initializeViews();
+		setListeners();
 		setViewModel();
 		checkForLogIn();
 	}
@@ -48,8 +49,6 @@ public class AuthActivity extends BaseActivity {
 		btnLogin	= findViewById(R.id.btnLogin);
 		btnRegister = findViewById(R.id.btnRegister);
 		showProgressDialog("Login", "Logging in...");
-
-		setListeners();
 	}
 
 	@Override

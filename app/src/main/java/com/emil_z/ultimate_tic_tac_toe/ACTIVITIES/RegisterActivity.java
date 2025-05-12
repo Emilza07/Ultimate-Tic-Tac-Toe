@@ -52,6 +52,7 @@ public class RegisterActivity extends BaseActivity {
 		setViewModel();
 
 	}
+
 	protected void initializeViews() {
 		etUsername = findViewById(R.id.etUsername);
 		etPassword = findViewById(R.id.etPassword);
@@ -70,17 +71,6 @@ public class RegisterActivity extends BaseActivity {
 			finish();
 		});
 
-	}
-
-	protected void registerUser() {
-		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default);
-		User user = new User(etUsername.getText().toString(),
-				etPassword.getText().toString(),
-				BitMapHelper.encodeTobase64(bitmap));
-		viewModel.save(user);
-		Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-		startActivity(intent);
-		finish();
 	}
 
 	protected void setViewModel() {
@@ -103,6 +93,17 @@ public class RegisterActivity extends BaseActivity {
 				}
 			}
 		});
+	}
+
+	protected void registerUser() {
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default);
+		User user = new User(etUsername.getText().toString(),
+				etPassword.getText().toString(),
+				BitMapHelper.encodeTobase64(bitmap));
+		viewModel.save(user);
+		Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+		startActivity(intent);
+		finish();
 	}
 
 	public void setValidation() {

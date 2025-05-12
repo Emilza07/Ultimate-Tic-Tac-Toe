@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity {
 				return insets;
 		});
 
-		setBottomNavigationVisibility(true);
+		//setBottomNavigationVisibility(true);
 		initializeViews();
 		setListeners();
 		setViewModel();
@@ -117,17 +117,6 @@ public class MainActivity extends BaseActivity {
 		});
 	}
 
-	private void startGameActivity(GameType gameType, char sign) {
-		Intent intent = new Intent(MainActivity.this, GameActivity.class);
-		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-		intent.putExtra(getString(R.string.EXTRA_SIGN), sign);
-		gameLauncher.launch(intent);
-	}
-
-	private void startGameActivity(GameType gameType) {
-		startGameActivity(gameType, '-');
-	}
-
 	@Override
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
@@ -151,10 +140,22 @@ public class MainActivity extends BaseActivity {
 				new ActivityResultContracts.StartActivityForResult(),
 				result -> {
 					if (result.getResultCode() == RESULT_OK) {
-						// Refresh user data to get the updated profile picture
 						iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
 					}
 				}
 		);
 	}
+
+	private void startGameActivity(GameType gameType, char sign) {
+		Intent intent = new Intent(MainActivity.this, GameActivity.class);
+		intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+		intent.putExtra(getString(R.string.EXTRA_SIGN), sign);
+		gameLauncher.launch(intent);
+	}
+
+	private void startGameActivity(GameType gameType) {
+		startGameActivity(gameType, '-');
+	}
+
+
 }

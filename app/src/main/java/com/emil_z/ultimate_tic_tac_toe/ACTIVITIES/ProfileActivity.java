@@ -56,6 +56,7 @@ public class ProfileActivity extends BaseActivity {
 		});
 
 		initializeViews();
+		setListeners();
 		setViewModel();
 		setAdapter();
 		registerLaunchers();
@@ -72,7 +73,6 @@ public class ProfileActivity extends BaseActivity {
 		ivAvatar.setImageBitmap(currentUser.getPictureBitmap());
 		tvUsername.setText(currentUser.getUsername());
 		tvElo.setText("ELO: " + Math.round(currentUser.getElo()));
-		setListeners();
 	}
 
 	@Override
