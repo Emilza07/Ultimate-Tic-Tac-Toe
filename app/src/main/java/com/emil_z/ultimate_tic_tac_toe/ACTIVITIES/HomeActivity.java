@@ -29,6 +29,7 @@ public class HomeActivity extends BaseActivity {
 	private Button btnOnline;
 	private ImageButton iBtnProfile;
 	private ImageButton iBtnLeaderboard;
+	private ImageButton iBtnSettings;
 
 	private UsersViewModel viewModel;
 	private ActivityResultLauncher<Intent> gameLauncher;
@@ -62,6 +63,7 @@ public class HomeActivity extends BaseActivity {
 		iBtnProfile = findViewById(R.id.iBtnProfile);
 		iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
 		iBtnLeaderboard = findViewById(R.id.iBtnLeaderboard);
+		iBtnSettings = findViewById(R.id.iBtnSettings);
 	}
 
 	@Override
@@ -72,6 +74,10 @@ public class HomeActivity extends BaseActivity {
 		});
 		iBtnLeaderboard.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, LeaderboardActivity.class);
+			startActivity(intent);
+		});
+		iBtnSettings.setOnClickListener(v -> {
+			Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
 			startActivity(intent);
 		});
 		btnCPU.setOnClickListener(v -> {
@@ -104,7 +110,7 @@ public class HomeActivity extends BaseActivity {
 						"Yes",
 						"No",
 								null,
-						() -> finishAffinity(),
+						() -> finish(),
 						null,
 						null);
 			}

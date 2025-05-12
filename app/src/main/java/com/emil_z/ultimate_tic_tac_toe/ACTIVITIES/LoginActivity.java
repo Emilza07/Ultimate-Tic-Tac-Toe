@@ -3,6 +3,7 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ import com.emil_z.viewmodel.UsersViewModel;
 public class LoginActivity extends BaseActivity {
 	private EditText etUsername;
 	private EditText etPassword;
+	private CheckBox cbRememberMe;
 	private Button btnSignIn;
 	private Button btnBack;
 
@@ -47,6 +49,7 @@ public class LoginActivity extends BaseActivity {
 	protected void initializeViews() {
 		etUsername = findViewById(R.id.etUsername);
 		etPassword = findViewById(R.id.etPassword);
+		cbRememberMe = findViewById(R.id.cbRememberMe);
 		btnSignIn = findViewById(R.id.btnSignIn);
 		btnBack = findViewById(R.id.btnBack);
 	}
@@ -79,8 +82,11 @@ public class LoginActivity extends BaseActivity {
 			public void onChanged(User user) {
 				if (user != null){
 					BaseActivity.currentUser = user;
-					PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}});
-					startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+					if(cbRememberMe.isChecked())
+						PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}, {"Username", user.getUsername(), "String"}, {"Password", user.getPassword(), "String"}});
+					Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+					startActivity(intent);
 				}
 			}
 		});
