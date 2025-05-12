@@ -7,13 +7,13 @@ import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.AlertUtil;
 import com.emil_z.model.GameType;
@@ -28,6 +28,7 @@ public class HomeActivity extends BaseActivity {
 	private Button btnLocal;
 	private Button btnOnline;
 	private ImageButton iBtnProfile;
+	private ImageButton iBtnLeaderboard;
 
 	private UsersViewModel viewModel;
 	private ActivityResultLauncher<Intent> gameLauncher;
@@ -60,6 +61,7 @@ public class HomeActivity extends BaseActivity {
 		btnOnline = findViewById(R.id.btnOnline);
 		iBtnProfile = findViewById(R.id.iBtnProfile);
 		iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
+		iBtnLeaderboard = findViewById(R.id.iBtnLeaderboard);
 	}
 
 	@Override
@@ -67,6 +69,10 @@ public class HomeActivity extends BaseActivity {
 		iBtnProfile.setOnClickListener(v -> {
 			Intent intent = new Intent(HomeActivity.this, UserActivity.class);
 			profileLauncher.launch(intent);
+		});
+		iBtnLeaderboard.setOnClickListener(v -> {
+			Intent intent = new Intent(HomeActivity.this, LeaderboardActivity.class);
+			startActivity(intent);
 		});
 		btnCPU.setOnClickListener(v -> {
 			//TODO: add an option to choose the sign here instead of game activity because of player names
@@ -79,22 +85,29 @@ public class HomeActivity extends BaseActivity {
 					"Cross",
 					"Nought",
 					"Random",
-					() -> {
-						startGameActivity(GameType.CPU, 'X');
-					},
-					() -> {
-						startGameActivity(GameType.CPU, 'O');
-					},
-					() -> {
-							startGameActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O');
-					});
+					() -> startGameActivity(GameType.CPU, 'X'),
+					() -> startGameActivity(GameType.CPU, 'O'),
+					() -> startGameActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O'));
 
 		});
-		btnLocal.setOnClickListener(v -> {
-			startGameActivity(GameType.LOCAL);
-		});
-		btnOnline.setOnClickListener(v -> {
-			startGameActivity(GameType.ONLINE);
+		btnLocal.setOnClickListener(v -> startGameActivity(GameType.LOCAL));
+		btnOnline.setOnClickListener(v -> startGameActivity(GameType.ONLINE));
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				AlertUtil.alert(HomeActivity.this,
+						"Exit",
+						"Are you sure you want to exit?",
+						true,
+						0,
+						"Yes",
+						"No",
+								null,
+						() -> finishAffinity(),
+						null,
+						null);
+			}
 		});
 	}
 
@@ -111,7 +124,7 @@ public class HomeActivity extends BaseActivity {
 
 	@Override
 	protected void setViewModel() {
-		viewModel = new UsersViewModel(getApplication());
+		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
 				currentUser = user;
@@ -121,13 +134,10 @@ public class HomeActivity extends BaseActivity {
 
 	private void registerLaunchers() {
 		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-				new ActivityResultCallback<ActivityResult>() {
-					@Override
-					public void onActivityResult(ActivityResult o) {
-						GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
-						if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
-							viewModel.get(currentUser.getIdFs());
-						}
+				o -> {
+					GameType gameType = (GameType) o.getData().getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
+					if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
+						viewModel.get(currentUser.getIdFs());
 					}
 				}
 		);

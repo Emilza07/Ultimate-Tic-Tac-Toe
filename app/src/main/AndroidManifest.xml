@@ -15,6 +15,9 @@
 		android:theme="@style/Theme.TASHTIT"
 		tools:targetApi="31">
 		<activity
+			android:name=".ACTIVITIES.LeaderboardActivity"
+			android:exported="false" />
+		<activity
 			android:name=".ACTIVITIES.UserActivity"
 			android:exported="false" />
 		<activity

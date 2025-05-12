@@ -17,7 +17,7 @@
 		tools:srcCompat="@tools:sample/avatars" />
 
 	<ImageButton
-		android:id="@+id/imageButton2"
+		android:id="@+id/iBtnLeaderboard"
 		android:layout_width="100dp"
 		android:layout_height="100dp"
 		android:scaleType="fitXY"
@@ -42,7 +42,7 @@
 		android:text="@string/single_player"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/imageButton2" />
+		app:layout_constraintTop_toBottomOf="@+id/iBtnLeaderboard" />
 
 	<Button
 		android:id="@+id/btnLocal"
