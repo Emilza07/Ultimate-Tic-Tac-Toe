@@ -10,7 +10,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.emil_z.helper.PreferenceManager;
 import com.emil_z.model.BoardLocation;
-import com.emil_z.model.CPU;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
 import com.emil_z.model.OnlineGame;
@@ -44,19 +43,19 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 		localPlayerIdFs = PreferenceManager.readFromSharedPreferences(application, "user_prefs", new Object[][]{{"UserIdFs", "String"}})[0][1].toString();
 	}
 
-	public LiveData<Game> getLvGame() {
+	public LiveData<Game> getLiveDataGame() {
 		return lvGame;
 	}
 
-	public LiveData<char[][]> getLvOuterBoardWinners() {
+	public LiveData<char[][]> getLiveDataOuterBoardWinners() {
 		return lvOuterBoardWinners;
 	}
 
-	public LiveData<Boolean> getLvIsFinished() {
+	public LiveData<Boolean> getLiveDataIsFinished() {
 		return lvIsFinished;
 	}
 
-	public LiveData<Boolean> getLvIsStarted() {
+	public LiveData<Boolean> getLiveDataIsStarted() {
 		return lvIsStarted;
 	}
 

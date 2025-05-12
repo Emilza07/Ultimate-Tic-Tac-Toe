@@ -7,7 +7,6 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.emil_z.model.BoardLocation;
-import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
 import com.emil_z.model.GameType;
 import com.emil_z.model.Games;
@@ -22,7 +21,6 @@ import com.emil_z.repository.LocalGamesRepository;
 import com.emil_z.repository.OnlineGamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Tasks;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -76,23 +74,23 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return repository;
 	}
 
-	public LiveData<Game> getLvGame() {
+	public LiveData<Game> getLiveDataGame() {
 		return lvGame;
 	}
 
-	public LiveData<Integer> getLvCode() {
+	public LiveData<Integer> getLiveDataCode() {
 		return lvCode;
 	}
 
-	public LiveData<char[][]> getLvOuterBoardWinners() {
+	public LiveData<char[][]> getLiveDataOuterBoardWinners() {
 		return lvOuterBoardWinners;
 	}
 
-	public LiveData<Boolean> getLvIsFinished() {
+	public LiveData<Boolean> getLiveDataIsFinished() {
 		return lvIsFinished;
 	}
 
-	public LiveData<Boolean> getLvIsStarted() {
+	public LiveData<Boolean> getLiveDataIsStarted() {
 		return lvIsStarted;
 	}
 
@@ -137,7 +135,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	private void isStartedObserver(){
 		lvIsStarted.addSource(
-				repository.getLvIsStarted(), aBoolean -> {
+				repository.getLiveDataIsStarted(), aBoolean -> {
 					if (aBoolean)
 						setObservers();
 					lvIsStarted.setValue(aBoolean);
@@ -146,13 +144,13 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	private void setObservers() {
 		lvGame.addSource(
-				repository.getLvGame(),
+				repository.getLiveDataGame(),
 				lvGame::setValue);
 		lvOuterBoardWinners.addSource(
-				repository.getLvOuterBoardWinners(),
+				repository.getLiveDataOuterBoardWinners(),
 				lvOuterBoardWinners::setValue);
 		lvIsFinished.addSource(
-				repository.getLvIsFinished(),
+				repository.getLiveDataIsFinished(),
 				lvIsFinished::setValue);
 	}
 

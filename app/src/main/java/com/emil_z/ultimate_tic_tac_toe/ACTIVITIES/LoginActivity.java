@@ -69,27 +69,21 @@ public class LoginActivity extends BaseActivity {
 
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
-		viewModel.getSuccess().observe(this, new Observer<Boolean>() {
-			@Override
-			public void onChanged(Boolean success) {
-				if (!success){
-					Toast.makeText(LoginActivity.this, "Username or password is incorrect", Toast.LENGTH_SHORT).show();
-				}
+		viewModel.getLiveDataSuccess().observe(this, success -> {
+			if (!success){
+				Toast.makeText(LoginActivity.this, "Username or password is incorrect", Toast.LENGTH_SHORT).show();
 			}
 		});
-		viewModel.getEntity().observe(this, new Observer<User>() {
-			@Override
-			public void onChanged(User user) {
-				if (user != null){
-					BaseActivity.currentUser = user;
-					if(cbRememberMe.isChecked())
-						PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}, {"Username", user.getUsername(), "String"}, {"Password", user.getPassword(), "String"}});
-					else
-						PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}});
-					Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-					startActivity(intent);
-				}
+		viewModel.getLiveDataEntity().observe(this, user -> {
+			if (user != null){
+				BaseActivity.currentUser = user;
+				if(cbRememberMe.isChecked())
+					PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}, {"Username", user.getUsername(), "String"}, {"Password", user.getPassword(), "String"}});
+				else
+					PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][] {{"UserIdFs", user.getIdFs(), "String"}});
+				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(intent);
 			}
 		});
 	}

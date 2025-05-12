@@ -66,7 +66,7 @@ public class AuthActivity extends BaseActivity {
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-		viewModel.getEntity().observe(this, user -> {
+		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
 				if(Objects.equals(user.getUsername(),prefsResult[1][1]) && Objects.equals(user.getPassword(), prefsResult[2][1])){
 					currentUser = user;

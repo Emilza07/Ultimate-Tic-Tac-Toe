@@ -86,7 +86,7 @@ public class RegisterActivity extends BaseActivity {
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-		viewModel.getSuccess().observe(this, new Observer<Boolean>() {
+		viewModel.getLiveDataSuccess().observe(this, new Observer<Boolean>() {
 			public void onChanged(Boolean aBoolean) {
 				Toast.makeText(RegisterActivity.this, aBoolean ? "Success" : "Error", Toast.LENGTH_SHORT).show();
 			}

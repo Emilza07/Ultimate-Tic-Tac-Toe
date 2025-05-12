@@ -121,7 +121,7 @@ public class GameActivity extends BaseActivity {
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
 			@Override
 			public void handleOnBackPressed() {
-				Game game = viewModel.getLvGame().getValue();
+				Game game = viewModel.getLiveDataGame().getValue();
 				AlertUtil.alert(
 						GameActivity.this,
 						(game != null && game.isStarted())? "Resign" : "Abort",
@@ -147,7 +147,7 @@ public class GameActivity extends BaseActivity {
 		});
 
 		btnForward.setOnClickListener(v -> {
-			Game game = viewModel.getLvGame().getValue();
+			Game game = viewModel.getLiveDataGame().getValue();
 
 			if (moveIndex >= game.getMoves().size()) {
 				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
@@ -188,7 +188,7 @@ public class GameActivity extends BaseActivity {
 				moveIndex = 0;
 				return;
 			}
-			Game game = viewModel.getLvGame().getValue();
+			Game game = viewModel.getLiveDataGame().getValue();
 			BoardLocation lastMove = game.getMoves().get(moveIndex);
 			int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
 			int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
@@ -219,13 +219,13 @@ public class GameActivity extends BaseActivity {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
 		viewModel.makeMove(new BoardLocation(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0'));
-		viewModel.getLvCode().observe(this, new Observer<Integer>() {
+		viewModel.getLiveDataCode().observe(this, new Observer<Integer>() {
 			@Override
 			public void onChanged(Integer code) {
 				if(code != 0)
 					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
 				viewModel.resetLvCode();
-				viewModel.getLvCode().removeObserver(this);
+				viewModel.getLiveDataCode().removeObserver(this);
 			}
 		});
 	}
@@ -235,12 +235,12 @@ public class GameActivity extends BaseActivity {
 				new GamesViewModelFactory(getApplication(), gameType))
 				.get(GamesViewModel.class);
 
-		viewModel.getSuccess().observe(this, success -> {
+		viewModel.getLiveDataSuccess().observe(this, success -> {
 			if (success) {
 			}
 		});
 
-		viewModel.getLvGame().observe(this, game -> {
+		viewModel.getLiveDataGame().observe(this, game -> {
 			if (game == null) {
 				Intent intent = new Intent();
 				setResult(RESULT_OK, intent);
@@ -256,18 +256,18 @@ public class GameActivity extends BaseActivity {
 				int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
-				btn.setImageResource(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
+				btn.setImageResource(viewModel.getLiveDataGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
 				if (!game.getOuterBoard().isFreeMove()) {
 					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
 					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
 				}
-				tvCurrentPlayer.setText(viewModel.getLvGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? R.string.player_x_turn : R.string.player_o_turn);
+				tvCurrentPlayer.setText(viewModel.getLiveDataGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? R.string.player_x_turn : R.string.player_o_turn);
 
 
 			}
 		});
 
-		viewModel.getLvOuterBoardWinners().observe(this, new Observer<char[][]>() {
+		viewModel.getLiveDataOuterBoardWinners().observe(this, new Observer<char[][]>() {
 			@Override
 			public void onChanged(char[][] chars) {
 				for (int i = 0; i < 3; i++) {
@@ -287,7 +287,7 @@ public class GameActivity extends BaseActivity {
 			}
 		});
 
-		viewModel.getLvIsFinished().observe(this, new Observer<Boolean>() {
+		viewModel.getLiveDataIsFinished().observe(this, new Observer<Boolean>() {
 			@Override
 
 			public void onChanged(Boolean aBoolean) {
@@ -296,17 +296,17 @@ public class GameActivity extends BaseActivity {
 				switch (gameType) {
 					case CPU:
 					case LOCAL:
-						winner = viewModel.getLvGame().getValue().getWinnerIdFs();
+						winner = viewModel.getLiveDataGame().getValue().getWinnerIdFs();
 						break;
 					case ONLINE:
-						winner = Objects.equals(viewModel.getLvGame().getValue().getWinnerIdFs(), viewModel.getLvGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
+						winner = Objects.equals(viewModel.getLiveDataGame().getValue().getWinnerIdFs(), viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
 						break;
 					default:
 						throw new IllegalStateException("Unexpected value: " + gameType);
 				}
 				AlertUtil.alert(GameActivity.this,
 						"Game Over",
-						(!Objects.equals(viewModel.getLvGame().getValue().getWinnerIdFs(), "T")) ? "Player " + winner + " wins!" : "Game is a tie!",
+						(!Objects.equals(viewModel.getLiveDataGame().getValue().getWinnerIdFs(), "T")) ? "Player " + winner + " wins!" : "Game is a tie!",
 						false,
 						0,
 						"Return",
@@ -323,7 +323,7 @@ public class GameActivity extends BaseActivity {
 			}
 		});
 
-		viewModel.getLvIsStarted().observe(this, new Observer<Boolean>() {
+		viewModel.getLiveDataIsStarted().observe(this, new Observer<Boolean>() {
 			@Override
 			public void onChanged(Boolean aBoolean) {
 				if (aBoolean) {
@@ -332,7 +332,7 @@ public class GameActivity extends BaseActivity {
 					clLoading.setVisibility(View.GONE);
 					tvCurrentPlayer.setVisibility(View.VISIBLE);
 					gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
-					setPlayers(viewModel.getLvGame().getValue().getPlayer1(), viewModel.getLvGame().getValue().getPlayer2());
+					setPlayers(viewModel.getLiveDataGame().getValue().getPlayer1(), viewModel.getLiveDataGame().getValue().getPlayer2());
 					if(gameType == GameType.HISTORY)
 						llReview.setVisibility(View.VISIBLE);
 //					else
@@ -341,7 +341,7 @@ public class GameActivity extends BaseActivity {
 			}
 		});
 
-		viewModel.getEntity().observe(this, game -> {
+		viewModel.getLiveDataEntity().observe(this, game -> {
 			viewModel.startHistoryGame(game);
 		});
 	}
@@ -386,7 +386,7 @@ public class GameActivity extends BaseActivity {
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
-			if (viewModel.getLvGame().getValue().getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
+			if (viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
 				tvCurrentPlayer.setText(R.string.player_x_turn);
 			} else {
 				tvCurrentPlayer.setText(R.string.player_o_turn);
@@ -395,7 +395,7 @@ public class GameActivity extends BaseActivity {
 			}
 		} else if (gameType == GameType.ONLINE){
 			// For online games
-			if(!viewModel.getLvIsStarted().getValue())
+			if(!viewModel.getLiveDataIsStarted().getValue())
 			{
 				ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
 				tvP1Name.setText(currentUser.getUsername());
@@ -407,29 +407,29 @@ public class GameActivity extends BaseActivity {
 				tvP2Sign.setText("");
 			}
 			else {
-				boolean isHost = Objects.equals(viewModel.getLvGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
+				boolean isHost = Objects.equals(viewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 				if (isHost) {
-					ivP2Avatar.setImageBitmap(viewModel.getLvGame().getValue().getPlayer2().getPictureBitmap());
+					ivP2Avatar.setImageBitmap(viewModel.getLiveDataGame().getValue().getPlayer2().getPictureBitmap());
 					tvP2Name.setText(p2.getName());
 					tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
-					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
-					tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
+					tvP1Sign.setText(Objects.equals(viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
+					tvP2Sign.setText(Objects.equals(viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
 				} else {
-					ivP2Avatar.setImageBitmap(viewModel.getLvGame().getValue().getPlayer1().getPictureBitmap());
+					ivP2Avatar.setImageBitmap(viewModel.getLiveDataGame().getValue().getPlayer1().getPictureBitmap());
 					tvP2Name.setText(p1.getName());
 					tvP2Elo.setText("(" + Math.round(p1.getElo()) + ")");
-					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-					tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+					tvP1Sign.setText(Objects.equals(viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+					tvP1Sign.setText(Objects.equals(viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
 				}
 			}
 		} else {
 			// For history games
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("(" + Math.round(p1.getElo()) + ")");
-			tvP1Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+			tvP1Sign.setText(Objects.equals(viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("(" + Math.round(p2.getElo()) + ")");
-			tvP2Sign.setText(Objects.equals(viewModel.getLvGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
+			tvP2Sign.setText(Objects.equals(viewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
 		}
 	}
 
