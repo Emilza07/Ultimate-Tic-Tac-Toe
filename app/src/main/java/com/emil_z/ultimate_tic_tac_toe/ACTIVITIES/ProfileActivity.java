@@ -29,7 +29,11 @@ import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.GamesViewModel;
 import com.emil_z.viewmodel.GamesViewModelFactory;
 import com.emil_z.viewmodel.UsersViewModel;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
 public class ProfileActivity extends BaseActivity {
@@ -192,10 +196,58 @@ public class ProfileActivity extends BaseActivity {
 	}
 
 	private void processNewProfileImage(Bitmap bitmap) {
-		// Set the image to the ImageView
-		ivAvatar.setImageBitmap(bitmap);// Convert bitmap to base64 and save to user profile
-		String base64Image = BitMapHelper.encodeTobase64(bitmap);
-		usersViewModel.update(currentUser);
-		currentUser.setPicture(base64Image);
+		// Create a temporary file to save the image
+		try {
+			File outputDir = getCacheDir();
+			File outputFile = File.createTempFile("temp_image", ".png", outputDir);
+
+			// Save bitmap to the file
+			FileOutputStream fos = new FileOutputStream(outputFile);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			fos.close();
+
+			// Start the cropping activity
+			startCropActivity(Uri.fromFile(outputFile));
+		} catch (IOException e) {
+			Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	private void startCropActivity(Uri sourceUri) {
+		UCrop.Options options = new UCrop.Options();
+		options.setToolbarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+		options.setStatusBarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+		options.setToolbarTitle("Crop Image");
+
+		options.setToolbarWidgetColor(getResources().getColor(R.color.textColor, getTheme()));
+
+		// Force square aspect ratio
+		options.withAspectRatio(1, 1);
+
+		// Create destination file
+		File destinationFile = new File(getCacheDir(), "cropped_image_" + System.currentTimeMillis() + ".png");
+		Uri destinationUri = Uri.fromFile(destinationFile);
+
+		UCrop.of(sourceUri, destinationUri)
+				.withOptions(options)
+				.start(this);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
+			Uri resultUri = UCrop.getOutput(data);
+			try {
+				Bitmap croppedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
+				// Now update the image view and save to user profile
+				ivAvatar.setImageBitmap(croppedBitmap);
+				String base64Image = BitMapHelper.encodeTobase64(croppedBitmap);
+				currentUser.setPicture(base64Image);
+				usersViewModel.update(currentUser);
+			} catch (IOException e) {
+				Toast.makeText(this, "Failed to load cropped image", Toast.LENGTH_SHORT).show();
+			}
+		}
 	}
 }

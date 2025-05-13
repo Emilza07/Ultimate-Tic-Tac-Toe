@@ -26,6 +26,9 @@
 			android:name=".ACTIVITIES.ProfileActivity"
 			android:exported="false" />
 		<activity
+			android:name="com.yalantis.ucrop.UCropActivity"
+			android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+		<activity
 			android:name=".ACTIVITIES.GameActivity"
 			android:exported="false" />
 		<activity

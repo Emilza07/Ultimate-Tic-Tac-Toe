@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.ucrop)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
