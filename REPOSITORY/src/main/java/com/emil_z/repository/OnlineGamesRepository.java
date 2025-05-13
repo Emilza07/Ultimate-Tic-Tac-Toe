@@ -4,6 +4,9 @@ import android.app.Application;
 import android.graphics.Point;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
@@ -32,8 +35,15 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class OnlineGamesRepository extends BaseGamesRepository {
+	private final MutableLiveData<String> lvGameIdFs;
+
 	public OnlineGamesRepository(Application application) {
 		super(application);
+		lvGameIdFs = new MutableLiveData<>();
+	}
+
+	public LiveData<String> getLiveDataGameIdFs() {
+		return lvGameIdFs;
 	}
 
 	@Override
@@ -119,6 +129,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 				.addOnSuccessListener(aBoolean -> {
 					lvGame.setValue(game);
 					taskCreateGame.setResult(game.getIdFs()); // inform the viewmodel that the game was created and uploaded to the database
+					lvGameIdFs.setValue(game.getIdFs());
 				})
 				.addOnFailureListener(taskCreateGame::setException);
 		return taskCreateGame.getTask();
@@ -299,6 +310,60 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 					});
 			taskAbortGame.setResult(true);
 		}
+		return taskAbortGame.getTask();
+	}
+
+	public Task<Boolean> exitGameDirect(String gameId, String player1IdFs, String player2IdFs, boolean isPlayer1) {
+		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
+
+		if (gameId == null) {
+			taskAbortGame.setResult(true);
+			return taskAbortGame.getTask();
+		}
+
+		// Get the current game state from Firestore
+		getCollection().document(gameId).get()
+				.addOnSuccessListener(documentSnapshot -> {
+					if (documentSnapshot.exists()) {
+						OnlineGame game = documentSnapshot.toObject(OnlineGame.class);
+
+						if (game != null) {
+							if (game.getMoves().isEmpty()) {
+								// Game not started, just delete it
+								getCollection().document(gameId).delete()
+										.addOnSuccessListener(aVoid -> taskAbortGame.setResult(true))
+										.addOnFailureListener(e -> taskAbortGame.setResult(false));
+							} else {
+								// Game in progress, mark as finished and set winner
+								String winnerId = isPlayer1 ? player2IdFs : player1IdFs;
+								Map<String, Object> updates = new HashMap<>();
+								updates.put("finished", true);
+								updates.put("winnerIdFs", winnerId);
+
+								getCollection().document(gameId).update(updates)
+										.addOnSuccessListener(aVoid -> {
+											// Call finish_game cloud function
+											Map<String, Object> data = new HashMap<>();
+											data.put("player_1_id", player1IdFs);
+											data.put("player_2_id", player2IdFs);
+											data.put("score", isPlayer1 ? 0.0 : 1.0); // Player who quit loses
+
+											function.getHttpsCallable("finish_game")
+													.call(data)
+													.addOnSuccessListener(result -> taskAbortGame.setResult(true))
+													.addOnFailureListener(e -> taskAbortGame.setResult(false));
+										})
+										.addOnFailureListener(e -> taskAbortGame.setResult(false));
+							}
+						} else {
+							taskAbortGame.setResult(true);
+						}
+					} else {
+						taskAbortGame.setResult(true);
+					}
+				})
+				.addOnFailureListener(e -> taskAbortGame.setResult(false));
+
 		return taskAbortGame.getTask();
 	}
 }

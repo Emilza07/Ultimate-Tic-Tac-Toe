@@ -28,6 +28,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	private final MediatorLiveData<char[][]> lvOuterBoardWinners;
 	private final MediatorLiveData<Boolean> lvIsFinished;
 	private final MediatorLiveData<Boolean> lvIsStarted;
+	private final MediatorLiveData<String> lvGameIdFs;
 	private final GameType gameType;
 	private BaseGamesRepository repository;
 
@@ -39,6 +40,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		lvOuterBoardWinners = new MediatorLiveData<>();
 		lvIsFinished = new MediatorLiveData<>();
 		lvIsStarted = new MediatorLiveData<>(false);
+		lvGameIdFs = new MediatorLiveData<>();
 		super.repository = createRepository(application);
 		isStartedObserver();
 	}
@@ -91,6 +93,10 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return lvIsStarted;
 	}
 
+	public LiveData<String> getLiveDataGameIdFs() {
+		return lvGameIdFs;
+	}
+
 	public void getUserGames(String userId) {
 		lvCollection = repository.getUserGames(userId);
 	}
@@ -108,7 +114,10 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	public void startOnlineGame(Player player) {
-		Executors.newSingleThreadExecutor().execute(() -> repository.startGame(player, null));
+		setGameIdFsObserver();
+		Executors.newSingleThreadExecutor().execute(() -> {
+			repository.startGame(player, null);
+		});
 	}
 
 	public void startHistoryGame(Game game) {
@@ -135,6 +144,17 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		lvIsFinished.addSource(
 				repository.getLiveDataIsFinished(),
 				lvIsFinished::setValue);
+	}
+
+	private void setGameIdFsObserver() {
+		lvGameIdFs.addSource(((OnlineGamesRepository) repository).getLiveDataGameIdFs(), gameIdFs -> {
+			if (gameIdFs != null) {
+				lvGameIdFs.setValue(gameIdFs);
+				lvGameIdFs.removeSource(((OnlineGamesRepository) repository).getLiveDataGameIdFs());
+			} else {
+				lvGameIdFs.setValue(null);
+			}
+		});
 	}
 
 	public void exitGame() {

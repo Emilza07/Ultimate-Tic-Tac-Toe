@@ -8,8 +8,9 @@ android {
 
     defaultConfig {
         applicationId = "com.emil_z.ultimate_tic_tac_toe"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 26
+        //noinspection OldTargetApi
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -46,6 +47,7 @@ dependencies {
     implementation(project(":MODEL"))
     implementation(project(":HELPER"))
     implementation(libs.gridlayout)
+    implementation(project(":REPOSITORY"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

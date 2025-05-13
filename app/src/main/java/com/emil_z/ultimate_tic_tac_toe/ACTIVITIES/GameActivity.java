@@ -34,6 +34,7 @@ import com.emil_z.model.OuterBoard;
 import com.emil_z.model.Player;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
+import com.emil_z.ultimate_tic_tac_toe.SERVICES.AppMonitorService;
 import com.emil_z.viewmodel.GamesViewModel;
 import com.emil_z.viewmodel.GamesViewModelFactory;
 import com.emil_z.viewmodel.UsersViewModel;
@@ -65,6 +66,7 @@ public class GameActivity extends BaseActivity {
 	private GamesViewModel gamesViewModel;
 	private UsersViewModel usersViewModel;
 	private char[][] outerBoardState;
+	private boolean monitorServiceStarted = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -386,6 +388,42 @@ public class GameActivity extends BaseActivity {
 			if (aBoolean) {
 				Game game = gamesViewModel.getLiveDataGame().getValue();
 				usersViewModel.get(Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs()) ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
+
+				if (gameType == GameType.ONLINE) {
+					if (!monitorServiceStarted) {
+						monitorServiceStarted = true;
+						AppMonitorService.startService(
+								this,
+								true,
+								game.getIdFs(),
+								game.getPlayer1().getIdFs(),
+								game.getPlayer2().getIdFs(),
+								Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs())
+						);
+					} else {
+						AppMonitorService.updateGameState(
+								true,
+								game.getIdFs(),
+								game.getPlayer1().getIdFs(),
+								game.getPlayer2().getIdFs(),
+								Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs())
+						);
+					}
+				}
+			}
+		});
+
+		gamesViewModel.getLiveDataGameIdFs().observe(this, gameIdFs -> {
+			if (gameIdFs != null && !monitorServiceStarted) {
+				monitorServiceStarted = true;
+				AppMonitorService.startService(
+						this,
+						true,
+						gameIdFs,
+						null,
+						null,
+						false
+				);
 			}
 		});
 
@@ -405,6 +443,13 @@ public class GameActivity extends BaseActivity {
 			if (gameType == GameType.HISTORY)
 				llReview.setVisibility(View.VISIBLE);
 		});
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		// When activity is destroyed normally, we don't want exitGame to run on task removed
+		AppMonitorService.userClosedActivity(this);
 	}
 
 	//region GameInit
