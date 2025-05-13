@@ -225,67 +225,6 @@ public class GameActivity extends BaseActivity {
 		});
 	}
 
-	/**
-	 * Resets the entire board display (clears moves and winners)
-	 */
-	private void resetBoardDisplay() {
-		// Clear all inner board winners
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				outerBoardState[i][j] = 0;
-				gridBoard.getChildAt(i * 3 + j).setBackground(null);
-				gridBoard.getChildAt(i * 3 + j).setBackgroundColor(Color.TRANSPARENT);
-
-				// Clear all moves
-				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(i * 3 + j);
-				for (int k = 0; k < innerGrid.getChildCount(); k++) {
-					ImageView btn = (ImageView) innerGrid.getChildAt(k);
-					btn.setImageDrawable(null);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Rebuilds the game state up to the specified move index
-	 */
-	@SuppressWarnings("ConstantConditions")
-	private void rebuildGameStateToMove(int targetMoveIndex) {
-		Game game = gamesViewModel.getLiveDataGame().getValue();
-		OuterBoard tempBoard = new OuterBoard();
-
-		// Replay all moves up to the target index
-		for (int i = 0; i < targetMoveIndex; i++) {
-			BoardLocation move = game.getMoves().get(i);
-			tempBoard.makeMove(move);
-
-			// Display the move
-			int innerGridIndex = move.getOuter().x * 3 + move.getOuter().y;
-			int btnIndex = move.getInner().x * 3 + move.getInner().y;
-			GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
-			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
-			btn.setImageResource(i % 2 == 0 ? R.drawable.x : R.drawable.o);
-
-			// Check if this move caused an inner board win
-			Point outerPoint = new Point(move.getOuter().x, move.getOuter().y);
-			if (tempBoard.getBoard(outerPoint).isFinished()) {
-				char winner = tempBoard.getBoard(outerPoint).getWinner();
-				if (winner != 0) {
-					outerBoardState[move.getOuter().x][move.getOuter().y] = winner;
-
-					// Update the UI for the winner
-					if (winner == 'X') {
-						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
-					} else if (winner == 'O') {
-						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
-					} else if (winner == 'T') {
-						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
-					}
-				}
-			}
-		}
-	}
-
 	private void handleBoardButtonClick(ImageView btn) {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
@@ -313,7 +252,7 @@ public class GameActivity extends BaseActivity {
 				Intent intent = new Intent();
 				setResult(RESULT_OK, intent);
 				finish();
-			} else if (!game.getMoves().isEmpty() && !game.isFinished()) { //Remote player made a move
+			} else if (!game.getMoves().isEmpty() && !game.isFinished()) {
 				if (game.getMoves().size() > 1) {
 					int previewsMoveIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
 					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previewsMoveIndex);
@@ -638,4 +577,65 @@ public class GameActivity extends BaseActivity {
 	}
 	//endregion
 	//endregion
+
+	/**
+	 * Resets the entire board display (clears moves and winners)
+	 */
+	private void resetBoardDisplay() {
+		// Clear all inner board winners
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				outerBoardState[i][j] = 0;
+				gridBoard.getChildAt(i * 3 + j).setBackground(null);
+				gridBoard.getChildAt(i * 3 + j).setBackgroundColor(Color.TRANSPARENT);
+
+				// Clear all moves
+				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(i * 3 + j);
+				for (int k = 0; k < innerGrid.getChildCount(); k++) {
+					ImageView btn = (ImageView) innerGrid.getChildAt(k);
+					btn.setImageDrawable(null);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Rebuilds the game state up to the specified move index
+	 */
+	@SuppressWarnings("ConstantConditions")
+	private void rebuildGameStateToMove(int targetMoveIndex) {
+		Game game = gamesViewModel.getLiveDataGame().getValue();
+		OuterBoard tempBoard = new OuterBoard();
+
+		// Replay all moves up to the target index
+		for (int i = 0; i < targetMoveIndex; i++) {
+			BoardLocation move = game.getMoves().get(i);
+			tempBoard.makeMove(move);
+
+			// Display the move
+			int innerGridIndex = move.getOuter().x * 3 + move.getOuter().y;
+			int btnIndex = move.getInner().x * 3 + move.getInner().y;
+			GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
+			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
+			btn.setImageResource(i % 2 == 0 ? R.drawable.x : R.drawable.o);
+
+			// Check if this move caused an inner board win
+			Point outerPoint = new Point(move.getOuter().x, move.getOuter().y);
+			if (tempBoard.getBoard(outerPoint).isFinished()) {
+				char winner = tempBoard.getBoard(outerPoint).getWinner();
+				if (winner != 0) {
+					outerBoardState[move.getOuter().x][move.getOuter().y] = winner;
+
+					// Update the UI for the winner
+					if (winner == 'X') {
+						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
+					} else if (winner == 'O') {
+						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
+					} else if (winner == 'T') {
+						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
+					}
+				}
+			}
+		}
+	}
 }
