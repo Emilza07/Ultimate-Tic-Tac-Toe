@@ -4,9 +4,10 @@ import com.google.firebase.Timestamp;
 
 import java.util.Objects;
 
-public class OnlineGame extends Game{
+public class OnlineGame extends Game {
 	private Timestamp startedAt;
-	public OnlineGame(){
+
+	public OnlineGame() {
 		super();
 	}
 
@@ -30,7 +31,7 @@ public class OnlineGame extends Game{
 		outerBoard = new OuterBoard();
 	}
 
-	public void makeMove(BoardLocation location){
+	public void makeMove(BoardLocation location) {
 		super.makeMove(location);
 		outerBoard.getBoard(location.getOuter()).isFinished();
 		if (Objects.equals(currentPlayerIdFs, player1.getIdFs())) {
@@ -40,7 +41,7 @@ public class OnlineGame extends Game{
 		}
 		if (outerBoard.isGameOver()) {
 			isFinished = true;
-			if(outerBoard.getWinner() == 'T')
+			if (outerBoard.getWinner() == 'T')
 				winnerIdFs = "T";
 			else
 				winnerIdFs = Objects.equals(currentPlayerIdFs, player2.getIdFs()) ? player1.getIdFs() : player2.getIdFs();

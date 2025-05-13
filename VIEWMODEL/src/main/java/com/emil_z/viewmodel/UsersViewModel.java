@@ -9,8 +9,6 @@ import com.emil_z.model.Users;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.emil_z.repository.UsersRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 /**
  * ViewModel class for managing user-related operations.
@@ -47,14 +45,11 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 					if (!queryDocumentSnapshots.isEmpty()) {
 						User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 						lvEntity.setValue(user);
-					}
-					else {
+					} else {
 						lvSuccess.setValue(false);
 					}
 				})
-				.addOnFailureListener(e -> {
-					lvEntity.setValue(null);
-				});
+				.addOnFailureListener(e -> lvEntity.setValue(null));
 	}
 
 	public void exist(String username) {

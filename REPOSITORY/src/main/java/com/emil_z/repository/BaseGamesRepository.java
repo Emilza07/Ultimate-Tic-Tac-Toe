@@ -4,7 +4,6 @@ import android.app.Application;
 import android.graphics.Point;
 import android.util.Log;
 
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -28,9 +27,8 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	protected final MutableLiveData<char[][]> lvOuterBoardWinners;
 	protected final MutableLiveData<Boolean> lvIsFinished;
 	protected final MutableLiveData<Boolean> lvIsStarted;
-	protected int retryCounter = 0;
 	protected final String localPlayerIdFs;
-
+	protected int retryCounter = 0;
 
 
 	public BaseGamesRepository(Application application) {
@@ -86,8 +84,8 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 
 						// Sort games by timestamp (newest first)
 						games.sort((g1, g2) -> {
-							Timestamp t1 = ((OnlineGame)g1).getStartedAt();
-							Timestamp t2 = ((OnlineGame)g2).getStartedAt();
+							Timestamp t1 = ((OnlineGame) g1).getStartedAt();
+							Timestamp t2 = ((OnlineGame) g2).getStartedAt();
 							return t2.compareTo(t1);
 						});
 
@@ -114,24 +112,24 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 
 	public abstract void startGame(Player player, String crossPlayerIdFs);
 
+	@SuppressWarnings("ConstantConditions")
 	public Task<Void> makeMove(BoardLocation location) {
 		TaskCompletionSource<Void> taskMakeMove = new TaskCompletionSource<>();
-		if(Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
-			if(lvGame.getValue().isLegal(location)) {
+		if (Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
+			if (lvGame.getValue().isLegal(location)) {
 				lvGame.getValue().makeMove(location);
 				lvGame.setValue(lvGame.getValue());
 				checkInnerBoardFinish(location.getOuter());
 				taskMakeMove.setResult(null);
-			}
-			else taskMakeMove.setException(new Exception("2"));
-		}
-		else taskMakeMove.setException(new Exception("1"));
+			} else taskMakeMove.setException(new Exception("2"));
+		} else taskMakeMove.setException(new Exception("1"));
 		return taskMakeMove.getTask();
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	protected void checkInnerBoardFinish(Point innerBoard) {
-		if(lvGame.getValue().getOuterBoard().getBoard(innerBoard).isFinished()){			//check if the inner board is finished
-			if(lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() != 'T'){	//check if the inner board isn't a tie
+		if (lvGame.getValue().getOuterBoard().getBoard(innerBoard).isFinished()) {            //check if the inner board is finished
+			if (lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() != 'T') {    //check if the inner board isn't a tie
 				char[][] tmp = new char[3][3];
 				for (int i = 0; i < 3; i++) {
 					for (int j = 0; j < 3; j++) {
@@ -140,11 +138,10 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 				}
 				tmp[innerBoard.x][innerBoard.y] = lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner();
 				lvOuterBoardWinners.postValue(tmp);
-			}
-			else {
+			} else {
 				lvOuterBoardWinners.getValue()[innerBoard.x][innerBoard.y] = 'T';
 			}
-			if(lvGame.getValue().getOuterBoard().isGameOver()){
+			if (lvGame.getValue().getOuterBoard().isGameOver()) {
 				lvGame.getValue().setFinished(true);
 			}
 

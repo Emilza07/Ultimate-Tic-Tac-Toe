@@ -11,7 +11,9 @@ public class BoardLocation {
 		this.inner = inner;
 	}
 
-	public BoardLocation (){}
+	public BoardLocation() {
+	}
+
 	public BoardLocation(int oRow, int oCol, int iRow, int iCol) {
 		{
 			this.outer = new Point(oRow, oCol);

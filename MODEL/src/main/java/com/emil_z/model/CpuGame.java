@@ -2,7 +2,7 @@ package com.emil_z.model;
 
 import java.util.Objects;
 
-public class CpuGame extends Game{
+public class CpuGame extends Game {
 	public CpuGame(String localPlayerIdFs, String crossPlayerIdFs) {
 		super();
 		setStarted(true);

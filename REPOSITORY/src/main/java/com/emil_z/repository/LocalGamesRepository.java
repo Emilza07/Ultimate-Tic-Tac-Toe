@@ -17,10 +17,11 @@ public class LocalGamesRepository extends BaseGamesRepository {
 		lvIsStarted.setValue(true);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	protected void checkInnerBoardFinish(Point innerBoard) {
 		super.checkInnerBoardFinish(innerBoard);
-		if(lvGame.getValue().isFinished())
+		if (lvGame.getValue().isFinished())
 			lvIsFinished.setValue(true);
 	}
 }

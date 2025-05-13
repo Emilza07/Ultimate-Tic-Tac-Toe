@@ -13,11 +13,14 @@ public class User extends BaseEntity implements Serializable {
 	private String password;
 	private float elo;
 	private String picture;
+
 	public User() {
 	}
+
 	public User(String username, String password, String picture) {
 		this(username, password, 1200, picture);
 	}
+
 	public User(String username, String password, float elo, String picture) {
 		this.username = username;
 		this.password = password;
@@ -53,13 +56,13 @@ public class User extends BaseEntity implements Serializable {
 		return picture;
 	}
 
+	public void setPicture(String picture) {
+		this.picture = picture;
+	}
+
 	@Exclude
 	public Bitmap getPictureBitmap() {
 		return BitMapHelper.decodeBase64(picture);
-	}
-
-	public void setPicture(String picture) {
-		this.picture = picture;
 	}
 
 }

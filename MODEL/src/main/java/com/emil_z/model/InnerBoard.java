@@ -7,37 +7,35 @@ import com.emil_z.model.BASE.BaseEntity;
 import java.io.Serializable;
 
 public class InnerBoard extends BaseEntity implements Serializable {
-	private char[][] board;
+	private final char[][] board;
 	private char winner;
 	private boolean isFinished;
 
-	public InnerBoard(){
+	public InnerBoard() {
 		board = new char[3][3];
 		isFinished = false;
 		winner = 0;
 	}
 
-	public InnerBoard(InnerBoard innerBoard){
+	public InnerBoard(InnerBoard innerBoard) {
 		board = new char[3][3];
 		isFinished = innerBoard.isFinished;
 		winner = innerBoard.winner;
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3 ; j++) {
-				board[i][j] = innerBoard.getCell(new Point(i,j));
+			for (int j = 0; j < 3; j++) {
+				board[i][j] = innerBoard.getCell(new Point(i, j));
 			}
 		}
 	}
 
-	public char[][] getBoard(){
-		return board;
-	}
-	public char getCell(Point inner){
+	public char getCell(Point inner) {
 		return board[inner.x][inner.y];
 	}
-	public boolean isTie(){
+
+	public boolean isTie() {
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3 ; j++) {
-				if(board[i][j] == 0){
+			for (int j = 0; j < 3; j++) {
+				if (board[i][j] == 0) {
 					return false;
 				}
 			}
@@ -45,37 +43,37 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		return true;
 	}
 
-	public boolean isFinished(){
-		if(isFinished){
+	public boolean isFinished() {
+		if (isFinished) {
 			return true;
 		}
 		//check if the game is a tie
-		if(isTie()){
+		if (isTie()) {
 			isFinished = true;
 			winner = 'T';
 			return true;
 		}
 		//check rows
 		for (int i = 0; i < 3; i++) {
-			if(board[i][0] != 0 && board[i][0] == board[i][1] && board[i][0] == board[i][2]){
+			if (board[i][0] != 0 && board[i][0] == board[i][1] && board[i][0] == board[i][2]) {
 				winner = board[i][0];
 				isFinished = true;
 				return true;
 			}
 			//check columns
-			if(board[0][i] != 0 && board[0][i] == board[1][i] && board[0][i] == board[2][i]){
+			if (board[0][i] != 0 && board[0][i] == board[1][i] && board[0][i] == board[2][i]) {
 				winner = board[0][i];
 				isFinished = true;
 				return true;
 			}
 		}
 		//check diagonals
-		if(board[0][0] != 0 && board[0][0] == board[1][1] && board[0][0] == board[2][2]){
+		if (board[0][0] != 0 && board[0][0] == board[1][1] && board[0][0] == board[2][2]) {
 			winner = board[0][0];
 			isFinished = true;
 			return true;
 		}
-		if(board[0][2] != 0 && board[0][2] == board[1][1] && board[0][2] == board[2][0]){
+		if (board[0][2] != 0 && board[0][2] == board[1][1] && board[0][2] == board[2][0]) {
 			winner = board[0][2];
 			isFinished = true;
 			return true;
@@ -83,22 +81,15 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		return false;
 	}
 
-	public void resetGame(){
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3 ; j++) {
-				board[i][j] = 0;
-			}
-		}
-	}
-
-	public char getWinner(){
+	public char getWinner() {
 		return winner;
 	}
 
-	public boolean isLegal(Point inner){
-		return board[inner.x][inner.y] == 0  && !isFinished;
+	public boolean isLegal(Point inner) {
+		return board[inner.x][inner.y] == 0 && !isFinished;
 	}
-	public void makeMove(Point inner, char currentPlayer){
+
+	public void makeMove(Point inner, char currentPlayer) {
 		board[inner.x][inner.y] = currentPlayer;
 	}
 }

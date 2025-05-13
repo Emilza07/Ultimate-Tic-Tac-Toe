@@ -3,7 +3,6 @@ package com.emil_z.repository;
 import android.app.Application;
 import android.util.Log;
 
-import com.emil_z.helper.StringUtil;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.firestore.Query;

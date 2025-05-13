@@ -12,9 +12,10 @@ public class Player extends BaseEntity {
 	@Exclude
 	private String picture;
 
-	public Player (){}
+	public Player() {
+	}
 
-	public Player(Player player){
+	public Player(Player player) {
 		this.idFs = player.idFs;
 		this.name = player.name;
 		this.elo = player.elo;
@@ -36,11 +37,11 @@ public class Player extends BaseEntity {
 		this.name = name;
 	}
 
-	public float getElo(){
+	public float getElo() {
 		return elo;
 	}
 
-	public void setElo(float elo){
+	public void setElo(float elo) {
 		this.elo = elo;
 	}
 
@@ -50,16 +51,16 @@ public class Player extends BaseEntity {
 	}
 
 	@Exclude
-	public Bitmap getPictureBitmap() {
-		return BitMapHelper.decodeBase64(picture);
-	}
-
-	@Exclude
 	public void setPicture(String picture) {
 		this.picture = picture;
 	}
 
-	public int compareElo(Player player){
+	@Exclude
+	public Bitmap getPictureBitmap() {
+		return BitMapHelper.decodeBase64(picture);
+	}
+
+	public int compareElo(Player player) {
 		return Float.compare(this.elo, player.elo);
 	}
 }

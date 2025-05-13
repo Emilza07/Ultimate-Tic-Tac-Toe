@@ -19,13 +19,15 @@ public class CpuGamesRepository extends BaseGamesRepository {
 		lvIsStarted.setValue(true);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	protected void checkInnerBoardFinish(Point innerBoard) {
 		super.checkInnerBoardFinish(innerBoard);
-		if(lvGame.getValue().isFinished())
+		if (lvGame.getValue().isFinished())
 			lvIsFinished.postValue(true);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public void makeCpuMove() {
 		BoardLocation location = CPU.findBestMove(lvGame.getValue().getOuterBoard());
 		lvGame.getValue().makeMove(location);

@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-public class OnlineGamesRepository extends BaseGamesRepository{
+public class OnlineGamesRepository extends BaseGamesRepository {
 	public OnlineGamesRepository(Application application) {
 		super(application);
 	}
@@ -49,7 +49,7 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 			Throwable cause = e.getCause();
 
 			if (cause instanceof EmptyQueryException || e instanceof NoSuchElementException) {
-				hostOnlineGame(player).continueWith(gameId->{
+				hostOnlineGame(player).continueWith(gameId -> {
 					addSnapshotListener(gameId.getResult());
 					return null;
 				});
@@ -124,6 +124,7 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 		return taskCreateGame.getTask();
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	public void beginOnlineGame() {
 		lvGame.getValue().setStarted(true);
 		getCollection().document(lvGame.getValue().getIdFs())
@@ -205,8 +206,8 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 						lvGame.setValue(null);
 					}
 				}
-			}
-			catch (Exception ex){} //TODO: for some reason the first time the listeners catches as joiner, the started is false
+			} catch (Exception ex) {
+			} //TODO: for some reason the first time the listeners catches as joiner, the started is false
 		});
 	}
 
@@ -250,7 +251,7 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 					if (task.getException() instanceof FirebaseFunctionsException) {
 						if (((FirebaseFunctionsException) task.getException()).getCode() == FirebaseFunctionsException.Code.ABORTED)
 							throw new FirebaseTooManyRequestsException("");
-					} else if(task.getException() != null)
+					} else if (task.getException() != null)
 						throw task.getException();
 					return null;
 				});
@@ -273,10 +274,10 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 		}
 	}
 
-	public Task<Boolean> exitGame(){
+	public Task<Boolean> exitGame() {
 		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
 
-		if(lvGame.getValue() == null) {
+		if (lvGame.getValue() == null) {
 			taskAbortGame.setResult(true);
 		} else if (lvGame.getValue().getMoves().isEmpty()) { // Game not started
 			delete(lvGame.getValue())
@@ -289,7 +290,7 @@ public class OnlineGamesRepository extends BaseGamesRepository{
 			lvGame.getValue().setFinished(true);
 			lvGame.getValue().setWinnerIdFs(
 					Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs) ?
-							lvGame.getValue().getPlayer2().getIdFs():
+							lvGame.getValue().getPlayer2().getIdFs() :
 							lvGame.getValue().getPlayer1().getIdFs());
 			update(lvGame.getValue());
 			finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs())

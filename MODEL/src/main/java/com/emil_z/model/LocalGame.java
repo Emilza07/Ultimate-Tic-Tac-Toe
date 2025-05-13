@@ -1,6 +1,6 @@
 package com.emil_z.model;
 
-public class LocalGame extends Game{
+public class LocalGame extends Game {
 	public LocalGame(String localPlayerIdFs) {
 		super();
 		setStarted(true);

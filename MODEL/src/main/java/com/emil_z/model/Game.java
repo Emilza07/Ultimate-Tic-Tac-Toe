@@ -28,7 +28,8 @@ public class Game extends BaseEntity implements Serializable {
 		this.player1 = new Player();
 		this.player2 = new Player();
 	}
-	public Game(Game game){
+
+	public Game(Game game) {
 		this.isStarted = game.isStarted;
 		this.isFinished = game.isFinished;
 		this.winnerIdFs = game.winnerIdFs;
@@ -77,6 +78,7 @@ public class Game extends BaseEntity implements Serializable {
 	public OuterBoard getOuterBoard() {
 		return outerBoard;
 	}
+
 	@Exclude
 	public void setOuterBoard(OuterBoard outerBoard) {
 		this.outerBoard = outerBoard;

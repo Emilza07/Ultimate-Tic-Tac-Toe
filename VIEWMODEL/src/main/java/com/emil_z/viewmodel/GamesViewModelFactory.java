@@ -1,8 +1,10 @@
 package com.emil_z.viewmodel;
 
 import android.app.Application;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
+
 import com.emil_z.model.GameType;
 import com.emil_z.viewmodel.BASE.GenericViewModelFactory;
 
