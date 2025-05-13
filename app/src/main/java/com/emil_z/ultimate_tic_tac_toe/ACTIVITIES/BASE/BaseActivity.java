@@ -8,9 +8,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.emil_z.model.User;
+import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.AuthActivity;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -81,7 +81,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.navigation_home){
-                    navigateToActivity(AuthActivity.class);
+                    navigateToActivity(MainActivity.class);
                 }
                 else if(itemId == R.id.navigation_members){
                     navigateToActivity(null);

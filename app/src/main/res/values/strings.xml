@@ -1,10 +1,10 @@
 <resources>
 	<string name="app_name">Ultimate Tic Tac Toe</string>
 
-	<string name="ultimate_tic_tac_toe_online">Ultimate Tic Tac Toe Online</string>
+	<string name="ultimate_tic_tac_toe_online">ULTIMATE\nTIC TAC TOE\nONLINE</string>
 	<string name="by_emil_zalessky">by Emil Zalessky</string>
-	<string name="sign_in">Sign In</string>
-	<string name="register">Register</string>
+	<string name="sign_in">SIGN IN</string>
+	<string name="register">REGISTER</string>
 
 	<string name="back">Back</string>
 	<string name="username">Username</string>
