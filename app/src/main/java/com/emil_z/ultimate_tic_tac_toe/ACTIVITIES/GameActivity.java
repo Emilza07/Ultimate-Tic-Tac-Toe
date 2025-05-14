@@ -23,7 +23,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.gridlayout.widget.GridLayout;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.AlertUtil;
@@ -129,6 +128,10 @@ public class GameActivity extends BaseActivity {
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
 			@Override
 			public void handleOnBackPressed() {
+				if (gameType == GameType.HISTORY) {
+					finish();
+					return;
+				}
 				Game game = gamesViewModel.getLiveDataGame().getValue();
 				AlertUtil.alert(
 						GameActivity.this,
@@ -242,13 +245,10 @@ public class GameActivity extends BaseActivity {
 				.get(GamesViewModel.class);
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-		gamesViewModel.getLiveDataCode().observe(this, new Observer<Integer>() {
-			@Override
-			public void onChanged(Integer code) {
-				if (code != 0) {
-					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
-					gamesViewModel.resetLvCode();
-				}
+		gamesViewModel.getLiveDataCode().observe(this, code -> {
+			if (code != 0) {
+				Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
+				gamesViewModel.resetLvCode();
 			}
 		});
 

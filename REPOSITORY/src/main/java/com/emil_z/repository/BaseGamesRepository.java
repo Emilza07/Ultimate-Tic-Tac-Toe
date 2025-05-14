@@ -2,7 +2,6 @@ package com.emil_z.repository;
 
 import android.app.Application;
 import android.graphics.Point;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -11,14 +10,11 @@ import com.emil_z.helper.PreferenceManager;
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
-import com.emil_z.model.OnlineGame;
 import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.Objects;
 
@@ -80,19 +76,9 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 
 	@SuppressWarnings("ConstantConditions")
 	protected void checkInnerBoardFinish(Point innerBoard) {
-		if (lvGame.getValue().getOuterBoard().getBoard(innerBoard).isFinished()) {            //check if the inner board is finished
-			if (lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner() != 'T') {    //check if the inner board isn't a tie
-				char[][] tmp = new char[3][3];
-				for (int i = 0; i < 3; i++) {
-					for (int j = 0; j < 3; j++) {
-						tmp[i][j] = lvOuterBoardWinners.getValue()[i][j];
-					}
-				}
-				tmp[innerBoard.x][innerBoard.y] = lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner();
-				lvOuterBoardWinners.postValue(tmp);
-			} else {
-				lvOuterBoardWinners.getValue()[innerBoard.x][innerBoard.y] = 'T';
-			}
+		if (lvGame.getValue().getOuterBoard().getBoard(innerBoard).isFinished()) {
+			lvOuterBoardWinners.getValue()[innerBoard.x][innerBoard.y] = lvGame.getValue().getOuterBoard().getBoard(innerBoard).getWinner();
+			lvOuterBoardWinners.postValue(lvOuterBoardWinners.getValue());
 			if (lvGame.getValue().getOuterBoard().isGameOver()) {
 				lvGame.getValue().setFinished(true);
 			}

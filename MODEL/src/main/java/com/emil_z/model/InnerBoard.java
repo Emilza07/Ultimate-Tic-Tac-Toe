@@ -47,13 +47,6 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		if (isFinished) {
 			return true;
 		}
-		//check if the game is a tie
-		if (isTie()) {
-			isFinished = true;
-			winner = 'T';
-			return true;
-		}
-		//check rows
 		for (int i = 0; i < 3; i++) {
 			if (board[i][0] != 0 && board[i][0] == board[i][1] && board[i][0] == board[i][2]) {
 				winner = board[i][0];
@@ -67,7 +60,6 @@ public class InnerBoard extends BaseEntity implements Serializable {
 				return true;
 			}
 		}
-		//check diagonals
 		if (board[0][0] != 0 && board[0][0] == board[1][1] && board[0][0] == board[2][2]) {
 			winner = board[0][0];
 			isFinished = true;
@@ -76,6 +68,11 @@ public class InnerBoard extends BaseEntity implements Serializable {
 		if (board[0][2] != 0 && board[0][2] == board[1][1] && board[0][2] == board[2][0]) {
 			winner = board[0][2];
 			isFinished = true;
+			return true;
+		}
+		if (isTie()) {
+			isFinished = true;
+			winner = 'T';
 			return true;
 		}
 		return false;

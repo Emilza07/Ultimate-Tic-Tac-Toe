@@ -39,11 +39,11 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class ProfileActivity extends BaseActivity {
+	private final int pageSize = 10;
 	private ImageView ivAvatar;
 	private TextView tvUsername;
 	private TextView tvElo;
 	private RecyclerView rvGames;
-
 	private GamesViewModel gamesViewModel;
 	private UsersViewModel usersViewModel;
 	private GamesAdapter adapter;
@@ -110,8 +110,7 @@ public class ProfileActivity extends BaseActivity {
 	protected void setViewModel() {
 		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
-		showProgressDialog("Games", "Loading games...");
-		gamesViewModel.getUserGames(currentUser.getIdFs());
+		loadGames(false);
 
 		usersViewModel.getLiveDataSuccess().observe(this, success -> {
 			if (success) {
@@ -135,7 +134,6 @@ public class ProfileActivity extends BaseActivity {
 				}
 			}
 			adapter.setItems(this.games);
-			hideProgressDialog();
 		});
 
 		gamesViewModel.getLiveDataCollection().observe(this, newGames -> {

@@ -62,7 +62,10 @@ public class LeaderboardActivity extends BaseActivity {
 
 			sortedUsers.sort((user1, user2) ->
 					Double.compare(user2.getElo(), user1.getElo()));
-			adapter.setItems(sortedUsers);
+			int endIndex = Math.min(sortedUsers.size(), 999);
+			List<User> topUsers = sortedUsers.subList(0, endIndex);
+
+			adapter.setItems(topUsers);
 		});
 	}
 
