@@ -233,15 +233,6 @@ public class GameActivity extends BaseActivity {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
 		gamesViewModel.makeMove(new BoardLocation(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0'));
-		gamesViewModel.getLiveDataCode().observe(this, new Observer<Integer>() {
-			@Override
-			public void onChanged(Integer code) {
-				if (code != 0)
-					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
-				gamesViewModel.resetLvCode();
-				gamesViewModel.getLiveDataCode().removeObserver(this);
-			}
-		});
 	}
 
 	@SuppressWarnings("ConstantConditions")
@@ -250,6 +241,16 @@ public class GameActivity extends BaseActivity {
 				new GamesViewModelFactory(getApplication(), gameType))
 				.get(GamesViewModel.class);
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
+
+		gamesViewModel.getLiveDataCode().observe(this, new Observer<Integer>() {
+			@Override
+			public void onChanged(Integer code) {
+				if (code != 0) {
+					Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
+					gamesViewModel.resetLvCode();
+				}
+			}
+		});
 
 		gamesViewModel.getLiveDataGame().observe(this, game -> {
 			if (game == null) {
