@@ -141,7 +141,7 @@ public class GameActivity extends BaseActivity {
 								gamesViewModel.exitGame();
 							setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
 							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
-							if (gameType != GameType.ONLINE)
+							if (gameType != GameType.ONLINE || game == null)
 								finish();
 						}),
 						null,
@@ -463,7 +463,7 @@ public class GameActivity extends BaseActivity {
 					tvP2Name.setText(p1.getName());
 					tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+					tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
 				}
 			}
 		} else {
