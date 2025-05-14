@@ -12,10 +12,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.ADPTERS.UsersAdapter;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LeaderboardActivity extends BaseActivity {
 	private RecyclerView rvLeaderboard;
@@ -53,7 +57,13 @@ public class LeaderboardActivity extends BaseActivity {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 		viewModel.getAll();
 
-		viewModel.getLiveDataCollection().observe(this, users -> adapter.setItems(users));
+		viewModel.getLiveDataCollection().observe(this, users -> {
+			List<User> sortedUsers = new ArrayList<>(users);
+
+			sortedUsers.sort((user1, user2) ->
+					Double.compare(user2.getElo(), user1.getElo()));
+			adapter.setItems(sortedUsers);
+		});
 	}
 
 	private void setAdapter() {
