@@ -94,6 +94,20 @@
 		app:layout_constraintTop_toBottomOf="@+id/etPassword" />
 
 	<Button
+		android:id="@+id/btnRegister"
+		android:layout_width="290dp"
+		android:layout_height="110dp"
+		android:layout_marginTop="500dp"
+		android:backgroundTint="@color/buttonColor"
+		android:fontFamily="@font/montserrat_semibold"
+		android:text="@string/register"
+		android:textSize="34sp"
+		app:cornerRadius="20dp"
+		app:layout_constraintEnd_toEndOf="@+id/etConfirmPassword"
+		app:layout_constraintStart_toStartOf="@+id/etConfirmPassword"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<Button
 		android:id="@+id/btnBack"
 		android:layout_width="0dp"
 		android:layout_height="110dp"
@@ -107,17 +121,4 @@
 		app:layout_constraintStart_toStartOf="@+id/btnRegister"
 		app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
 
-	<Button
-		android:id="@+id/btnRegister"
-		android:layout_width="0dp"
-		android:layout_height="110dp"
-		android:layout_marginTop="512dp"
-		android:backgroundTint="@color/buttonColor"
-		android:fontFamily="@font/montserrat_semibold"
-		android:text="@string/register"
-		android:textSize="34sp"
-		app:cornerRadius="20dp"
-		app:layout_constraintEnd_toEndOf="@+id/etConfirmPassword"
-		app:layout_constraintStart_toStartOf="@+id/etConfirmPassword"
-		app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

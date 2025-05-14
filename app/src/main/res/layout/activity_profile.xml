@@ -69,15 +69,6 @@
 		app:layout_constraintTop_toBottomOf="@+id/tvUsername"
 		tools:text="Elo: {ELO}" />
 
-	<androidx.recyclerview.widget.RecyclerView
-		android:id="@+id/rvGames"
-		android:layout_width="0dp"
-		android:layout_height="270dp"
-		android:layout_marginTop="8dp"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/tvGames" />
-
 	<TextView
 		android:id="@+id/tvGames"
 		android:layout_width="wrap_content"
@@ -90,4 +81,14 @@
 		app:layout_constraintEnd_toEndOf="@+id/tvElo"
 		app:layout_constraintStart_toStartOf="@+id/tvElo"
 		app:layout_constraintTop_toBottomOf="@+id/tvElo" />
+
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/rvGames"
+		android:layout_width="0dp"
+		android:layout_height="270dp"
+		android:layout_marginTop="8dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/tvGames" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
