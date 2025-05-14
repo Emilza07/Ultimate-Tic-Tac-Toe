@@ -57,54 +57,6 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 		return lvIsStarted;
 	}
 
-	public LiveData<Games> getUserGames(String userId) {
-		MutableLiveData<Games> result = new MutableLiveData<>();
-
-		// Create a query for games where the user is player1
-		Query player1Query = getCollection()
-				.whereEqualTo("player1.idFs", userId);
-
-		player1Query.get().addOnSuccessListener(queryDocuments -> {
-			Games games = new Games();
-
-			// Add all games where user is player1
-			for (QueryDocumentSnapshot document : queryDocuments) {
-				games.add(document.toObject(OnlineGame.class));
-			}
-
-			// Now query for games where user is player2
-			getCollection()
-					.whereEqualTo("player2.idFs", userId)
-					.get()
-					.addOnSuccessListener(player2Docs -> {
-						// Add all games where user is player2
-						for (QueryDocumentSnapshot document : player2Docs) {
-							games.add(document.toObject(OnlineGame.class));
-						}
-
-						// Sort games by timestamp (newest first)
-						games.sort((g1, g2) -> {
-							Timestamp t1 = ((OnlineGame) g1).getStartedAt();
-							Timestamp t2 = ((OnlineGame) g2).getStartedAt();
-							return t2.compareTo(t1);
-						});
-
-						// Set the result with all games
-						result.setValue(games);
-					})
-					.addOnFailureListener(e -> {
-						Log.e("GamesRepository", "Error getting player2 games: " + e.getMessage());
-						// Either return nothing or set error state
-						result.setValue(new Games()); // OR handle as complete failure
-					});
-		}).addOnFailureListener(e -> {
-			Log.e("GamesRepository", "Error getting player1 games: " + e.getMessage());
-			result.setValue(new Games());
-		});
-
-		return result;
-	}
-
 	@Override
 	protected Query getQueryForExist(Game entity) {
 		return getCollection().whereEqualTo("idFs", entity.getIdFs());

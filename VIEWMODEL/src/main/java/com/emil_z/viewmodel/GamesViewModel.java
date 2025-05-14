@@ -97,10 +97,11 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 		return lvGameIdFs;
 	}
 
-	public void getUserGames(String userId) {
-		lvCollection = repository.getUserGames(userId);
+	public void getUserGamesPaginated(String userId, int limit, String startAfterId) {
+		if (repository instanceof OnlineGamesRepository) {
+			lvCollection = ((OnlineGamesRepository) repository).getUserGamesPaginated(userId, limit, startAfterId);
+		}
 	}
-
 	//region start game
 	public void startCpuGame(String crossPlayerIdFs) {
 		repository.startGame(null, crossPlayerIdFs);

@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -36,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 public class OnlineGamesRepository extends BaseGamesRepository {
 	private final MutableLiveData<String> lvGameIdFs;
+	private final MutableLiveData<Games> lvGames = new MutableLiveData<>();
 
 	public OnlineGamesRepository(Application application) {
 		super(application);
@@ -44,6 +46,151 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 
 	public LiveData<String> getLiveDataGameIdFs() {
 		return lvGameIdFs;
+	}
+
+	public LiveData<Games> getUserGamesPaginated(String userId, int limit, String startAfterId) {
+		// First query - player1 games with half the limit
+		Query player1Query = getCollection()
+				.whereEqualTo("player1.idFs", userId)
+				.orderBy("startedAt", Query.Direction.DESCENDING)
+				.limit(limit);
+
+		// Second query - player2 games with half the limit
+		Query player2Query = getCollection()
+				.whereEqualTo("player2.idFs", userId)
+				.orderBy("startedAt", Query.Direction.DESCENDING)
+				.limit(limit);
+
+		// Add pagination if needed
+		if (startAfterId != null) {
+			getCollection().document(startAfterId).get()
+					.addOnSuccessListener(documentSnapshot -> {
+						if (documentSnapshot.exists()) {
+							Timestamp timestamp = documentSnapshot.getTimestamp("startedAt");
+							if (timestamp != null) {
+								executeQueriesWithTimestamp(userId, limit, timestamp, lvGames);
+							} else {
+								lvGames.setValue(new Games());
+							}
+						} else {
+							lvGames.setValue(new Games());
+						}
+					})
+					.addOnFailureListener(e -> lvGames.setValue(new Games()));
+		} else {
+			// First page - no pagination cursor
+			executeInitialQueries(userId, limit, lvGames);
+		}
+
+		return lvGames;
+	}
+
+	private void executeInitialQueries(String userId, int limit, MutableLiveData<Games> result) {
+		Games allGames = new Games();
+
+		// Query both player1 and player2 games
+		getCollection()
+				.whereEqualTo("player1.idFs", userId)
+				.orderBy("startedAt", Query.Direction.DESCENDING)
+				.limit(limit)
+				.get()
+				.addOnSuccessListener(player1Snapshot -> {
+					for (DocumentSnapshot doc : player1Snapshot.getDocuments()) {
+						Game game = doc.toObject(OnlineGame.class);
+						if (game != null) {
+							game.setIdFs(doc.getId());
+							allGames.add(game);
+						}
+					}
+
+					// Now query player2 games
+					getCollection()
+							.whereEqualTo("player2.idFs", userId)
+							.orderBy("startedAt", Query.Direction.DESCENDING)
+							.limit(limit)
+							.get()
+							.addOnSuccessListener(player2Snapshot -> {
+								for (DocumentSnapshot doc : player2Snapshot.getDocuments()) {
+									Game game = doc.toObject(OnlineGame.class);
+									if (game != null) {
+										game.setIdFs(doc.getId());
+										allGames.add(game);
+									}
+								}
+
+								// Sort all games by timestamp
+								allGames.sort((g1, g2) -> ((OnlineGame) g2).getStartedAt().compareTo(((OnlineGame) g1).getStartedAt()));
+
+								// Take only the top "limit" games
+								Games limitedGames = new Games();
+								for (int i = 0; i < Math.min(limit, allGames.size()); i++) {
+									limitedGames.add(allGames.get(i));
+								}
+
+								result.setValue(limitedGames);
+							})
+							.addOnFailureListener(e -> {
+								// Still return player1 games if player2 query fails
+								allGames.sort((g1, g2) -> ((OnlineGame) g2).getStartedAt().compareTo(((OnlineGame) g1).getStartedAt()));
+								result.setValue(allGames);
+							});
+				})
+				.addOnFailureListener(e -> result.setValue(new Games()));
+	}
+
+	private void executeQueriesWithTimestamp(String userId, int limit, Timestamp startAfter, MutableLiveData<Games> result) {
+		Games allGames = new Games();
+
+		// Query player1 games with pagination
+		getCollection()
+				.whereEqualTo("player1.idFs", userId)
+				.orderBy("startedAt", Query.Direction.DESCENDING)
+				.startAfter(startAfter)
+				.limit(limit)
+				.get()
+				.addOnSuccessListener(player1Snapshot -> {
+					for (DocumentSnapshot doc : player1Snapshot.getDocuments()) {
+						Game game = doc.toObject(OnlineGame.class);
+						if (game != null) {
+							game.setIdFs(doc.getId());
+							allGames.add(game);
+						}
+					}
+
+					// Now query player2 games with pagination
+					getCollection()
+							.whereEqualTo("player2.idFs", userId)
+							.orderBy("startedAt", Query.Direction.DESCENDING)
+							.startAfter(startAfter)
+							.limit(limit)
+							.get()
+							.addOnSuccessListener(player2Snapshot -> {
+								for (DocumentSnapshot doc : player2Snapshot.getDocuments()) {
+									Game game = doc.toObject(OnlineGame.class);
+									if (game != null) {
+										game.setIdFs(doc.getId());
+										allGames.add(game);
+									}
+								}
+
+								// Sort all games by timestamp
+								allGames.sort((g1, g2) -> ((OnlineGame) g2).getStartedAt().compareTo(((OnlineGame) g1).getStartedAt()));
+
+								// Take only the top "limit" games
+								Games limitedGames = new Games();
+								for (int i = 0; i < Math.min(limit, allGames.size()); i++) {
+									limitedGames.add(allGames.get(i));
+								}
+
+								result.setValue(limitedGames);
+							})
+							.addOnFailureListener(e -> {
+								// If player2 query fails, still return player1 games
+								allGames.sort((g1, g2) -> ((OnlineGame) g2).getStartedAt().compareTo(((OnlineGame) g1).getStartedAt()));
+								result.setValue(allGames);
+							});
+				})
+				.addOnFailureListener(e -> result.setValue(new Games()));
 	}
 
 	@Override

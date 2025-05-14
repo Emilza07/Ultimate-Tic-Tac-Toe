@@ -21,7 +21,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emil_z.helper.BitMapHelper;
+import com.emil_z.model.Game;
 import com.emil_z.model.GameType;
+import com.emil_z.model.Games;
 import com.emil_z.model.Player;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.ADPTERS.GamesAdapter;
@@ -47,6 +49,9 @@ public class ProfileActivity extends BaseActivity {
 	private GamesAdapter adapter;
 	private ActivityResultLauncher<Intent> cameraLauncher;
 	private ActivityResultLauncher<Intent> galleryLauncher;
+	private Games games;
+	private boolean isLoading = false;
+	private String lastVisibleGameId = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +68,7 @@ public class ProfileActivity extends BaseActivity {
 		setListeners();
 		setViewModel();
 		setAdapter();
+		setupRecyclerViewScrollListener();
 		registerLaunchers();
 
 	}
@@ -115,15 +121,45 @@ public class ProfileActivity extends BaseActivity {
 				usersViewModel.get(currentUser.getIdFs());
 			}
 		});
+
 		usersViewModel.getLiveDataEntity().observe(this, user -> {
-			if (user != null) {
+			if (user != null && Objects.equals(user.getIdFs(), currentUser.getIdFs())) {
 				currentUser = user;
+			} else if (user != null) {
+				for (Game game : games) {
+					if (Objects.equals(currentUser.getIdFs(), game.getPlayer1().getIdFs())) {
+						game.getPlayer2().setPicture(user.getPicture());
+					} else {
+						game.getPlayer1().setPicture(user.getPicture());
+					}
+				}
 			}
+			adapter.setItems(this.games);
+			hideProgressDialog();
 		});
-		gamesViewModel.getLiveDataCollection().observe(this, games -> {
-			if (games != null) {
-				adapter.setItems(games);
-				hideProgressDialog();
+
+		gamesViewModel.getLiveDataCollection().observe(this, newGames -> {
+			if (!newGames.isEmpty()) {
+				if (this.games == null) {
+					this.games = newGames;
+				} else if (isLoading) {
+					// For subsequent loads, add to existing games
+					this.games.addAll(newGames);
+				}
+
+				isLoading = false;
+
+				// If we got less than pageSize, there are no more games to load
+				if (!newGames.isEmpty()) {
+					lastVisibleGameId = newGames.get(newGames.size() - 1).getIdFs();
+				}
+
+				// Process games (get user profiles)
+				for (Game game : newGames) {
+					usersViewModel.get(Objects.equals(currentUser.getIdFs(),
+							game.getPlayer1().getIdFs()) ? game.getPlayer2().getIdFs() :
+							game.getPlayer1().getIdFs());
+				}
 			}
 		});
 	}
@@ -163,6 +199,27 @@ public class ProfileActivity extends BaseActivity {
 		});
 	}
 
+	private void setupRecyclerViewScrollListener() {
+		rvGames.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+
+				LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+				int visibleItemCount = layoutManager.getChildCount();
+				int totalItemCount = layoutManager.getItemCount();
+				int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+				if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+						&& firstVisibleItemPosition >= 0
+						&& totalItemCount >= pageSize) {
+					// Load more games
+					loadMoreGames();
+				}
+			}
+		});
+	}
+
 	private void registerLaunchers() {
 		cameraLauncher = registerForActivityResult(
 				new ActivityResultContracts.StartActivityForResult(),
@@ -193,6 +250,25 @@ public class ProfileActivity extends BaseActivity {
 						}
 					}
 				});
+	}
+
+	private void loadGames(boolean loadMore) {
+		isLoading = true;
+		if (loadMore) {
+			// Show loading indicator at the bottom
+			showLoadingMore();
+		}
+		gamesViewModel.getUserGamesPaginated(currentUser.getIdFs(), pageSize, lastVisibleGameId);
+	}
+
+	private void loadMoreGames() {
+		loadGames(true);
+	}
+
+	private void showLoadingMore() {
+		// You can add a progress bar at the bottom of the list or show a toast
+		// For example:
+		Toast.makeText(this, "Loading more games...", Toast.LENGTH_SHORT).show();
 	}
 
 	private void processNewProfileImage(Bitmap bitmap) {
