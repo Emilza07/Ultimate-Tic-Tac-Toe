@@ -1,6 +1,8 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -106,13 +108,49 @@ public class ProfileActivity extends BaseActivity {
 						Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 						cameraLauncher.launch(intent);
 					} else {
-						Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-						galleryLauncher.launch(intent);
+						if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+							if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
+									!= PackageManager.PERMISSION_GRANTED) {
+								requestPermissions(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, 100);
+							} else {
+								launchGalleryPicker();
+							}
+						} else if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+								!= PackageManager.PERMISSION_GRANTED) {
+							requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+						} else {
+							launchGalleryPicker();
+						}
 					}
 				})
 				.show();
 	}
 
+	private void launchGalleryPicker() {
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+		// Optional: add a title for the picker
+		if (intent.resolveActivity(getPackageManager()) != null) {
+			galleryLauncher.launch(Intent.createChooser(intent, "Select Picture"));
+		} else {
+			Toast.makeText(this, "No gallery app available", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode == 100) {
+			if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+				launchGalleryPicker();
+			} else {
+				Toast.makeText(this, "Storage permission is required to select images", Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
 	@Override
 	protected void setViewModel() {
 		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
@@ -280,11 +318,12 @@ public class ProfileActivity extends BaseActivity {
 		// Create a temporary file to save the image
 		try {
 			File outputDir = getCacheDir();
-			File outputFile = File.createTempFile("temp_image", ".png", outputDir);
+			File outputFile = File.createTempFile("temp_image", ".jpg", outputDir);
 
 			// Save bitmap to the file
+			Bitmap resizedBitmap = getResizedBitmap(bitmap, 512);
 			FileOutputStream fos = new FileOutputStream(outputFile);
-			bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+			resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
 			fos.close();
 
 			// Start the cropping activity
@@ -294,6 +333,21 @@ public class ProfileActivity extends BaseActivity {
 		}
 	}
 
+	private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+		int width = image.getWidth();
+		int height = image.getHeight();
+
+		float bitmapRatio = (float) width / (float) height;
+		if (bitmapRatio > 1) {
+			width = maxSize;
+			height = (int) (width / bitmapRatio);
+		} else {
+			height = maxSize;
+			width = (int) (height * bitmapRatio);
+		}
+
+		return Bitmap.createScaledBitmap(image, width, height, true);
+	}
 	private void startCropActivity(Uri sourceUri) {
 		UCrop.Options options = new UCrop.Options();
 		options.setToolbarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
@@ -306,7 +360,7 @@ public class ProfileActivity extends BaseActivity {
 		options.withAspectRatio(1, 1);
 
 		// Create destination file
-		File destinationFile = new File(getCacheDir(), "cropped_image_" + System.currentTimeMillis() + ".png");
+		File destinationFile = new File(getCacheDir(), "cropped_image_" + System.currentTimeMillis() + ".jpg");
 		Uri destinationUri = Uri.fromFile(destinationFile);
 
 		UCrop.of(sourceUri, destinationUri)
