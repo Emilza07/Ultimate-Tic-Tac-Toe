@@ -50,10 +50,12 @@ public class GameActivity extends BaseActivity {
 	private GridLayout gridBoard;
 	private ConstraintLayout clLoading;
 	private Button btnAbort;
+	private LinearLayout llP1;
 	private ImageView ivP1Avatar;
 	private TextView tvP1Name;
 	private TextView tvP1Elo;
 	private TextView tvP1Sign;
+	private LinearLayout llP2;
 	private ImageView ivP2Avatar;
 	private TextView tvP2Name;
 	private TextView tvP2Elo;
@@ -98,10 +100,12 @@ public class GameActivity extends BaseActivity {
 		clLoading = findViewById(R.id.clLoading);
 		btnAbort = findViewById(R.id.btnAbort);
 
+		llP1 = findViewById(R.id.llP1);
 		ivP1Avatar = findViewById(R.id.ivP1Avatar);
 		tvP1Name = findViewById(R.id.tvP1Name);
 		tvP1Elo = findViewById(R.id.tvP1Elo);
 		tvP1Sign = findViewById(R.id.tvP1Sign);
+		llP2 = findViewById(R.id.llP2);
 		ivP2Avatar = findViewById(R.id.ivP2Avatar);
 		tvP2Name = findViewById(R.id.tvP2Name);
 		tvP2Elo = findViewById(R.id.tvP2Elo);
@@ -326,7 +330,14 @@ public class GameActivity extends BaseActivity {
 		gamesViewModel.getLiveDataIsStarted().observe(this, aBoolean -> {
 			if (aBoolean) {
 				Game game = gamesViewModel.getLiveDataGame().getValue();
-				usersViewModel.get(Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs()) ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
+				if (gameType == GameType.ONLINE || gameType == GameType.HISTORY)
+					usersViewModel.get(Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs()) ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
+				else {
+					setPlayers(game.getPlayer1(), game.getPlayer2());
+					clLoading.setVisibility(View.GONE);
+					tvCurrentPlayer.setVisibility(View.VISIBLE);
+					gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
+				}
 
 				if (gameType == GameType.ONLINE) {
 					if (!monitorServiceStarted) {
@@ -372,6 +383,7 @@ public class GameActivity extends BaseActivity {
 			clLoading.setVisibility(View.GONE);
 			tvCurrentPlayer.setVisibility(View.VISIBLE);
 			gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
+			gridBoard.setVisibility(View.VISIBLE);
 			if (user != null) {
 				if (Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs()))
 					setPlayers(new Player(currentUser), new Player(user));
@@ -407,6 +419,7 @@ public class GameActivity extends BaseActivity {
 			case ONLINE:
 				// Initialize online game as joiner
 				try {
+					clLoading.setVisibility(View.VISIBLE);
 					gamesViewModel.startOnlineGame(new Player(currentUser));
 					setPlayers(new Player(currentUser), null);
 				} catch (Exception e) {
@@ -414,6 +427,7 @@ public class GameActivity extends BaseActivity {
 				}
 				break;
 			case HISTORY:
+				gridBoard.setVisibility(View.INVISIBLE);
 				intent = getIntent();
 				gamesViewModel.get(intent.getStringExtra(getString(R.string.EXTRA_GAME_IDFS)));
 				break;
@@ -422,13 +436,15 @@ public class GameActivity extends BaseActivity {
 
 	@SuppressWarnings("ConstantConditions")
 	private void setPlayers(Player p1, Player p2) {
+		llP1.setVisibility(View.VISIBLE);
+		llP2.setVisibility(View.VISIBLE);
 		if (gameType == GameType.CPU || gameType == GameType.LOCAL) {
 			// For local games, display as is
 			ivP1Avatar.setImageResource(R.drawable.avatar_default);
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
 			tvP1Sign.setText("X");
-			ivP2Avatar.setImageResource(gameType == GameType.LOCAL ? R.drawable.avatar_default : R.drawable.cpu_avatar); //TODO: add CPU avatar
+			ivP2Avatar.setImageResource(gameType == GameType.LOCAL ? R.drawable.avatar_default : R.drawable.cpu_avatar);
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
