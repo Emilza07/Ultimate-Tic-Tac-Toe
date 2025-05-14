@@ -13,7 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.emil_z.helper.PreferenceManager;
+import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
@@ -75,10 +75,11 @@ public class LoginActivity extends BaseActivity {
 		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
 				BaseActivity.currentUser = user;
+				UserSessionPreference sessionPreference = new UserSessionPreference(this);
 				if (cbRememberMe.isChecked())
-					PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][]{{"UserIdFs", user.getIdFs(), "String"}, {"Username", user.getUsername(), "String"}, {"Password", user.getPassword(), "String"}});
+					sessionPreference.saveFullSession(user.getUsername(), user.getHashedPassword(), user.getIdFs(), sessionPreference.generateToken(user.getIdFs()));
 				else
-					PreferenceManager.writeToSharedPreferences(LoginActivity.this, "user_prefs", new Object[][]{{"UserIdFs", user.getIdFs(), "String"}});
+					sessionPreference.saveLoginCredentials(user.getUsername(), user.getHashedPassword(), user.getIdFs());
 				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);

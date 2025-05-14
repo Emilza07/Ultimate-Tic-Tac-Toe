@@ -9,7 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.emil_z.helper.PreferenceManager;
+import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 
@@ -39,8 +39,8 @@ public class SettingsActivity extends BaseActivity {
 	@Override
 	protected void setListeners() {
 		btnLogOut.setOnClickListener(v -> {
-			PreferenceManager.writeToSharedPreferences(SettingsActivity.this, "user_prefs", new Object[][]{{"UserIdFs", null, "String"}, {"Username", null, "String"}, {"Password", null, "String"}});
-
+			UserSessionPreference sessionPreference = new UserSessionPreference(SettingsActivity.this);
+			sessionPreference.clearLoginCredentials();
 			BaseActivity.currentUser = null;
 			Intent intent = new Intent(SettingsActivity.this, AuthActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

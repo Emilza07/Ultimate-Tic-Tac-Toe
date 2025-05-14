@@ -6,7 +6,7 @@ import android.graphics.Point;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.emil_z.helper.PreferenceManager;
+import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
@@ -34,7 +34,7 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 		lvOuterBoardWinners.setValue(new char[3][3]);
 		lvIsFinished = new MutableLiveData<>();
 		lvIsStarted = new MutableLiveData<>(false);
-		localPlayerIdFs = PreferenceManager.readFromSharedPreferences(application, "user_prefs", new Object[][]{{"UserIdFs", "String"}})[0][1].toString();
+		localPlayerIdFs = new UserSessionPreference(application).getUserIdFs();
 	}
 
 	public LiveData<Game> getLiveDataGame() {

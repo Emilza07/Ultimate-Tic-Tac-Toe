@@ -7,8 +7,8 @@ public class NameRule extends TextRule{
     public NameRule(View view, RuleOperation operation, String message) {
         super(view, operation, message);
 
-        minimumLength       = 2;
-        maximumLength       = 20;
+        minimumLength       = 1;
+        maximumLength       = 9;
         includeNumbers      = false;
         startsWithUpperCase = false;
     }

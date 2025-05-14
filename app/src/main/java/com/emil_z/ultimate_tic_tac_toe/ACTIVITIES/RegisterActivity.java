@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
@@ -15,8 +14,10 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.BitMapHelper;
+import com.emil_z.helper.PasswordUtil;
 import com.emil_z.helper.inputValidators.CompareRule;
 import com.emil_z.helper.inputValidators.NameRule;
+import com.emil_z.helper.inputValidators.PasswordRule;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
@@ -72,8 +73,6 @@ public class RegisterActivity extends BaseActivity {
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-		viewModel.getLiveDataSuccess().observe(this, aBoolean -> Toast.makeText(RegisterActivity.this, aBoolean ? "Success" : "Error", Toast.LENGTH_SHORT).show());
-
 		viewModel.getLiveDataExist().observe(this, exist -> {
 			if (exist) {
 				etUsername.setError("Username already exists");
@@ -86,8 +85,9 @@ public class RegisterActivity extends BaseActivity {
 
 	protected void registerUser() {
 		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp);
+		String hashedPassword = PasswordUtil.hashPassword(etPassword.getText().toString());
 		User user = new User(etUsername.getText().toString(),
-				etPassword.getText().toString(),
+				hashedPassword,
 				BitMapHelper.encodeTobase64(bitmap));
 		viewModel.save(user);
 		Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -95,11 +95,12 @@ public class RegisterActivity extends BaseActivity {
 		finish();
 	}
 
-	public void setValidation() { //TODO: restrict username to 1-9 characters
+	public void setValidation() {
 		Validator.clear();
 		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, "Username is required"));
 		Validator.add(new NameRule(etUsername, RuleOperation.NAME, "Username is not valid"));
 		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, "Password is required"));
+		Validator.add(new PasswordRule(etPassword, RuleOperation.PASSWORD, getString(R.string.password_invalid), 8, 64));
 		Validator.add(new Rule(etConfirmPassword, RuleOperation.REQUIRED, "Confirm password is required"));
 		Validator.add(new CompareRule(etConfirmPassword, etPassword, RuleOperation.COMPARE, "Passwords do not match"));
 	}

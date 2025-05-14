@@ -11,19 +11,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.emil_z.helper.PreferenceManager;
+import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
-import java.util.Objects;
-
 public class AuthActivity extends BaseActivity {
 
-	Object[][] prefsResult;
 	private Button btnLogin;
 	private Button btnRegister;
 	private UsersViewModel viewModel;
+	private UserSessionPreference sessionPreference;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +36,9 @@ public class AuthActivity extends BaseActivity {
 			return insets;
 		});
 		setBottomNavigationVisibility(false);
+
+		sessionPreference = new UserSessionPreference(this);
+
 		initializeViews();
 		setListeners();
 		setViewModel();
@@ -63,24 +64,26 @@ public class AuthActivity extends BaseActivity {
 
 		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
-				if (Objects.equals(user.getUsername(), prefsResult[1][1]) && Objects.equals(user.getPassword(), prefsResult[2][1])) {
+				String storedEmail = sessionPreference.getEmail();
+				String storedPassword = sessionPreference.getPassword();
+				if (user.getUsername().equals(storedEmail) &&
+						user.getHashedPassword().equals(storedPassword)) {
 					currentUser = user;
 					Intent intent = new Intent(AuthActivity.this, MainActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 					startActivity(intent);
 				}
-				hideProgressDialog();
 			}
+			hideProgressDialog();
 		});
 	}
 
 	private void checkForLogIn() {
-		prefsResult = PreferenceManager.readFromSharedPreferences(this, "user_prefs",
-				new Object[][]{{"UserIdFs", "String"}, {"Username", "String"}, {"Password", "String"}});
-		String idFs;
-		if (prefsResult != null && prefsResult[0] != null && prefsResult[0][1] != null && prefsResult[2][1] != null) {
-			idFs = prefsResult[0][1].toString();
-			viewModel.get(idFs);
+		// Check if we have a valid session with token
+		if (sessionPreference.hasValidSession()) {
+			// We have a valid session, retrieve the user
+			String userIdFs = sessionPreference.getUserIdFs();
+			viewModel.get(userIdFs);
 		} else {
 			hideProgressDialog();
 		}

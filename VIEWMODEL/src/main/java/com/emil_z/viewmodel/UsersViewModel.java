@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import com.emil_z.helper.PasswordUtil;
 import com.emil_z.model.User;
 import com.emil_z.model.Users;
 import com.emil_z.repository.BASE.BaseRepository;
@@ -40,11 +41,13 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 	 * @param password The password of the user.
 	 */
 	public void logIn(String Username, String password) {
-		repository.getCollection().whereEqualTo("username", Username).whereEqualTo("password", password).get()
+		repository.getCollection().whereEqualTo("username", Username).get()
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if (!queryDocumentSnapshots.isEmpty()) {
-						User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-						lvEntity.setValue(user);
+						if (PasswordUtil.verifyPassword(password, queryDocumentSnapshots.getDocuments().get(0).getString("hashedPassword"))) {
+							User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+							lvEntity.setValue(user);
+						}
 					} else {
 						lvSuccess.setValue(false);
 					}

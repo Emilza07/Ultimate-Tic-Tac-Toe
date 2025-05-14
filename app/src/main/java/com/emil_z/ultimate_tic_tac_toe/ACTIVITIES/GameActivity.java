@@ -119,7 +119,6 @@ public class GameActivity extends BaseActivity {
 		btnAbort.setOnClickListener(v -> {
 			if (gameType.equals(GameType.ONLINE)) {
 				gamesViewModel.exitGame();
-				Toast.makeText(this, "Online game aborted", Toast.LENGTH_SHORT).show();
 			}
 			Intent intent = new Intent();
 			setResult(RESULT_CANCELED, intent);
