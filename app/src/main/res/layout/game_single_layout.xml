@@ -31,24 +31,24 @@
 			android:layout_height="wrap_content"
 			android:layout_marginStart="8dp"
 			android:fontFamily="@font/montserrat_medium"
-			tools:text="{USERNAME}"
 			android:textColor="@color/textColor"
 			android:textSize="20sp"
 			app:layout_constraintBottom_toBottomOf="@+id/ivPfp"
 			app:layout_constraintStart_toEndOf="@+id/ivPfp"
-			app:layout_constraintTop_toTopOf="@+id/ivPfp" />
+			app:layout_constraintTop_toTopOf="@+id/ivPfp"
+			tools:text="{USERNAME}" />
 
 		<TextView
 			android:id="@+id/tvElo"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:fontFamily="@font/montserrat_medium"
-			tools:text="({ELO})"
 			android:textColor="@color/textColor"
 			android:textSize="20sp"
 			app:layout_constraintBottom_toBottomOf="@+id/tvUsername"
 			app:layout_constraintStart_toEndOf="@+id/tvUsername"
-			app:layout_constraintTop_toTopOf="@+id/tvUsername" />
+			app:layout_constraintTop_toTopOf="@+id/tvUsername"
+			tools:text="({ELO})" />
 
 		<ImageView
 			android:id="@+id/ivGameResult"

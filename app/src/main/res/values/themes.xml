@@ -5,7 +5,8 @@
 		<item name="colorPrimary">#000b25</item>
 
 		<!-- Splash transparent -->
-		<item name="android:windowIsTranslucent">true</item>    </style>
+		<item name="android:windowIsTranslucent">true</item>
+	</style>
 
 	<style name="Theme.UTTT" parent="Base.Theme.TASHTIT">
 		<item name="android:windowLightStatusBar">false</item>

@@ -20,12 +20,12 @@
 			android:layout_height="wrap_content"
 			android:layout_marginStart="10dp"
 			android:fontFamily="@font/montserrat_bold"
-			tools:text="#10"
 			android:textColor="@color/textColor"
 			android:textSize="20sp"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="#10" />
 
 		<com.google.android.material.imageview.ShapeableImageView
 			android:id="@+id/ivPfp"
@@ -45,12 +45,12 @@
 			android:layout_height="wrap_content"
 			android:layout_marginStart="8dp"
 			android:fontFamily="@font/montserrat_medium"
-			tools:text="{USERNAME}"
 			android:textColor="@color/textColor"
 			android:textSize="20sp"
 			app:layout_constraintBottom_toBottomOf="@+id/ivPfp"
 			app:layout_constraintStart_toEndOf="@+id/ivPfp"
-			app:layout_constraintTop_toTopOf="@+id/ivPfp" />
+			app:layout_constraintTop_toTopOf="@+id/ivPfp"
+			tools:text="{USERNAME}" />
 
 		<TextView
 			android:id="@+id/tvElo"
@@ -60,12 +60,12 @@
 			android:ems="3"
 			android:fontFamily="@font/montserrat_medium"
 			android:gravity="center_horizontal"
-			tools:text="{ELO}"
 			android:textColor="@color/textColor"
 			android:textSize="20sp"
 			app:layout_constraintBottom_toBottomOf="@+id/tvUsername"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toTopOf="@+id/tvUsername" />
+			app:layout_constraintTop_toTopOf="@+id/tvUsername"
+			tools:text="{ELO}" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -48,13 +48,13 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="36dp"
 		android:fontFamily="@font/montserrat_semibold"
-		android:text="{USERNAME}"
 		android:textColor="@color/textColor"
 		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/ivPfp"
 		app:layout_constraintHorizontal_bias="0.461"
 		app:layout_constraintStart_toStartOf="@+id/ivPfp"
-		app:layout_constraintTop_toBottomOf="@+id/ivPfp" />
+		app:layout_constraintTop_toBottomOf="@+id/ivPfp"
+		tools:text="{USERNAME}" />
 
 	<TextView
 		android:id="@+id/tvElo"
@@ -62,12 +62,12 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="32dp"
 		android:fontFamily="@font/montserrat_semibold"
-		android:text="Elo: {ELO}"
 		android:textColor="@color/textColor"
 		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/tvUsername"
 		app:layout_constraintStart_toStartOf="@+id/tvUsername"
-		app:layout_constraintTop_toBottomOf="@+id/tvUsername" />
+		app:layout_constraintTop_toBottomOf="@+id/tvUsername"
+		tools:text="Elo: {ELO}" />
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/rvGames"

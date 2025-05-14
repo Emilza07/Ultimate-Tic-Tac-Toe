@@ -57,9 +57,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			tools:text="{PLAYER_2_NAME}:"
 			android:textColor="@color/textColor"
-			android:textSize="20sp" />
+			android:textSize="20sp"
+			tools:text="{PLAYER_2_NAME}:" />
 
 		<Space
 			android:layout_width="6dp"
@@ -71,9 +71,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			tools:text="{PLAYER_2_ELO}"
 			android:textColor="@color/textColor"
-			android:textSize="20sp" />
+			android:textSize="20sp"
+			tools:text="{PLAYER_2_ELO}" />
 
 		<Space
 			android:layout_width="5dp"
@@ -85,9 +85,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			tools:text="{SIGN}"
 			android:textColor="@color/textColor"
-			android:textSize="20sp" />
+			android:textSize="20sp"
+			tools:text="{SIGN}" />
 	</LinearLayout>
 
 	<LinearLayout
@@ -126,9 +126,9 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
 			android:fontFamily="@font/montserrat_medium"
-			tools:text="{PLAYER_1_NAME}:"
 			android:textColor="@color/textColor"
-			android:textSize="20sp" />
+			android:textSize="20sp"
+			tools:text="{PLAYER_1_NAME}:" />
 
 		<Space
 			android:layout_width="6dp"
@@ -140,9 +140,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			tools:text="{PLAYER_1_ELO}"
 			android:textColor="@color/textColor"
-			android:textSize="20sp" />
+			android:textSize="20sp"
+			tools:text="{PLAYER_1_ELO}" />
 
 		<Space
 			android:layout_width="5dp"
@@ -154,9 +154,9 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			tools:text="{SIGN}"
 			android:textColor="@color/textColor"
-			android:textSize="20sp" />
+			android:textSize="20sp"
+			tools:text="{SIGN}" />
 	</LinearLayout>
 
 	<androidx.constraintlayout.widget.ConstraintLayout
