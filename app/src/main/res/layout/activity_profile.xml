@@ -8,7 +8,29 @@
 	tools:context=".ACTIVITIES.ProfileActivity">
 
 	<ImageView
-		android:id="@+id/ivAvatar"
+		android:id="@+id/ivBackground"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:alpha="1"
+		android:importantForAccessibility="no"
+		android:paddingStart="10dp"
+		android:paddingTop="20dp"
+		android:scaleType="centerCrop"
+		android:scaleX="3.4"
+		android:scaleY="3.4"
+		android:src="@drawable/background"
+		android:tintMode="multiply"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.0"
+		app:tint="#1F2E4D"
+		tools:ignore="RtlSymmetry" />
+
+	<com.google.android.material.imageview.ShapeableImageView
+		android:id="@+id/ivPfp"
 		android:layout_width="150dp"
 		android:layout_height="150dp"
 		android:layout_marginTop="32dp"
@@ -17,26 +39,31 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
 		tools:src="@tools:sample/avatars" />
 
 	<TextView
 		android:id="@+id/tvUsername"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="56dp"
+		android:layout_marginTop="36dp"
+		android:fontFamily="@font/montserrat_semibold"
 		android:text="{USERNAME}"
+		android:textColor="@color/textColor"
 		android:textSize="20sp"
-		app:layout_constraintEnd_toEndOf="@+id/ivAvatar"
-		app:layout_constraintHorizontal_bias="0.507"
-		app:layout_constraintStart_toStartOf="@+id/ivAvatar"
-		app:layout_constraintTop_toBottomOf="@+id/ivAvatar" />
+		app:layout_constraintEnd_toEndOf="@+id/ivPfp"
+		app:layout_constraintHorizontal_bias="0.461"
+		app:layout_constraintStart_toStartOf="@+id/ivPfp"
+		app:layout_constraintTop_toBottomOf="@+id/ivPfp" />
 
 	<TextView
 		android:id="@+id/tvElo"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="32dp"
+		android:fontFamily="@font/montserrat_semibold"
 		android:text="Elo: {ELO}"
+		android:textColor="@color/textColor"
 		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/tvUsername"
 		app:layout_constraintStart_toStartOf="@+id/tvUsername"
@@ -44,10 +71,11 @@
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/rvGames"
-		android:layout_width="420dp"
-		android:layout_height="580dp"
-		app:layout_constraintEnd_toEndOf="@+id/tvGames"
-		app:layout_constraintStart_toStartOf="@+id/tvGames"
+		android:layout_width="0dp"
+		android:layout_height="270dp"
+		android:layout_marginTop="8dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/tvGames" />
 
 	<TextView
@@ -55,7 +83,9 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="36dp"
-		android:text="Recent games"
+		android:fontFamily="@font/montserrat_medium"
+		android:text="@string/recent_games"
+		android:textColor="@color/textColor"
 		android:textSize="20sp"
 		app:layout_constraintEnd_toEndOf="@+id/tvElo"
 		app:layout_constraintStart_toStartOf="@+id/tvElo"

@@ -28,8 +28,8 @@ public class AuthActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
+		super.onCreate(savedInstanceState);
 		//setContentView(R.layout.activity_main);
 		getLayoutInflater().inflate(R.layout.activity_auth, findViewById(R.id.content_frame));
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

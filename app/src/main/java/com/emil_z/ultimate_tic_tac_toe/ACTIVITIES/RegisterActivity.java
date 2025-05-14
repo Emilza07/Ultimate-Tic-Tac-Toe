@@ -36,8 +36,8 @@ public class RegisterActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -85,7 +85,7 @@ public class RegisterActivity extends BaseActivity {
 	}
 
 	protected void registerUser() {
-		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default);
+		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp);
 		User user = new User(etUsername.getText().toString(),
 				etPassword.getText().toString(),
 				BitMapHelper.encodeTobase64(bitmap));
@@ -95,7 +95,7 @@ public class RegisterActivity extends BaseActivity {
 		finish();
 	}
 
-	public void setValidation() {
+	public void setValidation() { //TODO: restrict username to 1-9 characters
 		Validator.clear();
 		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, "Username is required"));
 		Validator.add(new NameRule(etUsername, RuleOperation.NAME, "Username is not valid"));

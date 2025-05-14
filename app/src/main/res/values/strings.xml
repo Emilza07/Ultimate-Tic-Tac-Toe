@@ -10,19 +10,35 @@
 	<string name="username">Username</string>
 	<string name="password">Password</string>
 	<string name="confirm_password">Confirm Password</string>
+	<string name="remember_me">Remember me</string>
 
-	<string name="single_player">Single Player</string>
+	<string name="singleplayer">Singleplayer</string>
 	<string name="local_multiplayer">Local Multiplayer</string>
-	<string name="online_game">Online Game</string>
+	<string name="online_multiplayer">Online Multiplayer</string>
 
-	<string name="abort_search">Abort search</string>
+	<string name="abort_search">Abort Search</string>
+	<string name="searching_for_opponent">Searching for opponent..</string>
 	<string name="player_o_turn">Current Player: O</string>
 	<string name="player_x_turn">Current Player: X</string>
-	<string name="searching_for_opponent">Searching for opponent..</string>
 	<string name="player_elo_format">(%d)</string>
 
+	<string name="review_back">⟵\nBack</string>
+	<string name="review_forward">⟶\nForward</string>
+
 	<string name="rank_format">#%d</string>
-	<string name="elo_format">ELO: %d</string>
+	<string name="elo_format">Elo: %d</string>
+	<string name="recent_games">Recent Games</string>
+	<string name="profile_image_dialog_title">Update profile picture</string>
+	<string name="profile_image_camera">Take Photo</string>
+	<string name="profile_image_gallery">Select from Gallery</string>
+
+	<string name="leaderboard">Leaderboard</string>
+	<string name="rank">Rank</string>
+	<string name="player">Player</string>
+	<string name="elo_rating">Elo Rating</string>
+
+	<string name="log_out">LOG OUT</string>
+	<string name="settings">Settings</string>
 
 	<string name="EXTRA_GAME_TYPE">GAME_TYPE</string>
 	<string name="EXTRA_SIGN">SIGN</string>

@@ -1,14 +1,14 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 	<!-- Base application theme. -->
 	<style name="Base.Theme.TASHTIT" parent="Theme.Material3.DayNight.NoActionBar">
 		<!-- Customize your light theme here. -->
-		<item name="colorPrimary">#000b26</item>
+		<item name="colorPrimary">#000b25</item>
 
 		<!-- Splash transparent -->
 		<item name="android:windowIsTranslucent">true</item>    </style>
 
 	<style name="Theme.UTTT" parent="Base.Theme.TASHTIT">
-
+		<item name="android:windowLightStatusBar">false</item>
 	</style>
 
 </resources>

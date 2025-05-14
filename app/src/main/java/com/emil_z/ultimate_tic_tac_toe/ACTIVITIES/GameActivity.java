@@ -50,12 +50,12 @@ public class GameActivity extends BaseActivity {
 	private ConstraintLayout clLoading;
 	private Button btnAbort;
 	private LinearLayout llP1;
-	private ImageView ivP1Avatar;
+	private ImageView ivP1Pfp;
 	private TextView tvP1Name;
 	private TextView tvP1Elo;
 	private TextView tvP1Sign;
 	private LinearLayout llP2;
-	private ImageView ivP2Avatar;
+	private ImageView ivP2Pfp;
 	private TextView tvP2Name;
 	private TextView tvP2Elo;
 	private TextView tvP2Sign;
@@ -71,8 +71,8 @@ public class GameActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -100,12 +100,12 @@ public class GameActivity extends BaseActivity {
 		btnAbort = findViewById(R.id.btnAbort);
 
 		llP1 = findViewById(R.id.llP1);
-		ivP1Avatar = findViewById(R.id.ivP1Avatar);
+		ivP1Pfp = findViewById(R.id.ivP1Pfp);
 		tvP1Name = findViewById(R.id.tvP1Name);
 		tvP1Elo = findViewById(R.id.tvP1Elo);
 		tvP1Sign = findViewById(R.id.tvP1Sign);
 		llP2 = findViewById(R.id.llP2);
-		ivP2Avatar = findViewById(R.id.ivP2Avatar);
+		ivP2Pfp = findViewById(R.id.ivP2Pfp);
 		tvP2Name = findViewById(R.id.tvP2Name);
 		tvP2Elo = findViewById(R.id.tvP2Elo);
 		tvP2Sign = findViewById(R.id.tvP2Sign);
@@ -191,7 +191,7 @@ public class GameActivity extends BaseActivity {
 
 				if (isNextGridPlayable) {
 					// Highlight the specific grid
-					nextGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+					nextGrid.setBackgroundResource(R.drawable.border);
 				}
 			}
 
@@ -224,7 +224,7 @@ public class GameActivity extends BaseActivity {
 
 				if (isNextGridPlayable) {
 					GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(prevInnerPos);
-					nextGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+					nextGrid.setBackgroundResource(R.drawable.border);
 				}
 			}
 
@@ -271,7 +271,8 @@ public class GameActivity extends BaseActivity {
 				btn.setImageResource(gamesViewModel.getLiveDataGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
 				if (!game.getOuterBoard().isFreeMove()) {
 					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
-					nextMoveGrid.setBackgroundColor(Color.parseColor("#7F9c8852"));
+					nextMoveGrid.setBackgroundResource(R.drawable.border);
+
 				}
 				tvCurrentPlayer.setText(gamesViewModel.getLiveDataGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? R.string.player_x_turn : R.string.player_o_turn);
 
@@ -283,13 +284,19 @@ public class GameActivity extends BaseActivity {
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
 					if (chars[i][j] != 0) {
+						GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(i * 3 + j);
 						// Set the background of the outer board to indicate the winner
 						if (chars[i][j] == 'X') {
-							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
+							innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x_blurred, null));
 						} else if (chars[i][j] == 'O') {
-							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
+							innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o_blurred, null));
 						} else {
-							gridBoard.getChildAt(i * 3 + j).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
+							innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.tie, null));
+						}
+
+						for (int k = 0; k < innerGrid.getChildCount(); k++) {
+							View child = innerGrid.getChildAt(k);
+							child.setAlpha(0.05f);
 						}
 					}
 				}
@@ -441,11 +448,11 @@ public class GameActivity extends BaseActivity {
 		llP2.setVisibility(View.VISIBLE);
 		if (gameType == GameType.CPU || gameType == GameType.LOCAL) {
 			// For local games, display as is
-			ivP1Avatar.setImageResource(R.drawable.avatar_default);
+			ivP1Pfp.setImageResource(R.drawable.default_pfp);
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
 			tvP1Sign.setText("X");
-			ivP2Avatar.setImageResource(gameType == GameType.LOCAL ? R.drawable.avatar_default : R.drawable.cpu_avatar);
+			ivP2Pfp.setImageResource(gameType == GameType.LOCAL ? R.drawable.default_pfp : R.drawable.cpu_pfp);
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
@@ -459,24 +466,24 @@ public class GameActivity extends BaseActivity {
 		} else if (gameType == GameType.ONLINE) {
 			// For online games
 			if (!gamesViewModel.getLiveDataIsStarted().getValue()) {
-				ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
+				ivP1Pfp.setImageBitmap(p1.getPictureBitmap());
 				tvP1Name.setText(currentUser.getUsername());
 				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(currentUser.getElo())));
 				tvP1Sign.setText("");
-				ivP2Avatar.setImageBitmap((BitmapFactory.decodeResource(getResources(), R.drawable.avatar_default)));
+				ivP2Pfp.setImageBitmap((BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp)));
 				tvP2Name.setText(R.string.searching_for_opponent);
 				tvP2Elo.setText("");
 				tvP2Sign.setText("");
 			} else {
 				boolean isHost = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 				if (isHost) {
-					ivP2Avatar.setImageBitmap(p2.getPictureBitmap());
+					ivP2Pfp.setImageBitmap(p2.getPictureBitmap());
 					tvP2Name.setText(p2.getName());
 					tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
 					tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
 				} else {
-					ivP2Avatar.setImageBitmap(p1.getPictureBitmap());
+					ivP2Pfp.setImageBitmap(p1.getPictureBitmap());
 					tvP2Name.setText(p1.getName());
 					tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
@@ -486,20 +493,20 @@ public class GameActivity extends BaseActivity {
 		} else {
 			boolean isHost = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
 			if (isHost) {
-				ivP1Avatar.setImageBitmap(p1.getPictureBitmap());
+				ivP1Pfp.setImageBitmap(p1.getPictureBitmap());
 				tvP1Name.setText(p1.getName());
 				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
 				tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-				ivP2Avatar.setImageBitmap(p2.getPictureBitmap());
+				ivP2Pfp.setImageBitmap(p2.getPictureBitmap());
 				tvP2Name.setText(p2.getName());
 				tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
 				tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
 			} else {
-				ivP1Avatar.setImageBitmap(p2.getPictureBitmap());
+				ivP1Pfp.setImageBitmap(p2.getPictureBitmap());
 				tvP1Name.setText(p2.getName());
 				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
 				tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
-				ivP2Avatar.setImageBitmap(p1.getPictureBitmap());
+				ivP2Pfp.setImageBitmap(p1.getPictureBitmap());
 				tvP2Name.setText(p1.getName());
 				tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
 				tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
@@ -611,6 +618,7 @@ public class GameActivity extends BaseActivity {
 				for (int k = 0; k < innerGrid.getChildCount(); k++) {
 					ImageView btn = (ImageView) innerGrid.getChildAt(k);
 					btn.setImageDrawable(null);
+					btn.setAlpha(1.0f);
 				}
 			}
 		}
@@ -645,11 +653,16 @@ public class GameActivity extends BaseActivity {
 
 					// Update the UI for the winner
 					if (winner == 'X') {
-						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x, null));
+						innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x_blurred, null));
 					} else if (winner == 'O') {
-						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o, null));
+						innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o_blurred, null));
 					} else if (winner == 'T') {
-						gridBoard.getChildAt(innerGridIndex).setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.t, null));
+						innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.tie, null));
+					}
+
+					for (int k = 0; k < innerGrid.getChildCount(); k++) {
+						View child = innerGrid.getChildAt(k);
+						child.setAlpha(0.05f);
 					}
 				}
 			}

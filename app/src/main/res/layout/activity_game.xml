@@ -4,14 +4,16 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/main"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:background="@color/colorPrimary">
+
 
 	<androidx.gridlayout.widget.GridLayout
 		android:id="@+id/gridBoard"
 		android:layout_width="403dp"
 		android:layout_height="403dp"
 		android:layout_gravity="center"
-		android:background="@drawable/board_blur"
+		android:background="@drawable/board_blurred"
 		app:columnCount="3"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
@@ -22,38 +24,45 @@
 	</androidx.gridlayout.widget.GridLayout>
 
 	<LinearLayout
-		android:id="@+id/linearLayout"
+		android:id="@+id/llP2"
 		android:layout_width="match_parent"
 		android:layout_height="50dp"
 		android:layout_gravity="top"
 		android:layout_marginTop="16dp"
 		android:orientation="horizontal"
+		android:visibility="invisible"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent">
 
 		<Space
-			android:layout_width="20dp"
-			android:layout_height="wrap_content"
+			android:layout_width="16dp"
+			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
-		<ImageView
-			android:id="@+id/ivP2Avatar"
+		<com.google.android.material.imageview.ShapeableImageView
+			android:id="@+id/ivP2Pfp"
 			android:layout_width="50dp"
-			android:layout_height="50dp"
-			tools:srcCompat="@tools:sample/avatars" />
+			android:layout_height="match_parent"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
+			tools:srcCompat="@drawable/default_pfp" />
+
+		<Space
+			android:layout_width="10dp"
+			android:layout_height="match_parent"
+			android:layout_weight="0" />
 
 		<TextView
 			android:id="@+id/tvP2Name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:gravity="right"
-			android:text="{PLAYER_2_NAME}:"
+			tools:text="{PLAYER_2_NAME}:"
+			android:textColor="@color/textColor"
 			android:textSize="20sp" />
 
 		<Space
-			android:layout_width="10dp"
+			android:layout_width="6dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
@@ -62,11 +71,12 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:text="{PLAYER_2_ELO}"
+			tools:text="{PLAYER_2_ELO}"
+			android:textColor="@color/textColor"
 			android:textSize="20sp" />
 
 		<Space
-			android:layout_width="10dp"
+			android:layout_width="5dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
@@ -75,43 +85,53 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:text="{SIGN}"
+			tools:text="{SIGN}"
+			android:textColor="@color/textColor"
 			android:textSize="20sp" />
 	</LinearLayout>
 
 	<LinearLayout
-		android:id="@+id/linearLayout2"
+		android:id="@+id/llP1"
 		android:layout_width="match_parent"
 		android:layout_height="50dp"
 		android:layout_gravity="bottom"
 		android:layout_marginBottom="16dp"
 		android:orientation="horizontal"
+		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="parent"
 		tools:layout_editor_absoluteX="0dp">
 
 		<Space
-			android:layout_width="20dp"
+			android:id="@+id/space1"
+			android:layout_width="16dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
-		<ImageView
-			android:id="@+id/ivP1Avatar"
+		<com.google.android.material.imageview.ShapeableImageView
+			android:id="@+id/ivP1Pfp"
 			android:layout_width="50dp"
-			android:layout_height="50dp"
+			android:layout_height="match_parent"
 			android:layout_weight="0"
-			tools:srcCompat="@tools:sample/avatars" />
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
+			tools:srcCompat="@drawable/default_pfp" />
+
+		<Space
+			android:layout_width="10dp"
+			android:layout_height="match_parent"
+			android:layout_weight="0" />
 
 		<TextView
 			android:id="@+id/tvP1Name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:gravity="right"
-			android:text="{PLAYER_1_NAME}:"
+			android:fontFamily="@font/montserrat_medium"
+			tools:text="{PLAYER_1_NAME}:"
+			android:textColor="@color/textColor"
 			android:textSize="20sp" />
 
 		<Space
-			android:layout_width="10dp"
+			android:layout_width="6dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
@@ -120,11 +140,12 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:text="{PLAYER_1_ELO}"
+			tools:text="{PLAYER_1_ELO}"
+			android:textColor="@color/textColor"
 			android:textSize="20sp" />
 
 		<Space
-			android:layout_width="10dp"
+			android:layout_width="5dp"
 			android:layout_height="match_parent"
 			android:layout_weight="0" />
 
@@ -133,7 +154,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_weight="0"
-			android:text="{SIGN}"
+			tools:text="{SIGN}"
+			android:textColor="@color/textColor"
 			android:textSize="20sp" />
 	</LinearLayout>
 
@@ -142,17 +164,22 @@
 		android:layout_width="200dp"
 		android:layout_height="200dp"
 		android:layout_gravity="center"
-		android:visibility="visible"
+		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="@+id/gridBoard"
-		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/gridBoard"
 		app:layout_constraintStart_toStartOf="@+id/gridBoard"
 		app:layout_constraintTop_toTopOf="@+id/gridBoard">
 
 		<Button
 			android:id="@+id/btnAbort"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:backgroundTint="@color/buttonColor"
+			android:fontFamily="@font/montserrat_bold"
 			android:text="@string/abort_search"
+			android:textColor="@color/textColor"
+			android:textSize="37sp"
+			app:cornerRadius="50dp"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -164,7 +191,9 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="100dp"
+		android:fontFamily="@font/montserrat_medium"
 		android:text="@string/player_x_turn"
+		android:textColor="@color/textColor"
 		android:textSize="34sp"
 		android:visibility="invisible"
 		app:layout_constraintBottom_toTopOf="@+id/gridBoard"
@@ -173,8 +202,8 @@
 
 	<LinearLayout
 		android:id="@+id/llReview"
-		android:layout_width="285dp"
-		android:layout_height="wrap_content"
+		android:layout_width="335dp"
+		android:layout_height="100dp"
 		android:layout_marginTop="32dp"
 		android:orientation="horizontal"
 		android:visibility="gone"
@@ -184,17 +213,32 @@
 
 		<Button
 			android:id="@+id/btnBackward"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_width="160dp"
+			android:layout_height="match_parent"
 			android:layout_weight="1"
-			android:text="Back" />
+			android:backgroundTint="@color/buttonColor"
+			android:fontFamily="@font/montserrat_bold"
+			android:text="@string/review_back"
+			android:textColor="@color/textColor"
+			android:textSize="25sp"
+			app:cornerRadius="20dp" />
+
+		<Space
+			android:layout_width="15dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1" />
 
 		<Button
 			android:id="@+id/btnForward"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_width="160dp"
+			android:layout_height="match_parent"
 			android:layout_weight="1"
-			android:text="Forward" />
+			android:backgroundTint="@color/buttonColor"
+			android:fontFamily="@font/montserrat_bold"
+			android:text="@string/review_forward"
+			android:textColor="@color/textColor"
+			android:textSize="25sp"
+			app:cornerRadius="20dp" />
 	</LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

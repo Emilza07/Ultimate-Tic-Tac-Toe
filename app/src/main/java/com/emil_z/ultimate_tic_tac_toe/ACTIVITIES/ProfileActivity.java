@@ -12,11 +12,14 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,7 +43,7 @@ import java.util.Objects;
 
 public class ProfileActivity extends BaseActivity {
 	private final int pageSize = 10;
-	private ImageView ivAvatar;
+	private ImageView ivPfp;
 	private TextView tvUsername;
 	private TextView tvElo;
 	private RecyclerView rvGames;
@@ -55,8 +58,8 @@ public class ProfileActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_profile);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -75,25 +78,29 @@ public class ProfileActivity extends BaseActivity {
 
 	@Override
 	public void initializeViews() {
-		ivAvatar = findViewById(R.id.ivAvatar);
+		ivPfp = findViewById(R.id.ivPfp);
 		tvUsername = findViewById(R.id.tvUsername);
 		tvElo = findViewById(R.id.tvElo);
 		rvGames = findViewById(R.id.rvGames);
 
-		ivAvatar.setImageBitmap(currentUser.getPictureBitmap());
+		ivPfp.setImageBitmap(currentUser.getPictureBitmap());
 		tvUsername.setText(currentUser.getUsername());
 		tvElo.setText(getString(R.string.elo_format, Math.round(currentUser.getElo())));
+
+		DividerItemDecoration divider = new DividerItemDecoration(rvGames.getContext(), LinearLayoutManager.VERTICAL);
+		divider.setDrawable(ContextCompat.getDrawable(this, R.drawable.dividor));
+		rvGames.addItemDecoration(divider);
 	}
 
 	@Override
 	protected void setListeners() {
-		ivAvatar.setOnClickListener(v -> showImageOptions());
+		ivPfp.setOnClickListener(v -> showImageOptions());
 	}
 
 	private void showImageOptions() {
-		String[] options = {"Take Photo", "Select from Gallery"}; //TODO: move to strings.xml
+		String[] options = {getString(R.string.profile_image_camera), getString(R.string.profile_image_gallery)};
 		new AlertDialog.Builder(this)
-				.setTitle("Choose an option")
+				.setTitle(R.string.profile_image_dialog_title)
 				.setItems(options, (dialog, which) -> {
 					if (which == 0) {
 						Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -114,7 +121,7 @@ public class ProfileActivity extends BaseActivity {
 
 		usersViewModel.getLiveDataSuccess().observe(this, success -> {
 			if (success) {
-				ivAvatar.setImageBitmap(currentUser.getPictureBitmap());// Convert bitmap to base64 and save to user profile
+				ivPfp.setImageBitmap(currentUser.getPictureBitmap());// Convert bitmap to base64 and save to user profile
 				setResult(RESULT_OK);
 			} else {
 				usersViewModel.get(currentUser.getIdFs());
@@ -166,20 +173,20 @@ public class ProfileActivity extends BaseActivity {
 		adapter = new GamesAdapter(null,
 				R.layout.game_single_layout,
 				holder -> {
-					holder.putView("ivAvatar", holder.itemView.findViewById(R.id.ivAvatar));
+					holder.putView("ivPfp", holder.itemView.findViewById(R.id.ivPfp));
 					holder.putView("tvUsername", holder.itemView.findViewById(R.id.tvUsername));
 					holder.putView("tvElo", holder.itemView.findViewById(R.id.tvElo));
 					holder.putView("ivGameResult", holder.itemView.findViewById(R.id.ivGameResult));
 				},
 				((holder, item, position) -> {
 					Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs()) ? item.getPlayer2() : item.getPlayer1());
-					((ImageView) holder.getView("ivAvatar")).setImageBitmap(opponent.getPictureBitmap());
+					((ImageView) holder.getView("ivPfp")).setImageBitmap(opponent.getPictureBitmap());
 					((TextView) holder.getView("tvUsername")).setText(opponent.getName());
 					((TextView) holder.getView("tvElo")).setText(getString(R.string.player_elo_format, Math.round(opponent.getElo())));
 					if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.ok);
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.checkmark);
 					else if (Objects.equals(item.getWinnerIdFs(), "T"))
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.t);
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.tie);
 					else
 						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.x);
 				})
@@ -200,7 +207,7 @@ public class ProfileActivity extends BaseActivity {
 	private void setupRecyclerViewScrollListener() {
 		rvGames.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
 				super.onScrolled(recyclerView, dx, dy);
 
 				LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -315,7 +322,7 @@ public class ProfileActivity extends BaseActivity {
 			try {
 				Bitmap croppedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
 				// Now update the image view and save to user profile
-				ivAvatar.setImageBitmap(croppedBitmap);
+				ivPfp.setImageBitmap(croppedBitmap);
 				String base64Image = BitMapHelper.encodeTobase64(croppedBitmap);
 				currentUser.setPicture(base64Image);
 				usersViewModel.update(currentUser);

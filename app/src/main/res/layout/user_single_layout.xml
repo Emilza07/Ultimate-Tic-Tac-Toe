@@ -3,22 +3,40 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	app:cardBackgroundColor="@android:color/transparent"
+	app:cardCornerRadius="0dp"
+	app:cardElevation="0dp">
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="50dp">
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:layout_marginBottom="8dp">
 
-		<ImageView
-			android:id="@+id/ivAvatar"
+		<TextView
+			android:id="@+id/tvRank"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="10dp"
+			android:fontFamily="@font/montserrat_bold"
+			tools:text="#10"
+			android:textColor="@color/textColor"
+			android:textSize="20sp"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<com.google.android.material.imageview.ShapeableImageView
+			android:id="@+id/ivPfp"
 			android:layout_width="45dp"
-			android:layout_height="0dp"
-			android:layout_marginStart="16dp"
+			android:layout_height="45dp"
+			android:layout_marginStart="64dp"
 			android:scaleType="fitXY"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintStart_toEndOf="@+id/tvRank"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintVertical_bias="0.0"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
 			tools:srcCompat="@tools:sample/avatars" />
 
 		<TextView
@@ -26,33 +44,28 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="8dp"
-			android:text="{USERNAME}"
-			android:textSize="30sp"
-			app:layout_constraintBottom_toBottomOf="@+id/ivAvatar"
-			app:layout_constraintStart_toEndOf="@+id/ivAvatar"
-			app:layout_constraintTop_toTopOf="@+id/ivAvatar" />
+			android:fontFamily="@font/montserrat_medium"
+			tools:text="{USERNAME}"
+			android:textColor="@color/textColor"
+			android:textSize="20sp"
+			app:layout_constraintBottom_toBottomOf="@+id/ivPfp"
+			app:layout_constraintStart_toEndOf="@+id/ivPfp"
+			app:layout_constraintTop_toTopOf="@+id/ivPfp" />
 
 		<TextView
 			android:id="@+id/tvElo"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginEnd="16dp"
-			android:text="({ELO})"
-			android:textSize="30sp"
+			android:layout_marginEnd="8dp"
+			android:ems="3"
+			android:fontFamily="@font/montserrat_medium"
+			android:gravity="center_horizontal"
+			tools:text="{ELO}"
+			android:textColor="@color/textColor"
+			android:textSize="20sp"
 			app:layout_constraintBottom_toBottomOf="@+id/tvUsername"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/tvUsername" />
-
-		<TextView
-			android:id="@+id/tvRank"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="8dp"
-			android:text="#1"
-			android:textSize="30sp"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

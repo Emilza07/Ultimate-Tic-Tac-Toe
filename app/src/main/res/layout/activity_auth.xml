@@ -8,11 +8,12 @@
 	tools:context=".ACTIVITIES.AuthActivity">
 
 	<ImageView
-		android:id="@+id/imageView"
+		android:id="@+id/ivBackground"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
 		android:alpha="1"
-		android:paddingLeft="10dp"
+		android:importantForAccessibility="no"
+		android:paddingStart="10dp"
 		android:paddingTop="20dp"
 		android:scaleType="centerCrop"
 		android:scaleX="3.4"
@@ -25,11 +26,12 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.0"
-		app:tint="#1F2E4D" />
+		app:tint="#1F2E4D"
+		tools:ignore="RtlSymmetry" />
 
 	<TextView
 		android:id="@+id/tvTitle"
-		android:layout_width="398dp"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="96dp"
 		android:fontFamily="@font/montserrat_bold"
@@ -41,37 +43,6 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
-
-	<Button
-		android:id="@+id/btnLogin"
-		android:layout_width="289dp"
-		android:layout_height="103dp"
-		android:layout_marginTop="528dp"
-		android:backgroundTint="#3074c8"
-		android:backgroundTintMode="src_atop"
-		android:fontFamily="@font/montserrat_semibold"
-		android:text="@string/sign_in"
-		android:textSize="34sp"
-		app:cornerRadius="20dp"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.503"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
-
-	<Button
-		android:id="@+id/btnRegister"
-		android:layout_width="0dp"
-		android:layout_height="101dp"
-		android:layout_marginTop="148dp"
-		android:backgroundTint="#3074c8"
-		android:fontFamily="@font/montserrat_semibold"
-		android:text="@string/register"
-		android:textSize="34sp"
-		app:cornerRadius="20dp"
-		app:layout_constraintEnd_toEndOf="@+id/btnLogin"
-		app:layout_constraintHorizontal_bias="0.0"
-		app:layout_constraintStart_toStartOf="@+id/btnLogin"
-		app:layout_constraintTop_toTopOf="@+id/btnLogin" />
 
 	<TextView
 		android:id="@+id/tvCreator"
@@ -85,5 +56,34 @@
 		app:layout_constraintEnd_toEndOf="@+id/tvTitle"
 		app:layout_constraintStart_toStartOf="@+id/tvTitle"
 		app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+	<Button
+		android:id="@+id/btnLogin"
+		android:layout_width="290dp"
+		android:layout_height="110dp"
+		android:layout_marginTop="512dp"
+		android:backgroundTint="@color/buttonColor"
+		android:backgroundTintMode="src_atop"
+		android:fontFamily="@font/montserrat_semibold"
+		android:text="@string/sign_in"
+		android:textSize="34sp"
+		app:cornerRadius="20dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<Button
+		android:id="@+id/btnRegister"
+		android:layout_width="0dp"
+		android:layout_height="110dp"
+		android:layout_marginTop="32dp"
+		android:backgroundTint="@color/buttonColor"
+		android:fontFamily="@font/montserrat_semibold"
+		android:text="@string/register"
+		android:textSize="34sp"
+		app:cornerRadius="20dp"
+		app:layout_constraintEnd_toEndOf="@+id/btnLogin"
+		app:layout_constraintStart_toStartOf="@+id/btnLogin"
+		app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

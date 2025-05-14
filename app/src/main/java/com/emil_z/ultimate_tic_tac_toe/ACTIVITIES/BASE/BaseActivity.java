@@ -2,9 +2,11 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowInsetsController;
 import android.widget.Toast;
 
 import com.emil_z.model.User;
@@ -21,7 +23,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.emil_z.ultimate_tic_tac_toe.R;
 
-
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
@@ -35,6 +36,14 @@ public abstract class BaseActivity extends AppCompatActivity {
             return insets;
         });
 
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().getInsetsController().setSystemBarsAppearance(0,
+                    WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(0);
+        }
         setMenu();
     }
 

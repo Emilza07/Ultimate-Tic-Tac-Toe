@@ -3,7 +3,7 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -26,9 +26,9 @@ public class MainActivity extends BaseActivity {
 	private Button btnCPU;
 	private Button btnLocal;
 	private Button btnOnline;
-	private ImageButton iBtnProfile;
-	private ImageButton iBtnLeaderboard;
-	private ImageButton iBtnSettings;
+	private ImageView ivProfile;
+	private ImageView ivLeaderboard;
+	private ImageView ivSettings;
 
 	private UsersViewModel viewModel;
 	private ActivityResultLauncher<Intent> gameLauncher;
@@ -36,8 +36,8 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		EdgeToEdge.enable(this);
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		ViewCompat.setOnApplyWindowInsetsListener(
 				findViewById(R.id.main),
@@ -53,6 +53,7 @@ public class MainActivity extends BaseActivity {
 		setViewModel();
 		registerLaunchers();
 
+
 	}
 
 	@Override
@@ -60,23 +61,23 @@ public class MainActivity extends BaseActivity {
 		btnCPU = findViewById(R.id.btnCpu);
 		btnLocal = findViewById(R.id.btnLocal);
 		btnOnline = findViewById(R.id.btnOnline);
-		iBtnProfile = findViewById(R.id.iBtnProfile);
-		iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
-		iBtnLeaderboard = findViewById(R.id.iBtnLeaderboard);
-		iBtnSettings = findViewById(R.id.iBtnSettings);
+		ivProfile = findViewById(R.id.ivProfile);
+		ivProfile.setImageBitmap(currentUser.getPictureBitmap());
+		ivLeaderboard = findViewById(R.id.ivLeaderboard);
+		ivSettings = findViewById(R.id.ivSettings);
 	}
 
 	@Override
 	protected void setListeners() {
-		iBtnProfile.setOnClickListener(v -> {
+		ivProfile.setOnClickListener(v -> {
 			Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
 			profileLauncher.launch(intent);
 		});
-		iBtnLeaderboard.setOnClickListener(v -> {
+		ivLeaderboard.setOnClickListener(v -> {
 			Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
 			startActivity(intent);
 		});
-		iBtnSettings.setOnClickListener(v -> {
+		ivSettings.setOnClickListener(v -> {
 			Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(intent);
 		});
@@ -141,7 +142,7 @@ public class MainActivity extends BaseActivity {
 				new ActivityResultContracts.StartActivityForResult(),
 				result -> {
 					if (result.getResultCode() == RESULT_OK) {
-						iBtnProfile.setImageBitmap(currentUser.getPictureBitmap());
+						ivProfile.setImageBitmap(currentUser.getPictureBitmap());
 					}
 				}
 		);

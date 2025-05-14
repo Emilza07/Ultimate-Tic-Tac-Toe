@@ -7,61 +7,108 @@
 	android:layout_height="match_parent"
 	tools:context=".ACTIVITIES.MainActivity">
 
-	<ImageButton
-		android:id="@+id/iBtnProfile"
-		android:layout_width="100dp"
-		android:layout_height="100dp"
-		android:scaleType="fitXY"
+	<ImageView
+		android:id="@+id/ivBackground"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:alpha="1"
+		android:importantForAccessibility="no"
+		android:paddingStart="10dp"
+		android:paddingTop="20dp"
+		android:scaleType="centerCrop"
+		android:scaleX="3.4"
+		android:scaleY="3.4"
+		android:src="@drawable/background"
+		android:tintMode="multiply"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:srcCompat="@tools:sample/avatars" />
-
-	<ImageButton
-		android:id="@+id/iBtnLeaderboard"
-		android:layout_width="100dp"
-		android:layout_height="100dp"
-		android:scaleType="fitXY"
-		app:layout_constraintStart_toEndOf="@+id/iBtnProfile"
-		app:layout_constraintTop_toTopOf="parent"
-		app:srcCompat="@drawable/top_players" />
-
-	<ImageButton
-		android:id="@+id/iBtnSettings"
-		android:layout_width="100dp"
-		android:layout_height="100dp"
-		android:scaleType="fitXY"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:srcCompat="@drawable/settings" />
+		app:layout_constraintVertical_bias="0.0"
+		app:tint="#1F2E4D"
+		tools:ignore="RtlSymmetry" />
 
 	<Button
 		android:id="@+id/btnCpu"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="56dp"
-		android:text="@string/single_player"
+		android:layout_width="290dp"
+		android:layout_height="110dp"
+		android:layout_marginTop="282dp"
+		android:backgroundTint="@color/buttonColor"
+		android:fontFamily="@font/montserrat_semibold"
+		android:text="@string/singleplayer"
+		android:textSize="34sp"
+		app:cornerRadius="20dp"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="0.503"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/iBtnLeaderboard" />
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<Button
 		android:id="@+id/btnLocal"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="0dp"
+		android:layout_height="110dp"
 		android:layout_marginTop="52dp"
+		android:backgroundTint="@color/buttonColor"
+		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/local_multiplayer"
+		android:textSize="34sp"
+		app:cornerRadius="20dp"
 		app:layout_constraintEnd_toEndOf="@+id/btnCpu"
 		app:layout_constraintStart_toStartOf="@+id/btnCpu"
 		app:layout_constraintTop_toBottomOf="@+id/btnCpu" />
 
 	<Button
 		android:id="@+id/btnOnline"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
+		android:layout_width="0dp"
+		android:layout_height="110dp"
 		android:layout_marginTop="52dp"
-		android:text="@string/online_game"
+		android:backgroundTint="@color/buttonColor"
+		android:fontFamily="@font/montserrat_semibold"
+		android:text="@string/online_multiplayer"
+		android:textSize="34sp"
+		app:cornerRadius="20dp"
 		app:layout_constraintEnd_toEndOf="@+id/btnLocal"
 		app:layout_constraintStart_toStartOf="@+id/btnLocal"
 		app:layout_constraintTop_toBottomOf="@+id/btnLocal" />
+
+	<com.google.android.material.imageview.ShapeableImageView
+
+		android:id="@+id/ivProfile"
+		android:layout_width="100dp"
+		android:layout_height="100dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="8dp"
+		android:clickable="true"
+		android:focusable="true"
+		android:src="@drawable/cpu_pfp"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
+
+	<com.google.android.material.imageview.ShapeableImageView
+		android:id="@+id/ivLeaderboard"
+		android:layout_width="100dp"
+		android:layout_height="0dp"
+		android:layout_marginStart="16dp"
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="@+id/ivProfile"
+		app:layout_constraintStart_toEndOf="@+id/ivProfile"
+		app:layout_constraintTop_toTopOf="@id/ivProfile"
+		app:layout_constraintVertical_bias="0.0"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
+		app:srcCompat="@drawable/leaderboard" />
+
+	<com.google.android.material.imageview.ShapeableImageView
+		android:id="@+id/ivSettings"
+		android:layout_width="100dp"
+		android:layout_height="100dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginEnd="8dp"
+		android:scaleType="fitXY"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
+		app:srcCompat="@drawable/settings" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
