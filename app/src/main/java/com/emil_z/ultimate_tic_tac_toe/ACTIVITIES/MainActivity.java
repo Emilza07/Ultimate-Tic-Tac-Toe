@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity {
 			AlertUtil.alert(this,
 					"Start game",
 					"choose your sign",
-					false,
+					true,
 					0,
 					"Cross",
 					"Nought",
