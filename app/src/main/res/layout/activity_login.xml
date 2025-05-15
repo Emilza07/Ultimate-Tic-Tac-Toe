@@ -42,41 +42,60 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
-	<EditText
-		android:id="@+id/etUsername"
+
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/tilUsername"
 		android:layout_width="250dp"
-		android:layout_height="50dp"
+		android:layout_height="wrap_content"
 		android:layout_marginTop="60dp"
-		android:autofillHints="username"
-		android:backgroundTint="@color/hintTextColor"
-		android:ems="10"
-		android:fontFamily="@font/montserrat_medium"
-		android:gravity="bottom"
 		android:hint="@string/username"
-		android:inputType="text"
-		android:textColor="@color/textColor"
 		android:textColorHint="@color/hintTextColor"
+		app:boxStrokeColor="@color/colorPrimary"
+		app:cursorColor="@color/textColor"
+		app:hintTextColor="@color/colorPrimary"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+		app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
-	<EditText
-		android:id="@+id/etPassword"
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/etUsername"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:autofillHints="username"
+			android:fontFamily="@font/montserrat_medium"
+			android:inputType="text"
+			android:textColor="@color/textColor"
+			android:textColorHint="#1E88E5" />
+
+	</com.google.android.material.textfield.TextInputLayout>
+
+
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/tilPassword"
 		android:layout_width="0dp"
-		android:layout_height="50dp"
-		android:layout_marginTop="16dp"
-		android:autofillHints="password"
-		android:backgroundTint="@color/hintTextColor"
-		android:ems="10"
-		android:fontFamily="@font/montserrat_medium"
-		android:gravity="bottom"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
 		android:hint="@string/password"
-		android:inputType="text|textPassword"
-		android:textColor="@color/textColor"
 		android:textColorHint="@color/hintTextColor"
-		app:layout_constraintEnd_toEndOf="@+id/etUsername"
-		app:layout_constraintStart_toStartOf="@+id/etUsername"
-		app:layout_constraintTop_toBottomOf="@+id/etUsername" />
+		app:boxStrokeColor="@color/colorPrimary"
+		app:cursorColor="@color/textColor"
+		app:hintTextColor="@color/colorPrimary"
+		app:layout_constraintEnd_toEndOf="@+id/tilUsername"
+		app:layout_constraintStart_toStartOf="@+id/tilUsername"
+		app:layout_constraintTop_toBottomOf="@+id/tilUsername"
+		app:passwordToggleEnabled="true"
+		app:passwordToggleTint="@color/colorPrimary">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/etPassword"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:autofillHints="password"
+			android:fontFamily="@font/montserrat_medium"
+			android:inputType="textPassword"
+			android:textColor="@color/textColor"
+			android:textColorHint="@color/hintTextColor" />
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<CheckBox
 		android:id="@+id/cbRememberMe"
@@ -86,33 +105,33 @@
 		android:fontFamily="@font/montserrat_medium"
 		android:text="@string/remember_me"
 		android:textColor="@color/textColor"
-		app:layout_constraintStart_toStartOf="@+id/etPassword"
-		app:layout_constraintTop_toBottomOf="@+id/etPassword" />
+		app:layout_constraintStart_toStartOf="@+id/tilPassword"
+		app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
 	<Button
 		android:id="@+id/btnSignIn"
 		android:layout_width="290dp"
 		android:layout_height="110dp"
-		android:layout_marginTop="500dp"
+		android:layout_marginTop="430dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/sign_in"
 		android:textSize="34sp"
-		app:cornerRadius="20dp"
-		app:layout_constraintEnd_toEndOf="@+id/etPassword"
-		app:layout_constraintStart_toStartOf="@+id/etPassword"
+		app:cornerRadius="15dp"
+		app:layout_constraintEnd_toEndOf="@+id/tilPassword"
+		app:layout_constraintStart_toStartOf="@+id/tilPassword"
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<Button
 		android:id="@+id/btnBack"
 		android:layout_width="0dp"
 		android:layout_height="110dp"
-		android:layout_marginTop="32dp"
+		android:layout_marginTop="24dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/back"
 		android:textSize="34sp"
-		app:cornerRadius="20dp"
+		app:cornerRadius="15dp"
 		app:layout_constraintEnd_toEndOf="@+id/btnSignIn"
 		app:layout_constraintStart_toStartOf="@+id/btnSignIn"
 		app:layout_constraintTop_toBottomOf="@+id/btnSignIn" />

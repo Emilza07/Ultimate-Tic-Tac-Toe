@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emil_z.helper.TextInputLayoutUtil;
 import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
@@ -27,7 +28,6 @@ public class LoginActivity extends BaseActivity {
 	private CheckBox cbRememberMe;
 	private Button btnSignIn;
 	private Button btnBack;
-
 	private UsersViewModel viewModel;
 
 	@Override
@@ -69,7 +69,7 @@ public class LoginActivity extends BaseActivity {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 		viewModel.getLiveDataSuccess().observe(this, success -> {
 			if (!success) {
-				Toast.makeText(LoginActivity.this, "Username or password is incorrect", Toast.LENGTH_SHORT).show();
+				Toast.makeText(LoginActivity.this, "Invalid password or username", Toast.LENGTH_SHORT).show(); //TODO: change to string resource
 			}
 		});
 		viewModel.getLiveDataEntity().observe(this, user -> {
@@ -95,6 +95,10 @@ public class LoginActivity extends BaseActivity {
 
 	public boolean validate() {
 		setValidation();
-		return Validator.validate();
+		boolean isValid = Validator.validate();
+
+		TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
+		TextInputLayoutUtil.transferErrorsToTextInputLayout(etPassword);
+		return isValid;
 	}
 }

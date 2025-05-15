@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.BitMapHelper;
 import com.emil_z.helper.PasswordUtil;
+import com.emil_z.helper.TextInputLayoutUtil;
 import com.emil_z.helper.inputValidators.CompareRule;
 import com.emil_z.helper.inputValidators.NameRule;
 import com.emil_z.helper.inputValidators.PasswordRule;
@@ -30,6 +32,7 @@ public class RegisterActivity extends BaseActivity {
 	private EditText etUsername;
 	private EditText etPassword;
 	private EditText etConfirmPassword;
+	private TextView tvError;
 	private Button btnRegister;
 	private Button btnBack;
 
@@ -56,6 +59,7 @@ public class RegisterActivity extends BaseActivity {
 		etUsername = findViewById(R.id.etUsername);
 		etPassword = findViewById(R.id.etPassword);
 		etConfirmPassword = findViewById(R.id.etConfirmPassword);
+		tvError = findViewById(R.id.tvError);
 		btnRegister = findViewById(R.id.btnRegister);
 		btnBack = findViewById(R.id.btnBack);
 	}
@@ -107,6 +111,16 @@ public class RegisterActivity extends BaseActivity {
 
 	public boolean validate() {
 		setValidation();
-		return Validator.validate();
+		boolean isValid = Validator.validate();
+
+		TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
+		if (etPassword.getError() != null) {
+			etPassword.setError(null);
+			tvError.setVisibility(TextView.VISIBLE);
+		} else {
+			tvError.setVisibility(TextView.INVISIBLE);
+		}
+		TextInputLayoutUtil.transferErrorsToTextInputLayout(etConfirmPassword);
+		return isValid;
 	}
 }

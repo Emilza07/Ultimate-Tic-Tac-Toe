@@ -48,6 +48,9 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 							User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 							lvEntity.setValue(user);
 						}
+						else {
+							lvSuccess.setValue(false);
+						}
 					} else {
 						lvSuccess.setValue(false);
 					}
