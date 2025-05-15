@@ -36,8 +36,8 @@ public abstract class BaseActivity extends AppCompatActivity {
             return insets;
         });
 
-        getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-        getWindow().setNavigationBarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+        getWindow().setStatusBarColor(getResources().getColor(R.color.colorBackground, getTheme()));
+        getWindow().setNavigationBarColor(getResources().getColor(R.color.colorBackground, getTheme()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().getInsetsController().setSystemBarsAppearance(0,
                     WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);

@@ -76,7 +76,6 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 	private void executeInitialQueries(String userId, int limit, MutableLiveData<Games> result) {
 		Games allGames = new Games();
 
-		// Query both player1 and player2 games
 		getCollection()
 				.whereEqualTo("player1.idFs", userId)
 				.orderBy("startedAt", Query.Direction.DESCENDING)
@@ -86,12 +85,13 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 					for (DocumentSnapshot doc : player1Snapshot.getDocuments()) {
 						Game game = doc.toObject(OnlineGame.class);
 						if (game != null) {
-							game.setIdFs(doc.getId());
-							allGames.add(game);
+							if (!game.getPlayer2().getIdFs().isEmpty()) {
+								game.setIdFs(doc.getId());
+								allGames.add(game);
+							}
 						}
 					}
 
-					// Now query player2 games
 					getCollection()
 							.whereEqualTo("player2.idFs", userId)
 							.orderBy("startedAt", Query.Direction.DESCENDING)
@@ -218,7 +218,8 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if (!queryDocumentSnapshots.isEmpty()) {
 						for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-							games.add(document.toObject(OnlineGame.class));
+							if (!(Objects.equals(document.toObject(OnlineGame.class).getPlayer1().getIdFs(), localPlayerIdFs)))
+								games.add(document.toObject(OnlineGame.class));
 						}
 						games.sort((g1, g2) -> g1.getPlayer1().compareElo(g2.getPlayer1()));
 						taskGetNotStartedGames.setResult(games);
@@ -353,7 +354,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 					}
 				}
 			} catch (Exception ex) {
-			} //TODO: for some reason the first time the listeners catches as joiner, the started is false
+			} //TODO: for some reason the first time the listener catches as joiner, the "isStarted" is false
 		});
 	}
 
@@ -456,7 +457,6 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 			return taskAbortGame.getTask();
 		}
 
-		// Get the current game state from Firestore
 		getCollection().document(gameId).get()
 				.addOnSuccessListener(documentSnapshot -> {
 					if (documentSnapshot.exists()) {

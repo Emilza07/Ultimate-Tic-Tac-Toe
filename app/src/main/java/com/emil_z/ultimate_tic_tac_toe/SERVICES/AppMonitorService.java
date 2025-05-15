@@ -85,7 +85,7 @@ public class AppMonitorService extends Service {
 	@Override
 	public void onTaskRemoved(Intent rootIntent) {
 		super.onTaskRemoved(rootIntent);
-
+		//FIX: DOESN'T WORK ON S10E
 		if (inGameActivity && gameId != null) {
 			repository.exitGameDirect(gameId, player1Id, player2Id, isPlayer1)
 					.addOnSuccessListener(aBoolean -> {
