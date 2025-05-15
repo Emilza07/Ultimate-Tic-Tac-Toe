@@ -69,4 +69,8 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 				}).addOnFailureListener(e -> {
 				});
 	}
+
+	public void getTopPlayersPaginated(int limit, float lastElo, String lastIdFs) {
+		lvCollection = repository.getTopPlayersPaginated(limit, lastElo, lastIdFs);
+	}
 }

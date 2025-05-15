@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -16,7 +17,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.emil_z.model.User;
+import com.emil_z.model.Users;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.ADPTERS.UsersAdapter;
 import com.emil_z.ultimate_tic_tac_toe.R;
@@ -26,9 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LeaderboardActivity extends BaseActivity {
+	private static final int PAGE_SIZE = 15;
+
 	private RecyclerView rvLeaderboard;
+
 	private UsersViewModel viewModel;
 	private UsersAdapter adapter;
+
+	private Users users;
+	private boolean isLoading = false;
+	private float lastLoadedElo = -1;
+	private String lastLoadedIdFs = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,17 +52,18 @@ public class LeaderboardActivity extends BaseActivity {
 
 		initializeViews();
 		setListeners();
+		setupRecyclerViewScrollListener();
 		setViewModel();
 		setAdapter();
-
-		DividerItemDecoration divider = new DividerItemDecoration(rvLeaderboard.getContext(), LinearLayoutManager.VERTICAL);
-		divider.setDrawable(ContextCompat.getDrawable(this, R.drawable.dividor));
-		rvLeaderboard.addItemDecoration(divider);
 	}
 
 	@Override
 	public void initializeViews() {
 		rvLeaderboard = findViewById(R.id.rvLeaderboard);
+
+		DividerItemDecoration divider = new DividerItemDecoration(rvLeaderboard.getContext(), LinearLayoutManager.VERTICAL);
+		divider.setDrawable(ContextCompat.getDrawable(this, R.drawable.dividor));
+		rvLeaderboard.addItemDecoration(divider);
 	}
 
 	@Override
@@ -63,17 +73,27 @@ public class LeaderboardActivity extends BaseActivity {
 	@Override
 	public void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
-		viewModel.getAll();
+		loadUsers(false);
 
-		viewModel.getLiveDataCollection().observe(this, users -> {
-			List<User> sortedUsers = new ArrayList<>(users);
+		viewModel.getLiveDataCollection().observe(this, newUsers -> {
+			if (adapter.getItems() != null) {
+				int lastIndex = adapter.getItems().indexOf(null);
+				if (lastIndex != -1) {
+					adapter.getItems().remove(lastIndex);
+					adapter.notifyItemRemoved(lastIndex);
+				}
+			}
 
-			sortedUsers.sort((user1, user2) ->
-					Double.compare(user2.getElo(), user1.getElo()));
-			int endIndex = Math.min(sortedUsers.size(), 999);
-			List<User> topUsers = sortedUsers.subList(0, endIndex);
-
-			adapter.setItems(topUsers);
+			if (!newUsers.isEmpty()) {
+				if (this.users == null)
+					this.users = newUsers;
+				else
+					this.users.addAll(newUsers);
+				isLoading = false;
+				lastLoadedElo = newUsers.get(newUsers.size() - 1).getElo();
+				lastLoadedIdFs = newUsers.get(newUsers.size() - 1).getIdFs();
+				adapter.setItems(this.users);
+			}
 		});
 	}
 
@@ -103,7 +123,21 @@ public class LeaderboardActivity extends BaseActivity {
 					}
 				})
 		);
+
 		rvLeaderboard.setAdapter(adapter);
 		rvLeaderboard.setLayoutManager(new LinearLayoutManager(this));
+	}
+
+	private void loadUsers(boolean loadMore) {
+		isLoading = true;
+		if (loadMore) {
+			showLoadingMore();
+		}
+		viewModel.getTopPlayersPaginated(PAGE_SIZE, lastLoadedElo, lastLoadedIdFs);
+	}
+
+	private void showLoadingMore() {
+		adapter.getItems().add(null);
+		adapter.notifyItemInserted(adapter.getItemCount() - 1);
 	}
 }
