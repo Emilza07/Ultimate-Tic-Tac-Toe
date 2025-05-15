@@ -2,7 +2,7 @@
 	<!-- Base application theme. -->
 	<style name="Base.Theme.TASHTIT" parent="Theme.Material3.DayNight.NoActionBar">
 		<!-- Customize your dark theme here. -->
-		<item name="colorPrimary">#000b26</item>
+		<item name="colorPrimary">@color/colorPrimary</item>
 
 		<!-- Splash transparent -->
 		<item name="android:windowIsTranslucent">true</item>

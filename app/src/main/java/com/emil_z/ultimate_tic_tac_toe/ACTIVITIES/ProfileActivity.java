@@ -151,6 +151,7 @@ public class ProfileActivity extends BaseActivity {
 			}
 		}
 	}
+
 	@Override
 	protected void setViewModel() {
 		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
@@ -348,10 +349,11 @@ public class ProfileActivity extends BaseActivity {
 
 		return Bitmap.createScaledBitmap(image, width, height, true);
 	}
+
 	private void startCropActivity(Uri sourceUri) {
 		UCrop.Options options = new UCrop.Options();
-		options.setToolbarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-		options.setStatusBarColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+		options.setToolbarColor(getResources().getColor(R.color.colorBackground, getTheme()));
+		options.setStatusBarColor(getResources().getColor(R.color.colorBackground, getTheme()));
 		options.setToolbarTitle("Crop Image");
 
 		options.setToolbarWidgetColor(getResources().getColor(R.color.textColor, getTheme()));

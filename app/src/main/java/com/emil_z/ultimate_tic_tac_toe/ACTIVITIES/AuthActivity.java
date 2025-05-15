@@ -28,8 +28,7 @@ public class AuthActivity extends BaseActivity {
 		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 		EdgeToEdge.enable(this);
 		super.onCreate(savedInstanceState);
-		//setContentView(R.layout.activity_main);
-		getLayoutInflater().inflate(R.layout.activity_auth, findViewById(R.id.content_frame));
+		setContentView(R.layout.activity_auth);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

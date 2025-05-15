@@ -5,7 +5,7 @@
 	android:id="@+id/main"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/colorPrimary">
+	android:background="@color/colorBackground">
 
 
 	<androidx.gridlayout.widget.GridLayout
@@ -97,7 +97,7 @@
 		android:layout_gravity="bottom"
 		android:layout_marginBottom="16dp"
 		android:orientation="horizontal"
-		android:visibility="invisible"
+		android:visibility="visible"
 		app:layout_constraintBottom_toBottomOf="parent"
 		tools:layout_editor_absoluteX="0dp">
 
@@ -190,7 +190,6 @@
 		android:id="@+id/tvCurrentPlayer"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="100dp"
 		android:fontFamily="@font/montserrat_medium"
 		android:text="@string/player_x_turn"
 		android:textColor="@color/textColor"
@@ -198,18 +197,21 @@
 		android:visibility="invisible"
 		app:layout_constraintBottom_toTopOf="@+id/gridBoard"
 		app:layout_constraintEnd_toEndOf="@+id/gridBoard"
-		app:layout_constraintStart_toStartOf="@+id/gridBoard" />
+		app:layout_constraintStart_toStartOf="@+id/gridBoard"
+		app:layout_constraintTop_toBottomOf="@+id/llP2"
+		app:layout_constraintVertical_bias="0.25" />
 
 	<LinearLayout
 		android:id="@+id/llReview"
 		android:layout_width="335dp"
 		android:layout_height="100dp"
-		android:layout_marginTop="32dp"
 		android:orientation="horizontal"
 		android:visibility="gone"
+		app:layout_constraintBottom_toTopOf="@+id/llP1"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/gridBoard">
+		app:layout_constraintTop_toBottomOf="@+id/gridBoard"
+		app:layout_constraintVertical_bias="0.41000003">
 
 		<Button
 			android:id="@+id/btnBackward"
@@ -221,7 +223,7 @@
 			android:text="@string/review_back"
 			android:textColor="@color/textColor"
 			android:textSize="25sp"
-			app:cornerRadius="20dp" />
+			app:cornerRadius="15dp" />
 
 		<Space
 			android:layout_width="15dp"
@@ -238,7 +240,7 @@
 			android:text="@string/review_forward"
 			android:textColor="@color/textColor"
 			android:textSize="25sp"
-			app:cornerRadius="20dp" />
+			app:cornerRadius="15dp" />
 	</LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

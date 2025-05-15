@@ -49,18 +49,6 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 	}
 
 	public LiveData<Games> getUserGamesPaginated(String userId, int limit, String startAfterId) {
-		// First query - player1 games with half the limit
-		Query player1Query = getCollection()
-				.whereEqualTo("player1.idFs", userId)
-				.orderBy("startedAt", Query.Direction.DESCENDING)
-				.limit(limit);
-
-		// Second query - player2 games with half the limit
-		Query player2Query = getCollection()
-				.whereEqualTo("player2.idFs", userId)
-				.orderBy("startedAt", Query.Direction.DESCENDING)
-				.limit(limit);
-
 		// Add pagination if needed
 		if (startAfterId != null) {
 			getCollection().document(startAfterId).get()
