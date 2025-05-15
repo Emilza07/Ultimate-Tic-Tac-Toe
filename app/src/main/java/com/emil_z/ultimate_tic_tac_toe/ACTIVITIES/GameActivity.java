@@ -89,7 +89,7 @@ public class GameActivity extends BaseActivity {
 	protected void initializeViews() {
 		errorCodes = getResources().getStringArray(R.array.error_codes);
 		Intent intent = getIntent();
-		gameType = (GameType) intent.getSerializableExtra(getString(R.string.EXTRA_GAME_TYPE));
+		gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
 		tvCurrentPlayer = findViewById(R.id.tvCurrentPlayer);
 
 		llReview = findViewById(R.id.llReview);
@@ -146,7 +146,7 @@ public class GameActivity extends BaseActivity {
 							if (gameType == GameType.ONLINE)
 								gamesViewModel.exitGame();
 							setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
-							intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+							intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
 							if (gameType != GameType.ONLINE || game == null)
 								finish();
 						}),
@@ -326,7 +326,7 @@ public class GameActivity extends BaseActivity {
 					null,
 					(() -> {
 						Intent intent = new Intent();
-						intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), gameType);
+						intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
 						setResult(RESULT_OK, intent);
 						finish();
 					}),
@@ -416,7 +416,7 @@ public class GameActivity extends BaseActivity {
 		switch (gameType) {
 			case CPU:
 				// Initialize SP game
-				char sign = intent.getCharExtra(getString(R.string.EXTRA_SIGN), 'X');
+				char sign = intent.getCharExtra(MainActivity.EXTRA_SIGN, 'X');
 				gamesViewModel.startCpuGame(sign == 'X' ? currentUser.getIdFs() : "CPU");
 				break;
 			case LOCAL:
@@ -436,7 +436,7 @@ public class GameActivity extends BaseActivity {
 			case HISTORY:
 				gridBoard.setVisibility(View.INVISIBLE);
 				intent = getIntent();
-				gamesViewModel.get(intent.getStringExtra(getString(R.string.EXTRA_GAME_IDFS)));
+				gamesViewModel.get(intent.getStringExtra(MainActivity.EXTRA_GAME_IDFS));
 				break;
 		}
 	}
@@ -486,7 +486,7 @@ public class GameActivity extends BaseActivity {
 					tvP2Name.setText(p1.getName());
 					tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
 					tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-					tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
+					tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
 				}
 			}
 		} else {

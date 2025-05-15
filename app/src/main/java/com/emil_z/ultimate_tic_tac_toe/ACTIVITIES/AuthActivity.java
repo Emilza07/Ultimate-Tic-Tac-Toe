@@ -16,6 +16,11 @@ import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
+/**
+ * Activity that handles user authentication on application startup.
+ * <p>
+ * Provides login and registration options, and checks for existing sessions.
+ */
 public class AuthActivity extends BaseActivity {
 
 	private Button btnLogin;
@@ -23,6 +28,12 @@ public class AuthActivity extends BaseActivity {
 	private UsersViewModel viewModel;
 	private UserSessionPreference sessionPreference;
 
+	/**
+	 * Initializes the authentication activity, sets up the UI,
+	 * and checks for existing login sessions.
+	 *
+	 * @param savedInstanceState The previously saved instance state, if any.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -44,19 +55,29 @@ public class AuthActivity extends BaseActivity {
 		checkForLogIn();
 	}
 
+	/**
+	 * Initializes view components and shows the login progress dialog.
+	 */
 	@Override
 	protected void initializeViews() {
 		btnLogin = findViewById(R.id.btnLogin);
 		btnRegister = findViewById(R.id.btnRegister);
-		showProgressDialog("Login", "Logging in...");
+
+		showProgressDialog(getString(R.string.logging_in), "");
 	}
 
+	/**
+	 * Sets up click listeners for login and registration buttons.
+	 */
 	@Override
 	protected void setListeners() {
 		btnLogin.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, LoginActivity.class)));
 		btnRegister.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, RegisterActivity.class)));
 	}
 
+	/**
+	 * Initializes the ViewModel and sets up observers for authentication data.
+	 */
 	@Override
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
@@ -77,10 +98,11 @@ public class AuthActivity extends BaseActivity {
 		});
 	}
 
+	/**
+	 * Checks if user has a valid session and attempts to log in automatically.
+	 */
 	private void checkForLogIn() {
-		// Check if we have a valid session with token
 		if (sessionPreference.hasValidSession()) {
-			// We have a valid session, retrieve the user
 			String userIdFs = sessionPreference.getUserIdFs();
 			viewModel.get(userIdFs);
 		} else {

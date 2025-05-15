@@ -5,19 +5,38 @@
 	<string name="by_emil_zalessky">by Emil Zalessky</string>
 	<string name="sign_in">SIGN IN</string>
 	<string name="register">REGISTER</string>
-
+	<string name="logging_in">Logging in</string>
 	<string name="back">Back</string>
 	<string name="username">Username</string>
 	<string name="password">Password</string>
 	<string name="confirm_password">Confirm Password</string>
 	<string name="remember_me">Remember me</string>
-	<string name="password_invalid">Invalid password:\n
-		Must include lowercase,\n
-		uppercase, number, special character\n
-		and be 8–64 characters</string>
+
+	<string name="no_username">Please enter a username</string>
+	<string name="username_invalid">Please enter a valid username</string>
+	<string name="no_password">Please enter a password</string>
+	<string name="no_confirm_password">Please confirm your password</string>
+
+	<string name="username_taken">This username is already taken</string>
+	<string name="password_invalid">Password must be 8–64 characters,\n
+		include an uppercase letter,\n
+		a lowercase letter,	a number\n
+		and a special character</string>
+	<string name="passwords_dont_match">Passwords do not match</string>
+	<string name="invalid_credentials">Invalid password or username</string>
+
+	<string name="play_against_ai">Play Against AI</string>
+	<string name="choose_your_sign">Choose your sign</string>
+	<string name="cross">Cross</string>
+	<string name="nought">Nought</string>
+	<string name="random">Random</string>
 	<string name="singleplayer">Singleplayer</string>
 	<string name="local_multiplayer">Local Multiplayer</string>
 	<string name="online_multiplayer">Online Multiplayer</string>
+	<string name="exit">Exit</string>
+	<string name="exit_confirmation">Are you sure you want to exit?</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
 
 	<string name="abort_search">Abort Search</string>
 	<string name="searching_for_opponent">Searching for opponent..</string>
@@ -47,9 +66,6 @@
 	<string name="log_out">LOG OUT</string>
 	<string name="settings">Settings</string>
 
-	<string name="EXTRA_GAME_TYPE">GAME_TYPE</string>
-	<string name="EXTRA_SIGN">SIGN</string>
-	<string name="EXTRA_GAME_IDFS">>GAME_IDFS</string>
 	<string-array name="error_codes">
 		<item>OK</item>
 		<item>Not your turn</item>

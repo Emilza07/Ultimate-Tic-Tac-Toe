@@ -37,11 +37,13 @@ import java.util.concurrent.ExecutionException;
 
 public class OnlineGamesRepository extends BaseGamesRepository {
 	private final MutableLiveData<String> lvGameIdFs;
-	private final MutableLiveData<Games> lvGames = new MutableLiveData<>();
+	private final MutableLiveData<Games> lvGames;
 
 	public OnlineGamesRepository(Application application) {
 		super(application);
+
 		lvGameIdFs = new MutableLiveData<>();
+		lvGames = new MutableLiveData<>();
 	}
 
 	public LiveData<String> getLiveDataGameIdFs() {

@@ -22,6 +22,11 @@ import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
+/**
+ * Activity that handles user login.
+ * <p>
+ * Validates user credentials, manages session preferences, and navigates to the main activity upon successful login.
+ */
 public class LoginActivity extends BaseActivity {
 	private EditText etUsername;
 	private EditText etPassword;
@@ -30,6 +35,9 @@ public class LoginActivity extends BaseActivity {
 	private Button btnBack;
 	private UsersViewModel viewModel;
 
+	/**
+	 * Sets up click listeners for registration and back buttons.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		EdgeToEdge.enable(this);
@@ -46,6 +54,10 @@ public class LoginActivity extends BaseActivity {
 		setViewModel();
 	}
 
+	/**
+	 * Initializes view components for login.
+	 */
+	@Override
 	protected void initializeViews() {
 		etUsername = findViewById(R.id.etUsername);
 		etPassword = findViewById(R.id.etPassword);
@@ -54,6 +66,10 @@ public class LoginActivity extends BaseActivity {
 		btnBack = findViewById(R.id.btnBack);
 	}
 
+	/**
+	 * Sets up click listeners for sign-in and back buttons.
+	 */
+	@Override
 	protected void setListeners() {
 		btnSignIn.setOnClickListener(v -> {
 			if (validate()) {
@@ -65,13 +81,19 @@ public class LoginActivity extends BaseActivity {
 		btnBack.setOnClickListener(v -> finish());
 	}
 
+	/**
+	 * Sets up click listeners for sign-in and back buttons.
+	 */
+	@Override
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
+
 		viewModel.getLiveDataSuccess().observe(this, success -> {
 			if (!success) {
-				Toast.makeText(LoginActivity.this, "Invalid password or username", Toast.LENGTH_SHORT).show(); //TODO: change to string resource
+				Toast.makeText(LoginActivity.this, R.string.invalid_credentials, Toast.LENGTH_SHORT).show();
 			}
 		});
+
 		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
 				BaseActivity.currentUser = user;
@@ -87,12 +109,20 @@ public class LoginActivity extends BaseActivity {
 		});
 	}
 
+	/**
+	 * Sets up validation rules for login fields.
+	 */
 	public void setValidation() {
 		Validator.clear();
-		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, "Please enter username"));
-		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, "Please enter password"));
+		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, getString(R.string.no_username)));
+		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, getString(R.string.no_password)));
 	}
 
+	/**
+	 * Validates login fields and updates error messages.
+	 *
+	 * @return true if all fields are valid, false otherwise.
+	 */
 	public boolean validate() {
 		setValidation();
 		boolean isValid = Validator.validate();

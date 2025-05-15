@@ -23,9 +23,12 @@ import com.emil_z.ultimate_tic_tac_toe.ADPTERS.UsersAdapter;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Activity that displays the leaderboard of top players.
+ * <p>
+ * Shows a paginated list of users sorted by ELO, highlights the current user,
+ * and loads more users as the user scrolls.
+ */
 public class LeaderboardActivity extends BaseActivity {
 	private static final int PAGE_SIZE = 15;
 
@@ -39,6 +42,11 @@ public class LeaderboardActivity extends BaseActivity {
 	private float lastLoadedElo = -1;
 	private String lastLoadedIdFs = null;
 
+	/**
+	 * Initializes the leaderboard activity, sets up UI, listeners, ViewModel, and adapter.
+	 *
+	 * @param savedInstanceState The previously saved instance state, if any.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		EdgeToEdge.enable(this);
@@ -57,6 +65,9 @@ public class LeaderboardActivity extends BaseActivity {
 		setAdapter();
 	}
 
+	/**
+	 * Initializes view components for the leaderboard screen.
+	 */
 	@Override
 	public void initializeViews() {
 		rvLeaderboard = findViewById(R.id.rvLeaderboard);
@@ -66,10 +77,39 @@ public class LeaderboardActivity extends BaseActivity {
 		rvLeaderboard.addItemDecoration(divider);
 	}
 
+	/**
+	 * Sets up click listeners for the leaderboard (none in this implementation).
+	 */
 	@Override
 	public void setListeners() {
 	}
 
+	/**
+	 * Sets up a scroll listener for the RecyclerView to load more users when reaching the end.
+	 */
+	private void setupRecyclerViewScrollListener() {
+		rvLeaderboard.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+
+				LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+				int visibleItemCount = layoutManager.getChildCount();
+				int totalItemCount = layoutManager.getItemCount();
+				int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+				if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+						&& firstVisibleItemPosition >= 0
+						&& totalItemCount >= PAGE_SIZE) {
+					loadUsers(true);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Initializes the ViewModel, loads users, and observes user data changes.
+	 */
 	@Override
 	public void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
@@ -97,6 +137,9 @@ public class LeaderboardActivity extends BaseActivity {
 		});
 	}
 
+	/**
+	 * Sets up the adapter for the leaderboard RecyclerView and handles item display.
+	 */
 	private void setAdapter() {
 		adapter = new UsersAdapter(null,
 				R.layout.user_single_layout,
@@ -128,6 +171,11 @@ public class LeaderboardActivity extends BaseActivity {
 		rvLeaderboard.setLayoutManager(new LinearLayoutManager(this));
 	}
 
+	/**
+	 * Loads users for the leaderboard, paginated. Shows loading indicator if loading more.
+	 *
+	 * @param loadMore Whether to load more users (pagination).
+	 */
 	private void loadUsers(boolean loadMore) {
 		isLoading = true;
 		if (loadMore) {
@@ -136,6 +184,9 @@ public class LeaderboardActivity extends BaseActivity {
 		viewModel.getTopPlayersPaginated(PAGE_SIZE, lastLoadedElo, lastLoadedIdFs);
 	}
 
+	/**
+	 * Shows a loading indicator in the leaderboard list.
+	 */
 	private void showLoadingMore() {
 		adapter.getItems().add(null);
 		adapter.notifyItemInserted(adapter.getItemCount() - 1);

@@ -28,6 +28,11 @@ import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
+/**
+ * Activity that handles user registration.
+ * <p>
+ * Validates user input, checks for existing usernames, and saves new user data.
+ */
 public class RegisterActivity extends BaseActivity {
 	private EditText etUsername;
 	private EditText etPassword;
@@ -38,6 +43,12 @@ public class RegisterActivity extends BaseActivity {
 
 	private UsersViewModel viewModel;
 
+	/**
+	 * Initializes the registration activity, sets up the UI,
+	 * and prepares listeners and ViewModel.
+	 *
+	 * @param savedInstanceState The previously saved instance state, if any.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		EdgeToEdge.enable(this);
@@ -55,6 +66,10 @@ public class RegisterActivity extends BaseActivity {
 
 	}
 
+	/**
+	 * Initializes view components for registration.
+	 */
+	@Override
 	protected void initializeViews() {
 		etUsername = findViewById(R.id.etUsername);
 		etPassword = findViewById(R.id.etPassword);
@@ -64,6 +79,10 @@ public class RegisterActivity extends BaseActivity {
 		btnBack = findViewById(R.id.btnBack);
 	}
 
+	/**
+	 * Sets up click listeners for registration and back buttons.
+	 */
+	@Override
 	protected void setListeners() {
 		btnRegister.setOnClickListener(v -> {
 			if (validate()) {
@@ -74,12 +93,17 @@ public class RegisterActivity extends BaseActivity {
 
 	}
 
+	/**
+	 * Initializes the ViewModel and observes username existence.
+	 */
+	@Override
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
 		viewModel.getLiveDataExist().observe(this, exist -> {
 			if (exist) {
-				etUsername.setError("Username already exists");
+				etUsername.setError(getString(R.string.username_taken));
+				TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
 			} else {
 				etUsername.setError(null);
 				registerUser();
@@ -87,6 +111,9 @@ public class RegisterActivity extends BaseActivity {
 		});
 	}
 
+	/**
+	 * Registers a new user and navigates to the login screen.
+	 */
 	protected void registerUser() {
 		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp);
 		String hashedPassword = PasswordUtil.hashPassword(etPassword.getText().toString());
@@ -99,16 +126,24 @@ public class RegisterActivity extends BaseActivity {
 		finish();
 	}
 
+	/**
+	 * Sets up validation rules for registration fields.
+	 */
 	public void setValidation() {
 		Validator.clear();
-		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, "Username is required"));
-		Validator.add(new NameRule(etUsername, RuleOperation.NAME, "Username is not valid"));
-		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, "Password is required"));
+		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, getString(R.string.no_username)));
+		Validator.add(new NameRule(etUsername, RuleOperation.NAME, getString(R.string.username_invalid)));
+		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, getString(R.string.no_password)));
 		Validator.add(new PasswordRule(etPassword, RuleOperation.PASSWORD, getString(R.string.password_invalid), 8, 64));
-		Validator.add(new Rule(etConfirmPassword, RuleOperation.REQUIRED, "Confirm password is required"));
-		Validator.add(new CompareRule(etConfirmPassword, etPassword, RuleOperation.COMPARE, "Passwords do not match"));
+		Validator.add(new Rule(etConfirmPassword, RuleOperation.REQUIRED, getString(R.string.no_confirm_password)));
+		Validator.add(new CompareRule(etConfirmPassword, etPassword, RuleOperation.COMPARE, getString(R.string.passwords_dont_match)));
 	}
 
+	/**
+	 * Validates registration fields and updates error messages.
+	 *
+	 * @return true if all fields are valid, false otherwise.
+	 */
 	public boolean validate() {
 		setValidation();
 		boolean isValid = Validator.validate();
@@ -116,6 +151,7 @@ public class RegisterActivity extends BaseActivity {
 		TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
 		if (etPassword.getError() != null) {
 			etPassword.setError(null);
+			TextInputLayoutUtil.getTextInputLayout(etPassword).setError(" ");
 			tvError.setVisibility(TextView.VISIBLE);
 		} else {
 			tvError.setVisibility(TextView.INVISIBLE);

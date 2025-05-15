@@ -29,4 +29,18 @@ public class TextInputLayoutUtil {
 			}
 		}
 	}
+
+	public static TextInputLayout getTextInputLayout(View view) {
+		if (view instanceof TextInputEditText) {
+			TextInputEditText editText = (TextInputEditText) view;
+			ViewParent parent = editText.getParent();
+			while (parent != null) {
+				if (parent instanceof TextInputLayout) {
+					return (TextInputLayout) parent;
+				}
+				parent = parent.getParent();
+			}
+		}
+		return null;
+	}
 }

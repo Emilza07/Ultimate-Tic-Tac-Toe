@@ -43,6 +43,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Activity that displays the user's profile, including profile picture, username, ELO rating,
+ * and a paginated list of recent games. Allows updating the profile picture via camera or gallery,
+ * and supports cropping the selected image.
+ */
 public class ProfileActivity extends BaseActivity {
 	private final int PAGE_SIZE = 10;
 
@@ -62,6 +67,11 @@ public class ProfileActivity extends BaseActivity {
 	private boolean isLoading = false;
 	private String lastLoadedGameId = null;
 
+	/**
+	 * Initializes the profile activity, sets up UI, listeners, ViewModels, adapter, and launchers.
+	 *
+	 * @param savedInstanceState The previously saved instance state, if any.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		EdgeToEdge.enable(this);
@@ -81,6 +91,9 @@ public class ProfileActivity extends BaseActivity {
 		registerLaunchers();
 	}
 
+	/**
+	 * Initializes view components for the profile screen.
+	 */
 	@Override
 	public void initializeViews() {
 		ivPfp = findViewById(R.id.ivPfp);
@@ -97,6 +110,9 @@ public class ProfileActivity extends BaseActivity {
 		rvGames.addItemDecoration(divider);
 	}
 
+	/**
+	 * Sets up click listeners for profile picture.
+	 */
 	@Override
 	protected void setListeners() {
 		ivPfp.setOnClickListener(v -> showImageOptions());
@@ -282,6 +298,9 @@ public class ProfileActivity extends BaseActivity {
 				.show();
 	}
 
+	/**
+	 * Launches the gallery picker intent for selecting an image.
+	 */
 	private void launchGalleryPicker() {
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("image/*");
@@ -295,181 +314,11 @@ public class ProfileActivity extends BaseActivity {
 		}
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		if (requestCode == 100) {
-			if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-				launchGalleryPicker();
-			} else {
-				Toast.makeText(this, "Storage permission is required to select images", Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-
-	@Override
-	protected void setViewModel() {
-		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
-		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
-		loadGames(false);
-
-		usersViewModel.getLiveDataSuccess().observe(this, success -> {
-			if (success) {
-				ivPfp.setImageBitmap(currentUser.getPictureBitmap());// Convert bitmap to base64 and save to user profile
-				setResult(RESULT_OK);
-			} else {
-				usersViewModel.get(currentUser.getIdFs());
-			}
-		});
-
-		usersViewModel.getLiveDataEntity().observe(this, user -> {
-			if (user != null && Objects.equals(user.getIdFs(), currentUser.getIdFs())) {
-				currentUser = user;
-			} else if (user != null) {
-				for (Game game : games) {
-					if (Objects.equals(currentUser.getIdFs(), game.getPlayer1().getIdFs())) {
-						game.getPlayer2().setPicture(user.getPicture());
-					} else {
-						game.getPlayer1().setPicture(user.getPicture());
-					}
-				}
-			}
-			adapter.setItems(this.games);
-		});
-
-		gamesViewModel.getLiveDataCollection().observe(this, newGames -> {
-			if (!newGames.isEmpty()) {
-				if (this.games == null) {
-					this.games = newGames;
-				} else if (isLoading) {
-					// For subsequent loads, add to existing games
-					this.games.addAll(newGames);
-				}
-
-				isLoading = false;
-
-				// If we got less than pageSize, there are no more games to load
-				if (!newGames.isEmpty()) {
-					lastVisibleGameId = newGames.get(newGames.size() - 1).getIdFs();
-				}
-
-				// Process games (get user profiles)
-				for (Game game : newGames) {
-					usersViewModel.get(Objects.equals(currentUser.getIdFs(),
-							game.getPlayer1().getIdFs()) ? game.getPlayer2().getIdFs() :
-							game.getPlayer1().getIdFs());
-				}
-			}
-		});
-	}
-
-	public void setAdapter() {
-		adapter = new GamesAdapter(null,
-				R.layout.game_single_layout,
-				holder -> {
-					holder.putView("ivPfp", holder.itemView.findViewById(R.id.ivPfp));
-					holder.putView("tvUsername", holder.itemView.findViewById(R.id.tvUsername));
-					holder.putView("tvElo", holder.itemView.findViewById(R.id.tvElo));
-					holder.putView("ivGameResult", holder.itemView.findViewById(R.id.ivGameResult));
-				},
-				((holder, item, position) -> {
-					Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs()) ? item.getPlayer2() : item.getPlayer1());
-					((ImageView) holder.getView("ivPfp")).setImageBitmap(opponent.getPictureBitmap());
-					((TextView) holder.getView("tvUsername")).setText(opponent.getName());
-					((TextView) holder.getView("tvElo")).setText(getString(R.string.player_elo_format, Math.round(opponent.getElo())));
-					if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.checkmark);
-					else if (Objects.equals(item.getWinnerIdFs(), "T"))
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.tie);
-					else
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.x);
-				})
-		);
-
-		rvGames.setAdapter(adapter);
-		rvGames.setLayoutManager(new LinearLayoutManager(this));
-
-		adapter.setOnItemClickListener((item, position) -> {
-			//TODO: start watching game;
-			Intent intent = new Intent(this, GameActivity.class);
-			intent.putExtra(getString(R.string.EXTRA_GAME_IDFS), item.getIdFs());
-			intent.putExtra(getString(R.string.EXTRA_GAME_TYPE), GameType.HISTORY);
-			startActivity(intent);
-		});
-	}
-
-	private void setupRecyclerViewScrollListener() {
-		rvGames.addOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-				super.onScrolled(recyclerView, dx, dy);
-
-				LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-				int visibleItemCount = layoutManager.getChildCount();
-				int totalItemCount = layoutManager.getItemCount();
-				int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-
-				if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-						&& firstVisibleItemPosition >= 0
-						&& totalItemCount >= pageSize) {
-					// Load more games
-					loadMoreGames();
-				}
-			}
-		});
-	}
-
-	private void registerLaunchers() {
-		cameraLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						// Handle camera result - the image is usually in the "data" extra
-						Bundle extras = result.getData().getExtras();
-						if (extras != null && extras.containsKey("data")) {
-							// Get the thumbnail bitmap
-							// Note: For high quality, consider using FileProvider approach instead
-							processNewProfileImage((Bitmap) extras.get("data"));
-						}
-					}
-				});
-
-		galleryLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						Uri selectedImage = result.getData().getData();
-						if (selectedImage != null) {
-							try {
-								Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-								processNewProfileImage(bitmap);
-							} catch (Exception ignored) {
-								Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
-							}
-						}
-					}
-				});
-	}
-
-	private void loadGames(boolean loadMore) {
-		isLoading = true;
-		if (loadMore) {
-			// Show loading indicator at the bottom
-			showLoadingMore();
-		}
-		gamesViewModel.getUserGamesPaginated(currentUser.getIdFs(), pageSize, lastVisibleGameId);
-	}
-
-	private void loadMoreGames() {
-		loadGames(true);
-	}
-
-	private void showLoadingMore() {
-		// You can add a progress bar at the bottom of the list or show a toast
-		// For example:
-		Toast.makeText(this, "Loading more games...", Toast.LENGTH_SHORT).show();
-	}
-
+	/**
+	 * Processes a new profile image, resizes it, and starts the crop activity.
+	 *
+	 * @param bitmap The new profile image bitmap.
+	 */
 	private void processNewProfileImage(Bitmap bitmap) {
 		try {
 			File outputDir = getCacheDir();
@@ -486,7 +335,13 @@ public class ProfileActivity extends BaseActivity {
 		}
 	}
 
-	private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+	/**
+	 * Resizes a bitmap to a maximum dimension of 512px, maintaining aspect ratio.
+	 *
+	 * @param image The original bitmap.
+	 * @return The resized bitmap.
+	 */
+	private Bitmap getResizedBitmap(Bitmap image) {
 		int width = image.getWidth();
 		int height = image.getHeight();
 
@@ -502,6 +357,11 @@ public class ProfileActivity extends BaseActivity {
 		return Bitmap.createScaledBitmap(image, width, height, true);
 	}
 
+	/**
+	 * Starts the crop activity for the selected image.
+	 *
+	 * @param sourceUri The URI of the image to crop.
+	 */
 	private void startCropActivity(Uri sourceUri) {
 		UCrop.Options options = new UCrop.Options();
 		options.setToolbarColor(getResources().getColor(R.color.colorBackground, getTheme()));
@@ -520,6 +380,11 @@ public class ProfileActivity extends BaseActivity {
 				.start(this);
 	}
 
+	/**
+	 * Loads games for the user, paginated. Shows loading indicator if loading more.
+	 *
+	 * @param loadMore Whether to load more games (pagination).
+	 */
 	private void loadGames(boolean loadMore) {
 		isLoading = true;
 		if (loadMore) {
@@ -527,10 +392,22 @@ public class ProfileActivity extends BaseActivity {
 		}
 		gamesViewModel.getUserGamesPaginated(currentUser.getIdFs(), PAGE_SIZE, lastLoadedGameId);
 	}
+
+	/**
+	 * Shows a loading indicator in the games list.
+	 */
 	private void showLoadingMore() {
 		adapter.getItems().add(null);
 		adapter.notifyItemInserted(adapter.getItemCount() - 1);
 	}
+
+	/**
+	 * Handles the result from the crop activity and updates the profile picture.
+	 *
+	 * @param requestCode The request code.
+	 * @param resultCode  The result code.
+	 * @param data        The intent data.
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -548,6 +425,14 @@ public class ProfileActivity extends BaseActivity {
 			}
 		}
 	}
+
+	/**
+	 * Handles the result of permission requests for image selection.
+	 *
+	 * @param requestCode  The request code.
+	 * @param permissions  The requested permissions.
+	 * @param grantResults The grant results.
+	 */
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
