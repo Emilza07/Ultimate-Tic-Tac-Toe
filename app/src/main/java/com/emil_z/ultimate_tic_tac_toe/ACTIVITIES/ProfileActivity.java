@@ -44,19 +44,23 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class ProfileActivity extends BaseActivity {
-	private final int pageSize = 10;
+	private final int PAGE_SIZE = 10;
+
 	private ImageView ivPfp;
 	private TextView tvUsername;
 	private TextView tvElo;
 	private RecyclerView rvGames;
+
 	private GamesViewModel gamesViewModel;
 	private UsersViewModel usersViewModel;
 	private GamesAdapter adapter;
+
 	private ActivityResultLauncher<Intent> cameraLauncher;
 	private ActivityResultLauncher<Intent> galleryLauncher;
+
 	private Games games;
 	private boolean isLoading = false;
-	private String lastVisibleGameId = null;
+	private String lastLoadedGameId = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +75,10 @@ public class ProfileActivity extends BaseActivity {
 
 		initializeViews();
 		setListeners();
+		setupRecyclerViewScrollListener();
 		setViewModel();
 		setAdapter();
-		setupRecyclerViewScrollListener();
 		registerLaunchers();
-
 	}
 
 	@Override
@@ -89,7 +92,7 @@ public class ProfileActivity extends BaseActivity {
 		tvUsername.setText(currentUser.getUsername());
 		tvElo.setText(getString(R.string.elo_format, Math.round(currentUser.getElo())));
 
-		DividerItemDecoration divider = new DividerItemDecoration(rvGames.getContext(), LinearLayoutManager.VERTICAL);
+		DividerItemDecoration divider = new DividerItemDecoration(this, LinearLayoutManager.VERTICAL);
 		divider.setDrawable(ContextCompat.getDrawable(this, R.drawable.dividor));
 		rvGames.addItemDecoration(divider);
 	}
@@ -99,6 +102,159 @@ public class ProfileActivity extends BaseActivity {
 		ivPfp.setOnClickListener(v -> showImageOptions());
 	}
 
+	/**
+	 * Sets up a scroll listener for the RecyclerView to load more games when reaching the end.
+	 */
+	private void setupRecyclerViewScrollListener() {
+		rvGames.addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+				super.onScrolled(recyclerView, dx, dy);
+
+				LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+				int visibleItemCount = layoutManager.getChildCount();
+				int totalItemCount = layoutManager.getItemCount();
+				int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+				if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+						&& firstVisibleItemPosition >= 0
+						&& totalItemCount >= PAGE_SIZE) {
+					// Load more games
+					loadGames(true);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Initializes ViewModels, loads games, and observes user and games data changes.
+	 */
+	@Override
+	protected void setViewModel() {
+		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
+		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
+		loadGames(false);
+
+		usersViewModel.getLiveDataSuccess().observe(this, success -> {
+			if (success) {
+				ivPfp.setImageBitmap(currentUser.getPictureBitmap());
+				setResult(RESULT_OK);
+			} else {
+				usersViewModel.get(currentUser.getIdFs());
+			}
+		});
+
+		usersViewModel.getLiveDataEntity().observe(this, user -> {
+			if (user != null) {
+				for (Game game : games) {
+					if (game == null) continue;
+					if (Objects.equals(currentUser.getIdFs(), game.getPlayer1().getIdFs())) {
+						game.getPlayer2().setPicture(user.getPicture());
+					} else {
+						game.getPlayer1().setPicture(user.getPicture());
+					}
+				}
+			}
+			adapter.setItems(this.games);
+		});
+
+		gamesViewModel.getLiveDataCollection().observe(this, newGames -> {
+			if (adapter.getItems() != null) {
+				int lastIndex = adapter.getItems().indexOf(null);
+				if (lastIndex != -1) {
+					adapter.getItems().remove(lastIndex);
+					adapter.notifyItemRemoved(lastIndex);
+				}
+			}
+
+			if (!newGames.isEmpty()) {
+				if (this.games == null)
+					this.games = newGames;
+				else
+					this.games.addAll(newGames);
+				isLoading = false;
+				lastLoadedGameId = newGames.get(newGames.size() - 1).getIdFs();
+				for (Game game : newGames) {
+					usersViewModel.get(Objects.equals(currentUser.getIdFs(),
+							game.getPlayer1().getIdFs()) ? game.getPlayer2().getIdFs() :
+							game.getPlayer1().getIdFs());
+				}
+			}
+		});
+	}
+
+	/**
+	 * Sets up the adapter for the games RecyclerView and handles item clicks.
+	 */
+	public void setAdapter() {
+		adapter = new GamesAdapter(null,
+				R.layout.game_single_layout,
+				holder -> {
+					holder.putView("ivPfp", holder.itemView.findViewById(R.id.ivPfp));
+					holder.putView("tvUsername", holder.itemView.findViewById(R.id.tvUsername));
+					holder.putView("tvElo", holder.itemView.findViewById(R.id.tvElo));
+					holder.putView("ivGameResult", holder.itemView.findViewById(R.id.ivGameResult));
+				},
+				((holder, item, position) -> {
+					Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs()) ? item.getPlayer2() : item.getPlayer1());
+					((ImageView) holder.getView("ivPfp")).setImageBitmap(opponent.getPictureBitmap());
+					((TextView) holder.getView("tvUsername")).setText(opponent.getName());
+					((TextView) holder.getView("tvElo")).setText(getString(R.string.player_elo_format, Math.round(opponent.getElo())));
+					if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.checkmark);
+					else if (Objects.equals(item.getWinnerIdFs(), "T"))
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.tie);
+					else
+						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.x);
+				})
+		);
+
+		rvGames.setAdapter(adapter);
+		rvGames.setLayoutManager(new LinearLayoutManager(this));
+
+		adapter.setOnItemClickListener((item, position) -> {
+			Intent intent = new Intent(this, GameActivity.class);
+			intent.putExtra(MainActivity.EXTRA_GAME_IDFS, item.getIdFs());
+			intent.putExtra(MainActivity.EXTRA_GAME_TYPE, GameType.HISTORY);
+			startActivity(intent);
+		});
+	}
+
+	/**
+	 * Registers activity result launchers for camera and gallery image selection.
+	 */
+	private void registerLaunchers() {
+		cameraLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						Bundle extras = result.getData().getExtras();
+						if (extras != null && extras.containsKey("data")) {
+							processNewProfileImage((Bitmap) extras.get("data"));
+						}
+					}
+				});
+
+		galleryLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						Uri selectedImage = result.getData().getData();
+						if (selectedImage != null) {
+							try {
+								Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+								processNewProfileImage(bitmap);
+							} catch (Exception ignored) {
+								Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
+							}
+						}
+					}
+				});
+	}
+
+	/**
+	 * Shows a dialog to choose between taking a photo or selecting from the gallery.
+	 */
 	private void showImageOptions() {
 		String[] options = {getString(R.string.profile_image_camera), getString(R.string.profile_image_gallery)};
 		new AlertDialog.Builder(this)
@@ -109,14 +265,14 @@ public class ProfileActivity extends BaseActivity {
 						cameraLauncher.launch(intent);
 					} else {
 						if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-							if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
-									!= PackageManager.PERMISSION_GRANTED) {
+							if (ContextCompat.checkSelfPermission(this,
+									android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
 								requestPermissions(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, 100);
 							} else {
 								launchGalleryPicker();
 							}
-						} else if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-								!= PackageManager.PERMISSION_GRANTED) {
+						} else if (ContextCompat.checkSelfPermission(this,
+								Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 							requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
 						} else {
 							launchGalleryPicker();
@@ -132,11 +288,10 @@ public class ProfileActivity extends BaseActivity {
 		intent.addCategory(Intent.CATEGORY_OPENABLE);
 		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-		// Optional: add a title for the picker
 		if (intent.resolveActivity(getPackageManager()) != null) {
-			galleryLauncher.launch(Intent.createChooser(intent, "Select Picture"));
+			galleryLauncher.launch(Intent.createChooser(intent, getString(R.string.select_an_image)));
 		} else {
-			Toast.makeText(this, "No gallery app available", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.no_gallery_app_available), Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -316,21 +471,18 @@ public class ProfileActivity extends BaseActivity {
 	}
 
 	private void processNewProfileImage(Bitmap bitmap) {
-		// Create a temporary file to save the image
 		try {
 			File outputDir = getCacheDir();
 			File outputFile = File.createTempFile("temp_image", ".jpg", outputDir);
 
-			// Save bitmap to the file
-			Bitmap resizedBitmap = getResizedBitmap(bitmap, 512);
+			Bitmap resizedBitmap = getResizedBitmap(bitmap);
 			FileOutputStream fos = new FileOutputStream(outputFile);
 			resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
 			fos.close();
 
-			// Start the cropping activity
 			startCropActivity(Uri.fromFile(outputFile));
 		} catch (IOException e) {
-			Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -340,10 +492,10 @@ public class ProfileActivity extends BaseActivity {
 
 		float bitmapRatio = (float) width / (float) height;
 		if (bitmapRatio > 1) {
-			width = maxSize;
+			width = 512;
 			height = (int) (width / bitmapRatio);
 		} else {
-			height = maxSize;
+			height = 512;
 			width = (int) (height * bitmapRatio);
 		}
 
@@ -358,10 +510,8 @@ public class ProfileActivity extends BaseActivity {
 
 		options.setToolbarWidgetColor(getResources().getColor(R.color.textColor, getTheme()));
 
-		// Force square aspect ratio
 		options.withAspectRatio(1, 1);
 
-		// Create destination file
 		File destinationFile = new File(getCacheDir(), "cropped_image_" + System.currentTimeMillis() + ".jpg");
 		Uri destinationUri = Uri.fromFile(destinationFile);
 
@@ -370,6 +520,17 @@ public class ProfileActivity extends BaseActivity {
 				.start(this);
 	}
 
+	private void loadGames(boolean loadMore) {
+		isLoading = true;
+		if (loadMore) {
+			showLoadingMore();
+		}
+		gamesViewModel.getUserGamesPaginated(currentUser.getIdFs(), PAGE_SIZE, lastLoadedGameId);
+	}
+	private void showLoadingMore() {
+		adapter.getItems().add(null);
+		adapter.notifyItemInserted(adapter.getItemCount() - 1);
+	}
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -384,6 +545,17 @@ public class ProfileActivity extends BaseActivity {
 				usersViewModel.update(currentUser);
 			} catch (IOException e) {
 				Toast.makeText(this, "Failed to load cropped image", Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode == 100) {
+			if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+				launchGalleryPicker();
+			} else {
+				Toast.makeText(this, "Storage permission is required to select images", Toast.LENGTH_SHORT).show();
 			}
 		}
 	}

@@ -34,6 +34,10 @@
 	<string name="profile_image_dialog_title">Update profile picture</string>
 	<string name="profile_image_camera">Take Photo</string>
 	<string name="profile_image_gallery">Select from Gallery</string>
+	<string name="select_an_image">Select an Image</string>
+	<string name="no_gallery_app_available">No gallery app available</string>
+	<string name="failed_to_load_image">Unable to load the selected image. Please try again</string>
+
 
 	<string name="leaderboard">Leaderboard</string>
 	<string name="rank">Rank</string>
