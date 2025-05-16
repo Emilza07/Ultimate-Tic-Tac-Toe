@@ -233,7 +233,7 @@ public class ProfileActivity extends BaseActivity {
 		adapter.setOnItemClickListener((item, position) -> {
 			Intent intent = new Intent(this, GameActivity.class);
 			intent.putExtra(MainActivity.EXTRA_GAME_ID_FS, item.getIdFs());
-			intent.putExtra(MainActivity.EXTRA_GAME_TYPE, GameType.HISTORY);
+			intent.putExtra(MainActivity.EXTRA_GAME_TYPE, GameType.REPLAY);
 			startActivity(intent);
 		});
 	}

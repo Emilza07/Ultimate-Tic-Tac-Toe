@@ -4,5 +4,5 @@ public enum GameType {
 	CPU,
 	LOCAL,
 	ONLINE,
-	HISTORY
+	REPLAY
 }

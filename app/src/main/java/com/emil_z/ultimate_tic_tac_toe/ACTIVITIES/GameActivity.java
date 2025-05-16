@@ -43,7 +43,7 @@ import java.util.Objects;
 /**
  * Activity for managing and displaying a single Ultimate Tic Tac Toe game.
  * Handles game initialization, board creation, move handling, player display, and game state updates.
- * Supports different game types: CPU, LOCAL, ONLINE, and HISTORY.
+ * Supports different game types: CPU, LOCAL, ONLINE, and REPLAY.
  */
 public class GameActivity extends BaseActivity {
 
@@ -210,7 +210,7 @@ public class GameActivity extends BaseActivity {
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
 			@Override
 			public void handleOnBackPressed() {
-				if (gameType == GameType.HISTORY) {
+				if (gameType == GameType.REPLAY) {
 					finish();
 					return;
 				}
@@ -356,7 +356,7 @@ public class GameActivity extends BaseActivity {
 				Game game = gamesViewModel.getLiveDataGame().getValue();
 				boolean isHost = Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs());
 
-				if (gameType == GameType.ONLINE || gameType == GameType.HISTORY)
+				if (gameType == GameType.ONLINE || gameType == GameType.REPLAY)
 					usersViewModel.get(isHost ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
 				else {
 					setPlayers(game.getPlayer1(), game.getPlayer2());
@@ -387,7 +387,7 @@ public class GameActivity extends BaseActivity {
 			}
 		});
 
-		gamesViewModel.getLiveDataEntity().observe(this, game -> gamesViewModel.startHistoryGame(game));
+		gamesViewModel.getLiveDataEntity().observe(this, game -> gamesViewModel.startReplayGame(game));
 
 		usersViewModel.getLiveDataEntity().observe(this, user -> {
 			clLoading.setVisibility(View.GONE);
@@ -404,7 +404,7 @@ public class GameActivity extends BaseActivity {
 			} else
 				setPlayers(game.getPlayer1(), game.getPlayer2());
 
-			if (gameType == GameType.HISTORY)
+			if (gameType == GameType.REPLAY)
 				llReview.setVisibility(View.VISIBLE);
 		});
 	}
@@ -421,7 +421,7 @@ public class GameActivity extends BaseActivity {
 	/**
 	 * Initializes the game based on the selected game type.
 	 *
-	 * @param gameType The type of game (CPU, LOCAL, ONLINE, HISTORY).
+	 * @param gameType The type of game (CPU, LOCAL, ONLINE, REPLAY).
 	 */
 	private void gameInit(GameType gameType) {
 		switch (gameType) {
@@ -443,7 +443,7 @@ public class GameActivity extends BaseActivity {
 					finish();
 				}
 				break;
-			case HISTORY:
+			case REPLAY:
 				gridBoard.setVisibility(View.INVISIBLE);
 				gamesViewModel.get(intent.getStringExtra(MainActivity.EXTRA_GAME_ID_FS));
 				break;
@@ -453,7 +453,7 @@ public class GameActivity extends BaseActivity {
 	/**
 	 * Sets up the player views and information for the game screen based on the game type and player roles.
 	 * Handles display of player names, profile pictures, ELO ratings, and X/O signs for both players.
-	 * Adjusts the UI for CPU, LOCAL, ONLINE, and HISTORY game types, including handling host/opponent logic.
+	 * Adjusts the UI for CPU, LOCAL, ONLINE, and REPLAY game types, including handling host/opponent logic.
 	 *
 	 * @param p1 The first player (may be the current user or opponent depending on context).
 	 * @param p2 The second player (may be the current user or opponent depending on context).

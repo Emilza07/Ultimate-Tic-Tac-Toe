@@ -14,7 +14,7 @@ import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.emil_z.repository.BaseGamesRepository;
 import com.emil_z.repository.CpuGamesRepository;
-import com.emil_z.repository.HistoryGameRepository;
+import com.emil_z.repository.ReplayGamesRepository;
 import com.emil_z.repository.LocalGamesRepository;
 import com.emil_z.repository.OnlineGamesRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 
 /**
- * ViewModel for managing game logic and state for different game types (CPU, Local, Online, History).
+ * ViewModel for managing game logic and state for different game types (CPU, Local, Online, Replay).
  * Handles game lifecycle, moves, and LiveData observers for UI updates.
  */
 public class GamesViewModel extends BaseViewModel<Game, Games> {
@@ -40,7 +40,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	/**
 	 * Constructs a GamesViewModel for the specified game type.
 	 * @param application The application context.
-	 * @param gameType The type of game (CPU, Local, Online, History).
+	 * @param gameType The type of game (CPU, Local, Online, Replay).
 	 */
 	public GamesViewModel(Application application, GameType gameType) {
 		super(Game.class, Games.class, application);
@@ -68,7 +68,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 				case CPU: repository = new CpuGamesRepository(application); break;
 				case LOCAL: repository = new LocalGamesRepository(application); break;
 				case ONLINE: repository = new OnlineGamesRepository(application); break;
-				case HISTORY: repository = new HistoryGameRepository(application); break;
+				case REPLAY: repository = new ReplayGamesRepository(application); break;
 				default: throw new IllegalStateException("Unknown GameType: " + gameType);
 			}
 		}
@@ -155,11 +155,11 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	/**
-	 * Starts a history game with the specified game data.
+	 * Starts a replay game with the specified game data.
 	 * @param game The game to load from Firebase.
 	 */
-	public void startHistoryGame(Game game) {
-		((HistoryGameRepository) repository).startGame(game);
+	public void startReplayGame(Game game) {
+		((ReplayGamesRepository) repository).startGame(game);
 	}
 
 	/**
