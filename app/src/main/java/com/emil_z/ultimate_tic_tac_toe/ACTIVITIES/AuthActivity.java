@@ -25,7 +25,9 @@ public class AuthActivity extends BaseActivity {
 
 	private Button btnLogin;
 	private Button btnRegister;
+
 	private UsersViewModel viewModel;
+
 	private UserSessionPreference sessionPreference;
 
 	/**

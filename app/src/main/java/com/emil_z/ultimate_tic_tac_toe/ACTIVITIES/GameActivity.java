@@ -42,32 +42,38 @@ import java.util.Objects;
 
 public class GameActivity extends BaseActivity {
 
-	GameType gameType;
-	String[] errorCodes;
-	private int boardSize;
-	private float conversionFactor;
 	private GridLayout gridBoard;
-	private ConstraintLayout clLoading;
-	private Button btnAbort;
-	private LinearLayout llP1;
-	private ImageView ivP1Pfp;
-	private TextView tvP1Name;
-	private TextView tvP1Elo;
-	private TextView tvP1Sign;
 	private LinearLayout llP2;
 	private ImageView ivP2Pfp;
 	private TextView tvP2Name;
 	private TextView tvP2Elo;
 	private TextView tvP2Sign;
+	private LinearLayout llP1;
+	private ImageView ivP1Pfp;
+	private TextView tvP1Name;
+	private TextView tvP1Elo;
+	private TextView tvP1Sign;
 	private TextView tvCurrentPlayer;
+	private ConstraintLayout clLoading;
+	private Button btnAbort;
 	private LinearLayout llReview;
 	private Button btnForward;
 	private Button btnBackward;
-	private int moveIndex = 0;
+
 	private GamesViewModel gamesViewModel;
 	private UsersViewModel usersViewModel;
-	private char[][] outerBoardState;
 	private boolean monitorServiceStarted = false;
+
+	String[] errorCodes;
+
+	private int moveIndex = 0;
+	private char[][] outerBoardState;
+
+	GameType gameType;
+	private int boardSize;
+	private float conversionFactor;
+
+	Intent intent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,40 +93,38 @@ public class GameActivity extends BaseActivity {
 	}
 
 	protected void initializeViews() {
-		errorCodes = getResources().getStringArray(R.array.error_codes);
-		Intent intent = getIntent();
-		gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
-		tvCurrentPlayer = findViewById(R.id.tvCurrentPlayer);
 
-		llReview = findViewById(R.id.llReview);
-		btnForward = findViewById(R.id.btnForward);
-		btnBackward = findViewById(R.id.btnBackward);
-
-		clLoading = findViewById(R.id.clLoading);
-		btnAbort = findViewById(R.id.btnAbort);
-
-		llP1 = findViewById(R.id.llP1);
-		ivP1Pfp = findViewById(R.id.ivP1Pfp);
-		tvP1Name = findViewById(R.id.tvP1Name);
-		tvP1Elo = findViewById(R.id.tvP1Elo);
-		tvP1Sign = findViewById(R.id.tvP1Sign);
 		llP2 = findViewById(R.id.llP2);
 		ivP2Pfp = findViewById(R.id.ivP2Pfp);
 		tvP2Name = findViewById(R.id.tvP2Name);
 		tvP2Elo = findViewById(R.id.tvP2Elo);
 		tvP2Sign = findViewById(R.id.tvP2Sign);
+		llP1 = findViewById(R.id.llP1);
+		ivP1Pfp = findViewById(R.id.ivP1Pfp);
+		tvP1Name = findViewById(R.id.tvP1Name);
+		tvP1Elo = findViewById(R.id.tvP1Elo);
+		tvP1Sign = findViewById(R.id.tvP1Sign);
+		tvCurrentPlayer = findViewById(R.id.tvCurrentPlayer);
+		clLoading = findViewById(R.id.clLoading);
+		btnAbort = findViewById(R.id.btnAbort);
+		llReview = findViewById(R.id.llReview);
+		btnForward = findViewById(R.id.btnForward);
+		btnBackward = findViewById(R.id.btnBackward);
 
+
+
+		intent = getIntent();
+		gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
+		errorCodes = getResources().getStringArray(R.array.error_codes);
 		createBoard();
 		outerBoardState = new char[3][3];
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
 			if (gameType.equals(GameType.ONLINE)) {
 				gamesViewModel.exitGame();
 			}
-			Intent intent = new Intent();
 			setResult(RESULT_CANCELED, intent);
 			finish();
 		});
@@ -142,7 +146,6 @@ public class GameActivity extends BaseActivity {
 						"No",
 						null,
 						(() -> {
-							Intent intent = new Intent();
 							if (gameType == GameType.ONLINE)
 								gamesViewModel.exitGame();
 							setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
@@ -253,7 +256,6 @@ public class GameActivity extends BaseActivity {
 
 		gamesViewModel.getLiveDataGame().observe(this, game -> {
 			if (game == null) {
-				Intent intent = new Intent();
 				setResult(RESULT_OK, intent);
 				finish();
 			} else if (!game.getMoves().isEmpty() && !game.isFinished()) {
@@ -325,7 +327,6 @@ public class GameActivity extends BaseActivity {
 					null,
 					null,
 					(() -> {
-						Intent intent = new Intent();
 						intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
 						setResult(RESULT_OK, intent);
 						finish();
@@ -412,7 +413,6 @@ public class GameActivity extends BaseActivity {
 
 	//region GameInit
 	private void gameInit(GameType gameType) {
-		Intent intent = getIntent();
 		switch (gameType) {
 			case CPU:
 				// Initialize SP game
@@ -435,13 +435,11 @@ public class GameActivity extends BaseActivity {
 				break;
 			case HISTORY:
 				gridBoard.setVisibility(View.INVISIBLE);
-				intent = getIntent();
 				gamesViewModel.get(intent.getStringExtra(MainActivity.EXTRA_GAME_IDFS));
 				break;
 		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	private void setPlayers(Player p1, Player p2) {
 		llP1.setVisibility(View.VISIBLE);
 		llP2.setVisibility(View.VISIBLE);

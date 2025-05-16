@@ -33,6 +33,7 @@ public class LoginActivity extends BaseActivity {
 	private CheckBox cbRememberMe;
 	private Button btnSignIn;
 	private Button btnBack;
+
 	private UsersViewModel viewModel;
 
 	/**
