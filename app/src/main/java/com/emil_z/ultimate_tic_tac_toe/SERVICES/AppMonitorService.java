@@ -20,9 +20,9 @@ import com.emil_z.repository.OnlineGamesRepository;
  */
 public class AppMonitorService extends Service {
 	private static final String EXTRA_IN_GAME = "in_game_activity";
-	private static final String EXTRA_GAME_ID = "game_id";
-	private static final String EXTRA_PLAYER1_ID = "player1_id";
-	private static final String EXTRA_PLAYER2_ID = "player2_id";
+	private static final String EXTRA_GAME_ID_FS = "game_id_fs";
+	private static final String EXTRA_PLAYER1_ID_FS = "player1_id_fs";
+	private static final String EXTRA_PLAYER2_ID_FS = "player2_id_fs";
 	private static final String EXTRA_IS_PLAYER1 = "is_player1";
 
 	private static boolean inGameActivity = false;
@@ -38,18 +38,18 @@ public class AppMonitorService extends Service {
 	 *
 	 * @param context    The context to use for starting the service.
 	 * @param inGame     Whether the user is currently in a game.
-	 * @param gameId     The ID of the current game.
-	 * @param player1Id  The ID of player 1.
-	 * @param player2Id  The ID of player 2.
+	 * @param gameIdFs     The IdFs of the current game.
+	 * @param player1IdFs  The IdFs of player 1.
+	 * @param player2IdFs  The IdFs of player 2.
 	 * @param isPlayer1  Whether the current user is player 1.
 	 */
-	public static void startService(Context context, boolean inGame, String gameId,
-									String player1Id, String player2Id, boolean isPlayer1) {
+	public static void startService(Context context, boolean inGame, String gameIdFs,
+									String player1IdFs, String player2IdFs, boolean isPlayer1) {
 		Intent intent = new Intent(context, AppMonitorService.class)
 			.putExtra(EXTRA_IN_GAME, inGame)
-			.putExtra(EXTRA_PLAYER1_ID, player1Id)
-			.putExtra(EXTRA_PLAYER2_ID, player2Id)
-			.putExtra(EXTRA_GAME_ID, gameId)
+			.putExtra(EXTRA_PLAYER1_ID_FS, player1IdFs)
+			.putExtra(EXTRA_PLAYER2_ID_FS, player2IdFs)
+			.putExtra(EXTRA_GAME_ID_FS, gameIdFs)
 			.putExtra(EXTRA_IS_PLAYER1, isPlayer1);
 		context.startForegroundService(intent);
 	}
@@ -58,17 +58,17 @@ public class AppMonitorService extends Service {
 	 * Updates the static game state fields.
 	 *
 	 * @param inGame     Whether the user is currently in a game.
-	 * @param gameId     The ID of the current game.
-	 * @param player1Id  The ID of player 1.
-	 * @param player2Id  The ID of player 2.
+	 * @param gameIdFs     The IdFs of the current game.
+	 * @param player1IdFs  The IdFs of player 1.
+	 * @param player2IdFs  The IdFs of player 2.
 	 * @param isPlayer1  Whether the current user is player 1.
 	 */
-	public static void updateGameState(boolean inGame, String gameId,
-									   String player1Id, String player2Id, boolean isPlayer1) {
+	public static void updateGameState(boolean inGame, String gameIdFs,
+									   String player1IdFs, String player2IdFs, boolean isPlayer1) {
 		inGameActivity = inGame;
-		AppMonitorService.gameId = gameId;
-		AppMonitorService.player1Id = player1Id;
-		AppMonitorService.player2Id = player2Id;
+		AppMonitorService.gameId = gameIdFs;
+		AppMonitorService.player1Id = player1IdFs;
+		AppMonitorService.player2Id = player2IdFs;
 		AppMonitorService.isPlayer1 = isPlayer1;
 	}
 
@@ -81,9 +81,9 @@ public class AppMonitorService extends Service {
 	public static void userClosedActivity(Context context) {
 		Intent intent = new Intent(context, AppMonitorService.class)
 			.putExtra(EXTRA_IN_GAME, false)
-			.putExtra(EXTRA_GAME_ID, gameId)
-			.putExtra(EXTRA_PLAYER1_ID, player1Id)
-			.putExtra(EXTRA_PLAYER2_ID, player2Id)
+			.putExtra(EXTRA_GAME_ID_FS, gameId)
+			.putExtra(EXTRA_PLAYER1_ID_FS, player1Id)
+			.putExtra(EXTRA_PLAYER2_ID_FS, player2Id)
 			.putExtra(EXTRA_IS_PLAYER1, isPlayer1);
 		context.startService(intent);
 	}
@@ -121,9 +121,9 @@ public class AppMonitorService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
 			inGameActivity = intent.getBooleanExtra(EXTRA_IN_GAME, false);
-			gameId = intent.getStringExtra(EXTRA_GAME_ID);
-			player1Id = intent.getStringExtra(EXTRA_PLAYER1_ID);
-			player2Id = intent.getStringExtra(EXTRA_PLAYER2_ID);
+			gameId = intent.getStringExtra(EXTRA_GAME_ID_FS);
+			player1Id = intent.getStringExtra(EXTRA_PLAYER1_ID_FS);
+			player2Id = intent.getStringExtra(EXTRA_PLAYER2_ID_FS);
 			isPlayer1 = intent.getBooleanExtra(EXTRA_IS_PLAYER1, false);
 		}
 		startForeground(1001, createNotification());

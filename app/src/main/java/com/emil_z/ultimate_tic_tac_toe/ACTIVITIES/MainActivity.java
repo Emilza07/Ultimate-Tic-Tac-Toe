@@ -31,7 +31,7 @@ import java.util.Random;
 public class MainActivity extends BaseActivity {
 	public static final String EXTRA_GAME_TYPE = "com.emil_z.EXTRA_GAME_TYPE";
 	public static final String EXTRA_SIGN = "com.emil_z.EXTRA_SIGN";
-	public static final String EXTRA_GAME_IDFS = "com.emil_z.EXTRA_GAME_IDFS";
+	public static final String EXTRA_GAME_ID_FS = "com.emil_z.EXTRA_GAME_ID_FS";
 
 	private ImageView ivProfile;
 	private ImageView ivLeaderboard;

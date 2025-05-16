@@ -102,7 +102,7 @@ public class UserSessionPreference extends LoginPreference {
 	}
 
 	/**
-	 * Saves the full session, including email, password, user ID, and authentication token.
+	 * Saves the full session, including email, password, user IdFs, and authentication token.
 	 *
 	 * @param email the user's email
 	 * @param password the user's password

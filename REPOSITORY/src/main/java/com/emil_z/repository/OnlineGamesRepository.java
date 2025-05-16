@@ -50,15 +50,14 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 		return lvGameIdFs;
 	}
 
-	public LiveData<Games> getUserGamesPaginated(String userId, int limit, String startAfterId) {
-		// Add pagination if needed
-		if (startAfterId != null) {
-			getCollection().document(startAfterId).get()
+	public LiveData<Games> getUserGamesPaginated(String userIdFs, int limit, String startAfterIdFs) {
+		if (startAfterIdFs != null) {
+			getCollection().document(startAfterIdFs).get()
 					.addOnSuccessListener(documentSnapshot -> {
 						if (documentSnapshot.exists()) {
 							Timestamp timestamp = documentSnapshot.getTimestamp("startedAt");
 							if (timestamp != null) {
-								executeQueriesWithTimestamp(userId, limit, timestamp, lvGames);
+								executeQueriesWithTimestamp(userIdFs, limit, timestamp, lvGames);
 							} else {
 								lvGames.setValue(new Games());
 							}
@@ -68,8 +67,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 					})
 					.addOnFailureListener(e -> lvGames.setValue(new Games()));
 		} else {
-			// First page - no pagination cursor
-			executeInitialQueries(userId, limit, lvGames);
+			executeInitialQueries(userIdFs, limit, lvGames);
 		}
 
 		return lvGames;
@@ -410,7 +408,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 	protected void checkInnerBoardFinish(Point innerBoard) {
 		super.checkInnerBoardFinish(innerBoard);
 		if (lvGame.getValue().isFinished()) {
-			if (Objects.equals(lvGame.getValue().getPlayer1().getIdFs(), localPlayerIdFs)) {
+			if (Objects.equals(lvGame.getValue().getWinnerIdFs(), localPlayerIdFs)) {
 				finishGame(lvGame.getValue().getPlayer1().getIdFs(), lvGame.getValue().getPlayer2().getIdFs())
 						.addOnSuccessListener(aBoolean -> {
 							lvIsFinished.setValue(true);

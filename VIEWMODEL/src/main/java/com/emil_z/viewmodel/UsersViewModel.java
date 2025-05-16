@@ -49,7 +49,7 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 	 * Retrieves a paginated list of top players based on ELO rating.
 	 * @param limit The maximum number of players to retrieve.
 	 * @param lastElo The ELO rating to start after (for pagination).
-	 * @param lastIdFs The Firestore ID to start after (for pagination).
+	 * @param lastIdFs The IdFs to start after (for pagination).
 	 */
 	public void getTopPlayersPaginated(int limit, float lastElo, String lastIdFs) {
 		lvCollection = repository.getTopPlayersPaginated(limit, lastElo, lastIdFs);

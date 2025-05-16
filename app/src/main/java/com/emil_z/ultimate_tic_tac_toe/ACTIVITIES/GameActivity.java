@@ -445,7 +445,7 @@ public class GameActivity extends BaseActivity {
 				break;
 			case HISTORY:
 				gridBoard.setVisibility(View.INVISIBLE);
-				gamesViewModel.get(intent.getStringExtra(MainActivity.EXTRA_GAME_IDFS));
+				gamesViewModel.get(intent.getStringExtra(MainActivity.EXTRA_GAME_ID_FS));
 				break;
 		}
 	}

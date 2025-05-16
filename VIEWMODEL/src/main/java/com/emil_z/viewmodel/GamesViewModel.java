@@ -119,13 +119,13 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 
 	/**
 	 * Loads a paginated list of user games into lvCollection (for online games).
-	 * @param userId The user ID.
+	 * @param userIdFs The user IdFs.
 	 * @param limit The maximum number of games to load.
-	 * @param startAfterId The ID to start after (for pagination).
+	 * @param startAfterIdFs The IdFs to start after (for pagination).
 	 */
-	public void getUserGamesPaginated(String userId, int limit, String startAfterId) {
+	public void getUserGamesPaginated(String userIdFs, int limit, String startAfterIdFs) {
 		if (repository instanceof OnlineGamesRepository)
-			lvCollection = ((OnlineGamesRepository) repository).getUserGamesPaginated(userId, limit, startAfterId);
+			lvCollection = ((OnlineGamesRepository) repository).getUserGamesPaginated(userIdFs, limit, startAfterIdFs);
 	}
 
 	/**
