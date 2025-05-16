@@ -56,11 +56,8 @@
 	<string name="rank_format">#%d</string>
 	<string name="elo_format">Elo: %d</string>
 	<string name="recent_games">Recent Games</string>
-	<string name="profile_image_dialog_title">Update profile picture</string>
-	<string name="profile_image_camera">Take Photo</string>
-	<string name="profile_image_gallery">Select from Gallery</string>
-	<string name="select_an_image">Select an Image</string>
-	<string name="no_gallery_app_available">No gallery app available</string>
+	<string name="permission_required">Permission Required</string>
+	<string name="permission_required_message">Permission required to access camera/gallery</string>
 	<string name="failed_to_load_image">Unable to load the selected image. Please try again</string>
 
 

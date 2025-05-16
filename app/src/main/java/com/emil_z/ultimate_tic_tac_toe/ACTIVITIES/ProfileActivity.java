@@ -1,8 +1,6 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,7 +22,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.emil_z.helper.AlertUtil;
 import com.emil_z.helper.BitMapHelper;
+import com.emil_z.helper.Global;
 import com.emil_z.model.Game;
 import com.emil_z.model.GameType;
 import com.emil_z.model.Games;
@@ -60,8 +59,9 @@ public class ProfileActivity extends BaseActivity {
 	private UsersViewModel usersViewModel;
 	private GamesAdapter adapter;
 
-	private ActivityResultLauncher<Intent> cameraLauncher;
+	private ActivityResultLauncher<Void> cameraLauncher;
 	private ActivityResultLauncher<Intent> galleryLauncher;
+	private ActivityResultLauncher<String> requestPermissionLauncher;
 
 	private Games games;
 	private boolean isLoading = false;
@@ -133,8 +133,8 @@ public class ProfileActivity extends BaseActivity {
 				int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
 				if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-						&& firstVisibleItemPosition >= 0
-						&& totalItemCount >= PAGE_SIZE) {
+					&& firstVisibleItemPosition >= 0
+					&& totalItemCount >= PAGE_SIZE) {
 					// Load more games
 					loadGames(true);
 				}
@@ -192,8 +192,8 @@ public class ProfileActivity extends BaseActivity {
 				lastLoadedGameId = newGames.get(newGames.size() - 1).getIdFs();
 				for (Game game : newGames) {
 					usersViewModel.get(Objects.equals(currentUser.getIdFs(),
-							game.getPlayer1().getIdFs()) ? game.getPlayer2().getIdFs() :
-							game.getPlayer1().getIdFs());
+						game.getPlayer1().getIdFs()) ? game.getPlayer2().getIdFs() :
+						game.getPlayer1().getIdFs());
 				}
 			}
 		});
@@ -204,25 +204,25 @@ public class ProfileActivity extends BaseActivity {
 	 */
 	public void setAdapter() {
 		adapter = new GamesAdapter(null,
-				R.layout.game_single_layout,
-				holder -> {
-					holder.putView("ivPfp", holder.itemView.findViewById(R.id.ivPfp));
-					holder.putView("tvUsername", holder.itemView.findViewById(R.id.tvUsername));
-					holder.putView("tvElo", holder.itemView.findViewById(R.id.tvElo));
-					holder.putView("ivGameResult", holder.itemView.findViewById(R.id.ivGameResult));
-				},
-				((holder, item, position) -> {
-					Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs()) ? item.getPlayer2() : item.getPlayer1());
-					((ImageView) holder.getView("ivPfp")).setImageBitmap(opponent.getPictureBitmap());
-					((TextView) holder.getView("tvUsername")).setText(opponent.getName());
-					((TextView) holder.getView("tvElo")).setText(getString(R.string.player_elo_format, Math.round(opponent.getElo())));
-					if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.checkmark);
-					else if (Objects.equals(item.getWinnerIdFs(), "T"))
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.tie);
-					else
-						((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.x);
-				})
+			R.layout.game_single_layout,
+			holder -> {
+				holder.putView("ivPfp", holder.itemView.findViewById(R.id.ivPfp));
+				holder.putView("tvUsername", holder.itemView.findViewById(R.id.tvUsername));
+				holder.putView("tvElo", holder.itemView.findViewById(R.id.tvElo));
+				holder.putView("ivGameResult", holder.itemView.findViewById(R.id.ivGameResult));
+			},
+			((holder, item, position) -> {
+				Player opponent = (Objects.equals(item.getPlayer1().getIdFs(), currentUser.getIdFs()) ? item.getPlayer2() : item.getPlayer1());
+				((ImageView) holder.getView("ivPfp")).setImageBitmap(opponent.getPictureBitmap());
+				((TextView) holder.getView("tvUsername")).setText(opponent.getName());
+				((TextView) holder.getView("tvElo")).setText(getString(R.string.player_elo_format, Math.round(opponent.getElo())));
+				if (Objects.equals(item.getWinnerIdFs(), currentUser.getIdFs()))
+					((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.checkmark);
+				else if (Objects.equals(item.getWinnerIdFs(), "T"))
+					((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.tie);
+				else
+					((ImageView) holder.getView("ivGameResult")).setImageResource(R.drawable.x);
+			})
 		);
 
 		rvGames.setAdapter(adapter);
@@ -241,77 +241,56 @@ public class ProfileActivity extends BaseActivity {
 	 */
 	private void registerLaunchers() {
 		cameraLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						Bundle extras = result.getData().getExtras();
-						if (extras != null && extras.containsKey("data")) {
-							processNewProfileImage((Bitmap) extras.get("data"));
-						}
-					}
-				});
+			new ActivityResultContracts.TakePicturePreview(),
+			bitMap -> {
+				if (bitMap != null)
+					processNewProfileImage(bitMap);
+			});
 
 		galleryLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						Uri selectedImage = result.getData().getData();
-						if (selectedImage != null) {
-							try {
-								Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-								processNewProfileImage(bitmap);
-							} catch (Exception ignored) {
-								Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
-							}
-						}
+			new ActivityResultContracts.StartActivityForResult(),
+			result -> {
+				if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+					try {
+						Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+							getContentResolver(),
+							result.getData().getData()
+						);
+						processNewProfileImage(bitmap);
+					} catch (Exception e) {
+						Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
 					}
-				});
+				}
+			}
+		);
+
+		requestPermissionLauncher = registerForActivityResult(
+			new ActivityResultContracts.RequestPermission(),
+			isGranted -> {
+				if (isGranted) {
+					if (Global.getCurrentRequestType() == 0)
+						cameraLauncher.launch(null);
+					else
+						galleryLauncher.launch(new Intent(Intent.ACTION_GET_CONTENT).setType("image/*"));
+				} else {
+					AlertUtil.alertOk(
+						this,
+						getString(R.string.permission_required),
+						getString(R.string.permission_required_message),
+						true,
+						0
+					);
+				}
+			}
+		);
 	}
 
 	/**
-	 * Shows a dialog to choose between taking a photo or selecting from the gallery.
+	 * Displays a dialog or options for the user to choose between taking a new profile picture
+	 * using the camera or selecting one from the gallery. Handles permission requests as needed.
 	 */
 	private void showImageOptions() {
-		String[] options = {getString(R.string.profile_image_camera), getString(R.string.profile_image_gallery)};
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.profile_image_dialog_title)
-				.setItems(options, (dialog, which) -> {
-					if (which == 0) {
-						Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-						cameraLauncher.launch(intent);
-					} else {
-						if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-							if (ContextCompat.checkSelfPermission(this,
-									android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-								requestPermissions(new String[]{android.Manifest.permission.READ_MEDIA_IMAGES}, 100);
-							} else {
-								launchGalleryPicker();
-							}
-						} else if (ContextCompat.checkSelfPermission(this,
-								Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-							requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
-						} else {
-							launchGalleryPicker();
-						}
-					}
-				})
-				.show();
-	}
-
-	/**
-	 * Launches the gallery picker intent for selecting an image.
-	 */
-	private void launchGalleryPicker() {
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-		if (intent.resolveActivity(getPackageManager()) != null) {
-			galleryLauncher.launch(Intent.createChooser(intent, getString(R.string.select_an_image)));
-		} else {
-			Toast.makeText(this, getString(R.string.no_gallery_app_available), Toast.LENGTH_SHORT).show();
-		}
+		Global.takePicture(this, cameraLauncher, galleryLauncher, requestPermissionLauncher);
 	}
 
 	/**
@@ -376,8 +355,8 @@ public class ProfileActivity extends BaseActivity {
 		Uri destinationUri = Uri.fromFile(destinationFile);
 
 		UCrop.of(sourceUri, destinationUri)
-				.withOptions(options)
-				.start(this);
+			.withOptions(options)
+			.start(this);
 	}
 
 	/**
@@ -422,25 +401,6 @@ public class ProfileActivity extends BaseActivity {
 				usersViewModel.update(currentUser);
 			} catch (IOException e) {
 				Toast.makeText(this, "Failed to load cropped image", Toast.LENGTH_SHORT).show();
-			}
-		}
-	}
-
-	/**
-	 * Handles the result of permission requests for image selection.
-	 *
-	 * @param requestCode  The request code.
-	 * @param permissions  The requested permissions.
-	 * @param grantResults The grant results.
-	 */
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		if (requestCode == 100) {
-			if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-				launchGalleryPicker();
-			} else {
-				Toast.makeText(this, "Storage permission is required to select images", Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
