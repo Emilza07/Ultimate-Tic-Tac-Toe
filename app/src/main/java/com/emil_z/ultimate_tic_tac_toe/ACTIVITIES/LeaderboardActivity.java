@@ -23,6 +23,8 @@ import com.emil_z.ultimate_tic_tac_toe.ADPTERS.UsersAdapter;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 
+import java.util.ArrayList;
+
 /**
  * Activity that displays the leaderboard of top players.
  * <p>
@@ -63,6 +65,7 @@ public class LeaderboardActivity extends BaseActivity {
 		setupRecyclerViewScrollListener();
 		setViewModel();
 		setAdapter();
+		showLoadingMore();
 	}
 
 	/**
@@ -141,7 +144,7 @@ public class LeaderboardActivity extends BaseActivity {
 	 * Sets up the adapter for the leaderboard RecyclerView and handles item display.
 	 */
 	private void setAdapter() {
-		adapter = new UsersAdapter(null,
+		adapter = new UsersAdapter(new ArrayList<>(),
 				R.layout.user_single_layout,
 				holder -> {
 					holder.putView("tvRank", holder.itemView.findViewById(R.id.tvRank));

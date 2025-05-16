@@ -3,8 +3,6 @@ package com.emil_z.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.Nullable;
-
 import java.util.UUID;
 
 /**

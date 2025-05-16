@@ -40,6 +40,7 @@ import com.yalantis.ucrop.UCrop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -89,6 +90,7 @@ public class ProfileActivity extends BaseActivity {
 		setViewModel();
 		setAdapter();
 		registerLaunchers();
+		showLoadingMore();
 	}
 
 	/**
@@ -203,7 +205,7 @@ public class ProfileActivity extends BaseActivity {
 	 * Sets up the adapter for the games RecyclerView and handles item clicks.
 	 */
 	public void setAdapter() {
-		adapter = new GamesAdapter(null,
+		adapter = new GamesAdapter(new ArrayList<>(),
 			R.layout.game_single_layout,
 			holder -> {
 				holder.putView("ivPfp", holder.itemView.findViewById(R.id.ivPfp));
