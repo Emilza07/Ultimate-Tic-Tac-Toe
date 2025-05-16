@@ -217,7 +217,7 @@ public class GameActivity extends BaseActivity {
 				Game game = gamesViewModel.getLiveDataGame().getValue();
 				AlertUtil.alert(
 					GameActivity.this,
-					(game != null && game.isStarted()) ? "Resign" : "Abort",
+					(game != null && game.getMoves().size() > 1) ? "Resign" : "Abort",
 					"Are you sure you want to exit the game?",
 					true,
 					0,
@@ -324,7 +324,10 @@ public class GameActivity extends BaseActivity {
 					winner = game.getWinnerIdFs();
 					break;
 				case ONLINE:
-					winner = Objects.equals(game.getWinnerIdFs(), game.getCrossPlayerIdFs()) ? "X" : "O";
+					if (Objects.equals(game.getWinnerIdFs(), "T"))
+						winner = "T";
+					else
+						winner = Objects.equals(game.getWinnerIdFs(), game.getCrossPlayerIdFs()) ? "X" : "O";
 					break;
 				default:
 					throw new IllegalStateException("Unexpected value: " + gameType);

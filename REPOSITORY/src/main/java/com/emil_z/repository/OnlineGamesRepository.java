@@ -87,7 +87,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 					for (DocumentSnapshot doc : player1Snapshot.getDocuments()) {
 						Game game = doc.toObject(OnlineGame.class);
 						if (game != null) {
-							if (!game.getPlayer2().getIdFs().isEmpty()) {
+							if (!game.getPlayer2().getIdFs().isEmpty() && game.isFinished()) {
 								game.setIdFs(doc.getId());
 								allGames.add(game);
 							}
@@ -102,7 +102,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 							.addOnSuccessListener(player2Snapshot -> {
 								for (DocumentSnapshot doc : player2Snapshot.getDocuments()) {
 									Game game = doc.toObject(OnlineGame.class);
-									if (game != null) {
+									if (game != null && game.isFinished()) {
 										game.setIdFs(doc.getId());
 										allGames.add(game);
 									}
@@ -220,7 +220,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 				.addOnSuccessListener(queryDocumentSnapshots -> {
 					if (!queryDocumentSnapshots.isEmpty()) {
 						for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-							if (!(Objects.equals(document.toObject(OnlineGame.class).getPlayer1().getIdFs(), localPlayerIdFs)))
+							if (!(Objects.equals(document.toObject(OnlineGame.class).getPlayer1().getIdFs(), localPlayerIdFs) && document.toObject(OnlineGame.class).getPlayer2().getIdFs().isEmpty()))
 								games.add(document.toObject(OnlineGame.class));
 						}
 						games.sort((g1, g2) -> g1.getPlayer1().compareElo(g2.getPlayer1()));
@@ -426,9 +426,9 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 	public Task<Boolean> exitGame() {
 		TaskCompletionSource<Boolean> taskAbortGame = new TaskCompletionSource<>();
 
-		if (lvGame.getValue() == null) {
+		if (lvGame.getValue() == null || lvGame.getValue().getWinnerIdFs() != null) {
 			taskAbortGame.setResult(true);
-		} else if (lvGame.getValue().getMoves().isEmpty()) { // Game not started
+		} else if (lvGame.getValue().getMoves().size() > 1) { // Game not started
 			delete(lvGame.getValue())
 					.addOnSuccessListener(aBoolean -> {
 						lvGame.setValue(null);
