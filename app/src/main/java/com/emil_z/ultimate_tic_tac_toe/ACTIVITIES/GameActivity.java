@@ -40,6 +40,11 @@ import com.emil_z.viewmodel.UsersViewModel;
 
 import java.util.Objects;
 
+/**
+ * Activity for managing and displaying a single Ultimate Tic Tac Toe game.
+ * Handles game initialization, board creation, move handling, player display, and game state updates.
+ * Supports different game types: CPU, LOCAL, ONLINE, and HISTORY.
+ */
 public class GameActivity extends BaseActivity {
 
 	private GridLayout gridBoard;
@@ -75,6 +80,11 @@ public class GameActivity extends BaseActivity {
 
 	Intent intent;
 
+	/**
+	 * Initializes the activity, sets up UI, listeners, ViewModels, and game state.
+	 *
+	 * @param savedInstanceState The previously saved instance state, if any.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		EdgeToEdge.enable(this);
@@ -92,6 +102,9 @@ public class GameActivity extends BaseActivity {
 		gameInit(gameType);
 	}
 
+	/**
+	 * Initializes all view components for the game screen.
+	 */
 	@Override
 	protected void initializeViews() {
 
@@ -121,6 +134,9 @@ public class GameActivity extends BaseActivity {
 		outerBoardWinners = new char[3][3];
 	}
 
+	/**
+	 * Sets up click listeners for game controls, including abort, move review, and back navigation.
+	 */
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	protected void setListeners() {
@@ -223,12 +239,20 @@ public class GameActivity extends BaseActivity {
 
 	}
 
+	/**
+	 * Handles a board button click, parses the tag, and makes a move via the ViewModel.
+	 *
+	 * @param btn The ImageView button that was clicked.
+	 */
 	private void handleBoardButtonClick(ImageView btn) {
 		String tag = (String) btn.getTag();
 		// Handle button click using the tag (e.g., "btn0101" for 1st outerRow, 2st outerColumn and 1th innerRow, 2st innerColumn)
 		gamesViewModel.makeMove(new BoardLocation(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0'));
 	}
 
+	/**
+	 * Sets up ViewModels, observes LiveData for game and user state, and updates the UI accordingly.
+	 */
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	protected void setViewModel() {
@@ -306,22 +330,22 @@ public class GameActivity extends BaseActivity {
 					throw new IllegalStateException("Unexpected value: " + gameType);
 			}
 			AlertUtil.alert(GameActivity.this,
-					getString(R.string.match_complete),
-					Objects.equals(winner, "T") ?
-						getString(R.string.game_outcome_tie) :
-						getString(R.string.game_outcome_win, winner),
-					false,
-					0,
-					getString(R.string.return_to_menu),
-					null,
-					null,
-					(() -> {
-						intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
-						setResult(RESULT_OK, intent);
-						finish();
-					}),
-					null,
-					null);
+				getString(R.string.match_complete),
+				Objects.equals(winner, "T") ?
+					getString(R.string.game_outcome_tie) :
+					getString(R.string.game_outcome_win, winner),
+				false,
+				0,
+				getString(R.string.return_to_menu),
+				null,
+				null,
+				(() -> {
+					intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
+					setResult(RESULT_OK, intent);
+					finish();
+				}),
+				null,
+				null);
 		});
 
 		gamesViewModel.getLiveDataIsStarted().observe(this, aBoolean -> {
@@ -382,12 +406,20 @@ public class GameActivity extends BaseActivity {
 		});
 	}
 
+	/**
+	 * Cleans up resources and notifies the monitor service when the activity is destroyed.
+	 */
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		AppMonitorService.userClosedActivity(this);
 	}
 
+	/**
+	 * Initializes the game based on the selected game type.
+	 *
+	 * @param gameType The type of game (CPU, LOCAL, ONLINE, HISTORY).
+	 */
 	private void gameInit(GameType gameType) {
 		switch (gameType) {
 			case CPU:
@@ -415,6 +447,14 @@ public class GameActivity extends BaseActivity {
 		}
 	}
 
+	/**
+	 * Sets up the player views and information for the game screen based on the game type and player roles.
+	 * Handles display of player names, profile pictures, ELO ratings, and X/O signs for both players.
+	 * Adjusts the UI for CPU, LOCAL, ONLINE, and HISTORY game types, including handling host/opponent logic.
+	 *
+	 * @param p1 The first player (may be the current user or opponent depending on context).
+	 * @param p2 The second player (may be the current user or opponent depending on context).
+	 */
 	@SuppressWarnings("ConstantConditions")
 	private void setPlayers(Player p1, Player p2) {
 		llP1.setVisibility(View.VISIBLE);
@@ -467,7 +507,6 @@ public class GameActivity extends BaseActivity {
 			}
 		} else {
 			boolean isHost = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
-			// Online game with opponent or History game
 			Player firstPlayer = isHost ? p1 : p2;
 			Player secondPlayer = isHost ? p2 : p1;
 
@@ -486,6 +525,11 @@ public class GameActivity extends BaseActivity {
 	}
 
 	//region BoardInitialization
+
+	/**
+	 * Creates the main 3x3 outer board for Ultimate Tic Tac Toe.
+	 * Initializes the board size, conversion factor, and adds inner grids to the main board.
+	 */
 	private void createBoard() {
 		final float BOARD_DRAWABLE_SIZE = 653;
 		boardSize = getBoardSize();
@@ -501,6 +545,13 @@ public class GameActivity extends BaseActivity {
 		}
 	}
 
+	/**
+	 * Creates a 3x3 inner grid (sub-board) at the specified outer board position.
+	 *
+	 * @param row The row index of the outer board.
+	 * @param col The column index of the outer board.
+	 * @return The initialized inner GridLayout.
+	 */
 	private GridLayout createInnerGrid(int row, int col) {
 		GridLayout grid = new GridLayout(this);
 		setInnerGrid(row, col, grid);
@@ -513,6 +564,16 @@ public class GameActivity extends BaseActivity {
 		return grid;
 	}
 
+	/**
+	 * Creates a single cell button for the inner grid.
+	 * Sets up size, padding, margins, click listener, and a unique tag for identification.
+	 *
+	 * @param row  Outer board row index.
+	 * @param col  Outer board column index.
+	 * @param iRow Inner grid row index.
+	 * @param iCol Inner grid column index.
+	 * @return The initialized ImageView button.
+	 */
 	private ImageView createBoardButton(int row, int col, int iRow, int iCol) {
 		final float INNER_CELL_DRAWABLE_SIZE = 55;
 		final int INNER_CELL_DRAWABLE_REF_SIZE = (int) (INNER_CELL_DRAWABLE_SIZE * conversionFactor);
@@ -539,6 +600,11 @@ public class GameActivity extends BaseActivity {
 		return btn;
 	}
 
+	/**
+	 * Configures the outer GridLayout for the main board, including padding, alignment, and size.
+	 *
+	 * @param gridLayout The GridLayout to configure.
+	 */
 	private void setOuterGrid(GridLayout gridLayout) {
 		final int PADDING = (int) (21 * conversionFactor);
 
@@ -551,6 +617,13 @@ public class GameActivity extends BaseActivity {
 		gridLayout.setLayoutParams(params);
 	}
 
+	/**
+	 * Configures an inner GridLayout (sub-board) with size, padding, margins, and alignment.
+	 *
+	 * @param row  Outer board row index.
+	 * @param col  Outer board column index.
+	 * @param grid The inner GridLayout to configure.
+	 */
 	private void setInnerGrid(int row, int col, GridLayout grid) {
 		final int INNER_BOARD_DRAWABLE_SIZE = 167;
 		final int INNER_BOARD_DRAWABLE_REF_SIZE = (int) (INNER_BOARD_DRAWABLE_SIZE * conversionFactor);
