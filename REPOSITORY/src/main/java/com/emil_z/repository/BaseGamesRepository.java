@@ -63,14 +63,16 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	@SuppressWarnings("ConstantConditions")
 	public Task<Void> makeMove(BoardLocation location) {
 		TaskCompletionSource<Void> taskMakeMove = new TaskCompletionSource<>();
-		if (Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
-			if (lvGame.getValue().isLegal(location)) {
-				lvGame.getValue().makeMove(location);
-				lvGame.setValue(lvGame.getValue());
-				checkInnerBoardFinish(location.getOuter());
-				taskMakeMove.setResult(null);
-			} else taskMakeMove.setException(new Exception("2"));
-		} else taskMakeMove.setException(new Exception("1"));
+		if(lvGame.getValue().isStarted()) {
+			if (Objects.equals(lvGame.getValue().getCurrentPlayerIdFs(), localPlayerIdFs)) {
+				if (lvGame.getValue().isLegal(location)) {
+					lvGame.getValue().makeMove(location);
+					lvGame.setValue(lvGame.getValue());
+					checkInnerBoardFinish(location.getOuter());
+					taskMakeMove.setResult(null);
+				} else taskMakeMove.setException(new Exception("2"));
+			} else taskMakeMove.setException(new Exception("1"));
+		} else taskMakeMove.setException(new Exception("3"));
 		return taskMakeMove.getTask();
 	}
 

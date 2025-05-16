@@ -43,9 +43,15 @@
 	<string name="player_o_turn">Current Player: O</string>
 	<string name="player_x_turn">Current Player: X</string>
 	<string name="player_elo_format">(%d)</string>
+	<string name="game_outcome_tie">It\'s a tie!</string>
+	<string name="game_outcome_win">Player %s wins!</string>
+	<string name="match_complete">Match Complete</string>
+	<string name="return_to_menu">Return to menu</string>
+	<string name="game_connection_error">Failed to connect to game server. Please try again later.</string>
 
 	<string name="review_back">⟵\nBack</string>
 	<string name="review_forward">⟶\nForward</string>
+	<string name="last_move">You have reached the end of the move list</string>
 
 	<string name="rank_format">#%d</string>
 	<string name="elo_format">Elo: %d</string>
@@ -70,5 +76,6 @@
 		<item>OK</item>
 		<item>Not your turn</item>
 		<item>Illegal move</item>
+		<item>Game not started</item>
 	</string-array>
 </resources>

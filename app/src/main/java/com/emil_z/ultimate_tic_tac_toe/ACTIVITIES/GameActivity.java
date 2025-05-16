@@ -121,6 +121,7 @@ public class GameActivity extends BaseActivity {
 		outerBoardWinners = new char[3][3];
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
@@ -246,45 +247,43 @@ public class GameActivity extends BaseActivity {
 				setResult(RESULT_OK, intent);
 				finish();
 			} else if (!game.getMoves().isEmpty() && !game.isFinished()) {
+				BoardLocation lastMove = game.getMoves().get(game.getMoves().size() - 1);
 				if (game.getMoves().size() > 1) {
-					int previewsMoveIndex = game.getMoves().get(game.getMoves().size() - 1).getOuter().x * 3 + game.getMoves().get(game.getMoves().size() - 1).getOuter().y;
-					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previewsMoveIndex);
+					int previousMoveIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
+					GridLayout prevInnerGrid = (GridLayout) gridBoard.getChildAt(previousMoveIndex);
 					prevInnerGrid.setBackgroundColor(Color.TRANSPARENT);
 				}
-				BoardLocation lastMove = game.getMoves().get(game.getMoves().size() - 1);
 				int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
 				int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 				ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
-				btn.setImageResource(gamesViewModel.getLiveDataGame().getValue().getOuterBoard().getCurrentPlayer() == 'O' ? R.drawable.x : R.drawable.o);
+
+				char currentPlayer = game.getOuterBoard().getCurrentPlayer();
+				btn.setImageResource(currentPlayer == 'O' ? R.drawable.x : R.drawable.o);
 				if (!game.getOuterBoard().isFreeMove()) {
 					GridLayout nextMoveGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
 					nextMoveGrid.setBackgroundResource(R.drawable.border);
-
 				}
-				tvCurrentPlayer.setText(gamesViewModel.getLiveDataGame().getValue().getOuterBoard().getCurrentPlayer() == 'X' ? R.string.player_x_turn : R.string.player_o_turn);
-
-
+				tvCurrentPlayer.setText(currentPlayer == 'X' ? R.string.player_x_turn : R.string.player_o_turn);
 			}
 		});
 
-		gamesViewModel.getLiveDataOuterBoardWinners().observe(this, chars -> {
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 3; j++) {
-					if (chars[i][j] != 0) {
-						GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(i * 3 + j);
-						// Set the background of the outer board to indicate the winner
-						if (chars[i][j] == 'X') {
+		gamesViewModel.getLiveDataOuterBoardWinners().observe(this, boardWinners -> {
+			for (int row = 0; row < 3; row++) {
+				for (int col = 0; col < 3; col++) {
+					char winner = boardWinners[row][col];
+					if (winner != 0) {
+						GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(row * 3 + col);
+						if (winner == 'X') {
 							innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x_blurred, null));
-						} else if (chars[i][j] == 'O') {
+						} else if (winner == 'O') {
 							innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o_blurred, null));
 						} else {
 							innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.tie, null));
 						}
 
-						for (int k = 0; k < innerGrid.getChildCount(); k++) {
-							View child = innerGrid.getChildAt(k);
-							child.setAlpha(0.05f);
+						for (int i = 0; i < innerGrid.getChildCount(); i++) {
+							innerGrid.getChildAt(i).setAlpha(0.05f);
 						}
 					}
 				}
@@ -292,25 +291,28 @@ public class GameActivity extends BaseActivity {
 		});
 
 		gamesViewModel.getLiveDataIsFinished().observe(this, aBoolean -> {
+			Game game = gamesViewModel.getLiveDataGame().getValue();
 			String winner;
 
 			switch (gameType) {
 				case CPU:
 				case LOCAL:
-					winner = gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs();
+					winner = game.getWinnerIdFs();
 					break;
 				case ONLINE:
-					winner = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs(), gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs()) ? "X" : "O";
+					winner = Objects.equals(game.getWinnerIdFs(), game.getCrossPlayerIdFs()) ? "X" : "O";
 					break;
 				default:
 					throw new IllegalStateException("Unexpected value: " + gameType);
 			}
 			AlertUtil.alert(GameActivity.this,
-					"Game Over",
-					(!Objects.equals(gamesViewModel.getLiveDataGame().getValue().getWinnerIdFs(), "T")) ? "Player " + winner + " wins!" : "Game is a tie!",
+					getString(R.string.match_complete),
+					Objects.equals(winner, "T") ?
+						getString(R.string.game_outcome_tie) :
+						getString(R.string.game_outcome_win, winner),
 					false,
 					0,
-					"Return",
+					getString(R.string.return_to_menu),
 					null,
 					null,
 					(() -> {
@@ -325,8 +327,10 @@ public class GameActivity extends BaseActivity {
 		gamesViewModel.getLiveDataIsStarted().observe(this, aBoolean -> {
 			if (aBoolean) {
 				Game game = gamesViewModel.getLiveDataGame().getValue();
+				boolean isHost = Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs());
+
 				if (gameType == GameType.ONLINE || gameType == GameType.HISTORY)
-					usersViewModel.get(Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs()) ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
+					usersViewModel.get(isHost ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
 				else {
 					setPlayers(game.getPlayer1(), game.getPlayer2());
 					clLoading.setVisibility(View.GONE);
@@ -335,24 +339,15 @@ public class GameActivity extends BaseActivity {
 				}
 
 				if (gameType == GameType.ONLINE) {
+					String gameIdFs = game.getIdFs();
+					String player1IdFs = game.getPlayer1().getIdFs();
+					String player2IdFs = game.getPlayer2().getIdFs();
+
 					if (!monitorServiceStarted) {
 						monitorServiceStarted = true;
-						AppMonitorService.startService(
-								this,
-								true,
-								game.getIdFs(),
-								game.getPlayer1().getIdFs(),
-								game.getPlayer2().getIdFs(),
-								Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs())
-						);
+						AppMonitorService.startService(this, true, gameIdFs, player1IdFs, player2IdFs, isHost);
 					} else {
-						AppMonitorService.updateGameState(
-								true,
-								game.getIdFs(),
-								game.getPlayer1().getIdFs(),
-								game.getPlayer2().getIdFs(),
-								Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs())
-						);
+						AppMonitorService.updateGameState(true, gameIdFs, player1IdFs, player2IdFs, isHost);
 					}
 				}
 			}
@@ -361,14 +356,7 @@ public class GameActivity extends BaseActivity {
 		gamesViewModel.getLiveDataGameIdFs().observe(this, gameIdFs -> {
 			if (gameIdFs != null && !monitorServiceStarted) {
 				monitorServiceStarted = true;
-				AppMonitorService.startService(
-						this,
-						true,
-						gameIdFs,
-						null,
-						null,
-						false
-				);
+				AppMonitorService.startService(this, true, gameIdFs, null, null, false);
 			}
 		});
 
@@ -379,13 +367,16 @@ public class GameActivity extends BaseActivity {
 			tvCurrentPlayer.setVisibility(View.VISIBLE);
 			gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
 			gridBoard.setVisibility(View.VISIBLE);
+
+			Game game = gamesViewModel.getLiveDataGame().getValue();
+			boolean isHost = Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs());
 			if (user != null) {
-				if (Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs()))
-					setPlayers(new Player(currentUser), new Player(user));
-				else
-					setPlayers(new Player(user), new Player(currentUser));
+				Player p1 = isHost ? new Player(currentUser) : new Player(user);
+				Player p2 = isHost ? new Player(user) : new Player(currentUser);
+				setPlayers(p1, p2);
 			} else
-				setPlayers(gamesViewModel.getLiveDataGame().getValue().getPlayer1(), gamesViewModel.getLiveDataGame().getValue().getPlayer2());
+				setPlayers(game.getPlayer1(), game.getPlayer2());
+
 			if (gameType == GameType.HISTORY)
 				llReview.setVisibility(View.VISIBLE);
 		});
@@ -394,30 +385,27 @@ public class GameActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		// When activity is destroyed normally, we don't want exitGame to run on task removed
 		AppMonitorService.userClosedActivity(this);
 	}
 
-	//region GameInit
 	private void gameInit(GameType gameType) {
 		switch (gameType) {
 			case CPU:
-				// Initialize SP game
 				char sign = intent.getCharExtra(MainActivity.EXTRA_SIGN, 'X');
 				gamesViewModel.startCpuGame(sign == 'X' ? currentUser.getIdFs() : "CPU");
 				break;
 			case LOCAL:
-				// Initialize local game
 				gamesViewModel.startLocalGame();
 				break;
 			case ONLINE:
-				// Initialize online game as joiner
 				try {
 					clLoading.setVisibility(View.VISIBLE);
 					gamesViewModel.startOnlineGame(new Player(currentUser));
 					setPlayers(new Player(currentUser), null);
 				} catch (Exception e) {
-					Toast.makeText(this, "Error starting game: " + e.getMessage() + " Try again", Toast.LENGTH_SHORT).show();
+					Toast.makeText(this, R.string.game_connection_error, Toast.LENGTH_SHORT).show();
+					setResult(RESULT_CANCELED, intent);
+					finish();
 				}
 				break;
 			case HISTORY:
@@ -427,33 +415,36 @@ public class GameActivity extends BaseActivity {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private void setPlayers(Player p1, Player p2) {
 		llP1.setVisibility(View.VISIBLE);
 		llP2.setVisibility(View.VISIBLE);
+		Game game = gamesViewModel.getLiveDataGame().getValue();
+
 		if (gameType == GameType.CPU || gameType == GameType.LOCAL) {
-			// For local games, display as is
 			ivP1Pfp.setImageResource(R.drawable.default_pfp);
 			tvP1Name.setText(p1.getName());
 			tvP1Elo.setText("");
 			tvP1Sign.setText("X");
+
 			ivP2Pfp.setImageResource(gameType == GameType.LOCAL ? R.drawable.default_pfp : R.drawable.cpu_pfp);
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
-			if (gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
-				tvCurrentPlayer.setText(R.string.player_x_turn);
-			} else {
+			if (!game.getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
 				tvCurrentPlayer.setText(R.string.player_o_turn);
 				tvP1Sign.setText("O");
 				tvP2Sign.setText("X");
+			} else {
+				tvCurrentPlayer.setText(R.string.player_x_turn);
 			}
 		} else if (gameType == GameType.ONLINE) {
-			// For online games
 			if (!gamesViewModel.getLiveDataIsStarted().getValue()) {
 				ivP1Pfp.setImageBitmap(p1.getPictureBitmap());
 				tvP1Name.setText(currentUser.getUsername());
 				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(currentUser.getElo())));
 				tvP1Sign.setText("");
+
 				ivP2Pfp.setImageBitmap((BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp)));
 				tvP2Name.setText(R.string.searching_for_opponent);
 				tvP2Elo.setText("");
@@ -476,25 +467,21 @@ public class GameActivity extends BaseActivity {
 			}
 		} else {
 			boolean isHost = Objects.equals(gamesViewModel.getLiveDataGame().getValue().getPlayer1().getIdFs(), currentUser.getIdFs());
-			if (isHost) {
-				ivP1Pfp.setImageBitmap(p1.getPictureBitmap());
-				tvP1Name.setText(p1.getName());
-				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
-				tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "O" : "X");
-				ivP2Pfp.setImageBitmap(p2.getPictureBitmap());
-				tvP2Name.setText(p2.getName());
-				tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
-				tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "O" : "X");
-			} else {
-				ivP1Pfp.setImageBitmap(p2.getPictureBitmap());
-				tvP1Name.setText(p2.getName());
-				tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(p2.getElo())));
-				tvP1Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p2.getIdFs()) ? "X" : "O");
-				ivP2Pfp.setImageBitmap(p1.getPictureBitmap());
-				tvP2Name.setText(p1.getName());
-				tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(p1.getElo())));
-				tvP2Sign.setText(Objects.equals(gamesViewModel.getLiveDataGame().getValue().getCrossPlayerIdFs(), p1.getIdFs()) ? "X" : "O");
-			}
+			// Online game with opponent or History game
+			Player firstPlayer = isHost ? p1 : p2;
+			Player secondPlayer = isHost ? p2 : p1;
+
+			ivP1Pfp.setImageBitmap(firstPlayer.getPictureBitmap());
+			tvP1Name.setText(firstPlayer.getName());
+			tvP1Elo.setText(getString(R.string.player_elo_format, Math.round(firstPlayer.getElo())));
+
+			ivP2Pfp.setImageBitmap(secondPlayer.getPictureBitmap());
+			tvP2Name.setText(secondPlayer.getName());
+			tvP2Elo.setText(getString(R.string.player_elo_format, Math.round(secondPlayer.getElo())));
+
+			boolean isFirstPlayerX = Objects.equals(game.getCrossPlayerIdFs(), firstPlayer.getIdFs());
+			tvP1Sign.setText(isFirstPlayerX ? "X" : "O");
+			tvP2Sign.setText(isFirstPlayerX ? "O" : "X");
 		}
 	}
 
@@ -506,6 +493,7 @@ public class GameActivity extends BaseActivity {
 
 		gridBoard = findViewById(R.id.gridBoard);
 		setOuterGrid(gridBoard);
+
 		for (int row = 0; row < 3; row++) {
 			for (int col = 0; col < 3; col++) {
 				gridBoard.addView(createInnerGrid(row, col));
@@ -516,6 +504,7 @@ public class GameActivity extends BaseActivity {
 	private GridLayout createInnerGrid(int row, int col) {
 		GridLayout grid = new GridLayout(this);
 		setInnerGrid(row, col, grid);
+
 		for (int iRow = 0; iRow < 3; iRow++) {
 			for (int iCol = 0; iCol < 3; iCol++) {
 				grid.addView(createBoardButton(row, col, iRow, iCol));
@@ -529,12 +518,13 @@ public class GameActivity extends BaseActivity {
 		final int INNER_CELL_DRAWABLE_REF_SIZE = (int) (INNER_CELL_DRAWABLE_SIZE * conversionFactor);
 		final int MARGIN = (int) (1 * conversionFactor);
 		final int PADDING = (int) (7 * conversionFactor);
+
 		ImageView btn = new ImageView(this);
 		btn.setId(View.generateViewId());
-		btn.setLayoutParams(new GridLayout.LayoutParams());
 		btn.setScaleType(ImageButton.ScaleType.FIT_XY);
 		btn.setForegroundGravity(ImageButton.TEXT_ALIGNMENT_CENTER);
 		btn.setClickable(true);
+
 		GridLayout.LayoutParams btnParams = new GridLayout.LayoutParams();
 		btnParams.width = INNER_CELL_DRAWABLE_REF_SIZE;
 		btnParams.height = INNER_CELL_DRAWABLE_REF_SIZE;
@@ -543,15 +533,18 @@ public class GameActivity extends BaseActivity {
 		btnParams.rowSpec = GridLayout.spec(iRow);
 		btnParams.columnSpec = GridLayout.spec(iCol);
 		btn.setLayoutParams(btnParams);
+
 		btn.setOnClickListener(v -> handleBoardButtonClick((ImageView) v));
-		btn.setTag("btn" + row + col + iRow + iCol); // Set a tag for identification
+		btn.setTag("btn" + row + col + iRow + iCol);
 		return btn;
 	}
 
 	private void setOuterGrid(GridLayout gridLayout) {
 		final int PADDING = (int) (21 * conversionFactor);
+
 		gridLayout.setPadding(PADDING, PADDING, PADDING, PADDING);
 		gridLayout.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
+
 		ViewGroup.LayoutParams params = gridLayout.getLayoutParams();
 		params.width = boardSize;
 		params.height = boardSize;
@@ -563,11 +556,13 @@ public class GameActivity extends BaseActivity {
 		final int INNER_BOARD_DRAWABLE_REF_SIZE = (int) (INNER_BOARD_DRAWABLE_SIZE * conversionFactor);
 		final int MARGIN = (int) (18.5f * conversionFactor);
 		final int PADDING = (int) (1 * conversionFactor);
+
 		grid.setId(View.generateViewId());
 		grid.setColumnCount(3);
 		grid.setRowCount(3);
 		grid.setAlignmentMode(GridLayout.ALIGN_BOUNDS);
 		grid.setPadding(PADDING, PADDING, PADDING, PADDING);
+
 		GridLayout.LayoutParams params = new GridLayout.LayoutParams();
 		params.width = INNER_BOARD_DRAWABLE_REF_SIZE;
 		params.height = INNER_BOARD_DRAWABLE_REF_SIZE;
@@ -584,22 +579,22 @@ public class GameActivity extends BaseActivity {
 		return (int) (screenWidth * 0.9);
 	}
 	//endregion
-	//endregion
 
 	/**
 	 * Resets the entire board display (clears moves and winners)
 	 */
 	private void resetBoardDisplay() {
 		// Clear all inner board winners
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				outerBoardWinners[i][j] = 0;
-				gridBoard.getChildAt(i * 3 + j).setBackground(null);
-				gridBoard.getChildAt(i * 3 + j).setBackgroundColor(Color.TRANSPARENT);
+		for (int row = 0; row < 3; row++) {
+			for (int col = 0; col < 3; col++) {
+				outerBoardWinners[row][col] = 0;
+				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(row * 3 + col);
 
-				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(i * 3 + j);
-				for (int k = 0; k < innerGrid.getChildCount(); k++) {
-					ImageView btn = (ImageView) innerGrid.getChildAt(k);
+				innerGrid.setBackground(null);
+				innerGrid.setBackgroundColor(Color.TRANSPARENT);
+
+				for (int i = 0; i < innerGrid.getChildCount(); i++) {
+					ImageView btn = (ImageView) innerGrid.getChildAt(i);
 					btn.setImageDrawable(null);
 					btn.setAlpha(1.0f);
 				}
@@ -615,37 +610,32 @@ public class GameActivity extends BaseActivity {
 		Game game = gamesViewModel.getLiveDataGame().getValue();
 		OuterBoard tempBoard = new OuterBoard();
 
-		// Replay all moves up to the target index
-		for (int i = 0; i < targetMoveIndex; i++) {
-			BoardLocation move = game.getMoves().get(i);
+		for (int moveIndex = 0; moveIndex < targetMoveIndex; moveIndex++) {
+			BoardLocation move = game.getMoves().get(moveIndex);
 			tempBoard.makeMove(move);
 
-			// Display the move
-			int innerGridIndex = move.getOuter().x * 3 + move.getOuter().y;
-			int btnIndex = move.getInner().x * 3 + move.getInner().y;
+			int outerRow = move.getOuter().x, outerCol = move.getOuter().y;
+			int innerRow = move.getInner().x, innerCol = move.getInner().y;
+			int innerGridIndex = outerRow * 3 + outerCol;
+			int btnIndex = innerRow * 3 + innerCol;
+
 			GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(innerGridIndex);
 			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
-			btn.setImageResource(i % 2 == 0 ? R.drawable.x : R.drawable.o);
+			btn.setImageResource(moveIndex % 2 == 0 ? R.drawable.x : R.drawable.o);
 
-			// Check if this move caused an inner board win
-			Point outerPoint = new Point(move.getOuter().x, move.getOuter().y);
+			Point outerPoint = new Point(outerRow, outerCol);
 			if (tempBoard.getBoard(outerPoint).isFinished()) {
 				char winner = tempBoard.getBoard(outerPoint).getWinner();
 				if (winner != 0) {
-					outerBoardWinners[move.getOuter().x][move.getOuter().y] = winner;
+					outerBoardWinners[outerRow][outerCol] = winner;
 
-					// Update the UI for the winner
-					if (winner == 'X') {
-						innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.x_blurred, null));
-					} else if (winner == 'O') {
-						innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.o_blurred, null));
-					} else if (winner == 'T') {
-						innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.tie, null));
-					}
+					int drawableId = winner == 'X' ? R.drawable.x_blurred :
+							winner == 'O' ? R.drawable.o_blurred :
+							R.drawable.tie;
+					innerGrid.setBackground(ResourcesCompat.getDrawable(getResources(), drawableId, null));
 
-					for (int k = 0; k < innerGrid.getChildCount(); k++) {
-						View child = innerGrid.getChildAt(k);
-						child.setAlpha(0.05f);
+					for (int i = 0; i < innerGrid.getChildCount(); i++) {
+						innerGrid.getChildAt(i).setAlpha(0.05f);
 					}
 				}
 			}
