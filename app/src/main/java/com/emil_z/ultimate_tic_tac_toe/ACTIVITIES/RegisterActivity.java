@@ -27,6 +27,7 @@ import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
+import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * Activity that handles user registration.
@@ -149,13 +150,12 @@ public class RegisterActivity extends BaseActivity {
 		boolean isValid = Validator.validate();
 
 		TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
-		if (etPassword.getError() != null) {
-			etPassword.setError(null);
-			TextInputLayoutUtil.getTextInputLayout(etPassword).setError(" ");
-			tvError.setVisibility(TextView.VISIBLE);
-		} else {
-			tvError.setVisibility(TextView.INVISIBLE);
-		}
+		TextInputLayout til = TextInputLayoutUtil.getTextInputLayout(etPassword);
+		boolean hasPasswordError = etPassword.getError() != null;
+		til.setError(hasPasswordError ? " " : null);
+		etPassword.setError(null);
+		tvError.setVisibility(hasPasswordError ? TextView.VISIBLE : TextView.INVISIBLE);
+
 		TextInputLayoutUtil.transferErrorsToTextInputLayout(etConfirmPassword);
 		return isValid;
 	}
