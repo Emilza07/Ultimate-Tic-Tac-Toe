@@ -67,7 +67,7 @@ public class GameActivity extends BaseActivity {
 	String[] errorCodes;
 
 	private int moveIndex = 0;
-	private char[][] outerBoardState;
+	private char[][] outerBoardWinners;
 
 	GameType gameType;
 	private int boardSize;
@@ -92,6 +92,7 @@ public class GameActivity extends BaseActivity {
 		gameInit(gameType);
 	}
 
+	@Override
 	protected void initializeViews() {
 
 		llP2 = findViewById(R.id.llP2);
@@ -112,14 +113,15 @@ public class GameActivity extends BaseActivity {
 		btnBackward = findViewById(R.id.btnBackward);
 
 
-
 		intent = getIntent();
 		gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
+		intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
 		errorCodes = getResources().getStringArray(R.array.error_codes);
 		createBoard();
-		outerBoardState = new char[3][3];
+		outerBoardWinners = new char[3][3];
 	}
 
+	@Override
 	protected void setListeners() {
 		btnAbort.setOnClickListener(v -> {
 			if (gameType.equals(GameType.ONLINE)) {
@@ -128,51 +130,19 @@ public class GameActivity extends BaseActivity {
 			setResult(RESULT_CANCELED, intent);
 			finish();
 		});
-		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-			@Override
-			public void handleOnBackPressed() {
-				if (gameType == GameType.HISTORY) {
-					finish();
-					return;
-				}
-				Game game = gamesViewModel.getLiveDataGame().getValue();
-				AlertUtil.alert(
-						GameActivity.this,
-						(game != null && game.isStarted()) ? "Resign" : "Abort",
-						"Are you sure you want to exit the game?",
-						true,
-						0,
-						"Yes",
-						"No",
-						null,
-						(() -> {
-							if (gameType == GameType.ONLINE)
-								gamesViewModel.exitGame();
-							setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
-							intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
-							if (gameType != GameType.ONLINE || game == null)
-								finish();
-						}),
-						null,
-						null
-				);
-			}
-		});
 
 		btnForward.setOnClickListener(v -> {
 			Game game = gamesViewModel.getLiveDataGame().getValue();
 
 			if (moveIndex >= game.getMoves().size()) {
-				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
+				Toast.makeText(GameActivity.this, R.string.last_move, Toast.LENGTH_SHORT).show();
 				return;
 			}
 
-			// Reset all inner board visuals to ensure clean state
 			for (int i = 0; i < gridBoard.getChildCount(); i++) {
 				gridBoard.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
 			}
 
-			// Make the current move
 			BoardLocation lastMove = game.getMoves().get(moveIndex);
 			int innerGridIndex = lastMove.getOuter().x * 3 + lastMove.getOuter().y;
 			int btnIndex = lastMove.getInner().x * 3 + lastMove.getInner().y;
@@ -180,20 +150,13 @@ public class GameActivity extends BaseActivity {
 			ImageView btn = (ImageView) innerGrid.getChildAt(btnIndex);
 			btn.setImageResource(moveIndex % 2 == 1 ? R.drawable.o : R.drawable.x);
 
-			// Rebuild game state up to this point to check for inner board winners
 			rebuildGameStateToMove(moveIndex + 1);
 
-			// Check next move highlighting
 			if (moveIndex < game.getMoves().size() - 1) {
-				// The next grid is determined by the inner position of the current move
-				GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
-
-				// Check if the next grid is already won or full (would be a free move)
-				boolean isNextGridPlayable = outerBoardState[btnIndex / 3][btnIndex % 3] == 0;
-
+				boolean isNextGridPlayable = outerBoardWinners[btnIndex / 3][btnIndex % 3] == 0;
 				if (isNextGridPlayable) {
-					// Highlight the specific grid
-					nextGrid.setBackgroundResource(R.drawable.border);
+					GridLayout nextInnerGrid = (GridLayout) gridBoard.getChildAt(btnIndex);
+					nextInnerGrid.setBackgroundResource(R.drawable.border);
 				}
 			}
 
@@ -204,47 +167,71 @@ public class GameActivity extends BaseActivity {
 		btnBackward.setOnClickListener(v -> {
 			moveIndex--;
 			if (moveIndex < 0) {
-				Toast.makeText(GameActivity.this, "No more moves to review", Toast.LENGTH_SHORT).show();
+				Toast.makeText(GameActivity.this, R.string.last_move, Toast.LENGTH_SHORT).show();
 				moveIndex = 0;
 				return;
 			}
 
 			Game game = gamesViewModel.getLiveDataGame().getValue();
-
-			// Clear all board state
 			resetBoardDisplay();
-
-			// Rebuild game state up to current moveIndex
 			rebuildGameStateToMove(moveIndex);
 
-			// Apply highlights for next move if needed
 			if (moveIndex > 0) {
 				BoardLocation previousMove = game.getMoves().get(moveIndex - 1);
 				int prevInnerPos = previousMove.getInner().x * 3 + previousMove.getInner().y;
 
-				boolean isNextGridPlayable = outerBoardState[prevInnerPos / 3][prevInnerPos % 3] == 0;
-
+				boolean isNextGridPlayable = outerBoardWinners[prevInnerPos / 3][prevInnerPos % 3] == 0;
 				if (isNextGridPlayable) {
-					GridLayout nextGrid = (GridLayout) gridBoard.getChildAt(prevInnerPos);
-					nextGrid.setBackgroundResource(R.drawable.border);
+					GridLayout nextInnerGrid = (GridLayout) gridBoard.getChildAt(prevInnerPos);
+					nextInnerGrid.setBackgroundResource(R.drawable.border);
 				}
 			}
 
 			tvCurrentPlayer.setText(moveIndex % 2 == 0 ? R.string.player_x_turn : R.string.player_o_turn);
 		});
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				if (gameType == GameType.HISTORY) {
+					finish();
+					return;
+				}
+				Game game = gamesViewModel.getLiveDataGame().getValue();
+				AlertUtil.alert(
+					GameActivity.this,
+					(game != null && game.isStarted()) ? "Resign" : "Abort",
+					"Are you sure you want to exit the game?",
+					true,
+					0,
+					"Yes",
+					"No",
+					null,
+					(() -> {
+						if (gameType == GameType.ONLINE)
+							gamesViewModel.exitGame();
+						setResult((game != null && game.getMoves().isEmpty()) ? RESULT_OK : RESULT_CANCELED, intent);
+						if (gameType != GameType.ONLINE || game == null)
+							finish();
+					}),
+					null,
+					null
+				);
+			}
+		});
+
 	}
 
 	private void handleBoardButtonClick(ImageView btn) {
 		String tag = (String) btn.getTag();
-		// Handle button click using the tag (e.g., "btn0101" for row 3, col 4)
+		// Handle button click using the tag (e.g., "btn0101" for 1st outerRow, 2st outerColumn and 1th innerRow, 2st innerColumn)
 		gamesViewModel.makeMove(new BoardLocation(tag.charAt(3) - '0', tag.charAt(4) - '0', tag.charAt(5) - '0', tag.charAt(6) - '0'));
 	}
 
 	@SuppressWarnings("ConstantConditions")
+	@Override
 	protected void setViewModel() {
-		gamesViewModel = new ViewModelProvider(this,
-				new GamesViewModelFactory(getApplication(), gameType))
-				.get(GamesViewModel.class);
+		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), gameType)).get(GamesViewModel.class);
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
 		gamesViewModel.getLiveDataCode().observe(this, code -> {
@@ -606,11 +593,10 @@ public class GameActivity extends BaseActivity {
 		// Clear all inner board winners
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
-				outerBoardState[i][j] = 0;
+				outerBoardWinners[i][j] = 0;
 				gridBoard.getChildAt(i * 3 + j).setBackground(null);
 				gridBoard.getChildAt(i * 3 + j).setBackgroundColor(Color.TRANSPARENT);
 
-				// Clear all moves
 				GridLayout innerGrid = (GridLayout) gridBoard.getChildAt(i * 3 + j);
 				for (int k = 0; k < innerGrid.getChildCount(); k++) {
 					ImageView btn = (ImageView) innerGrid.getChildAt(k);
@@ -646,7 +632,7 @@ public class GameActivity extends BaseActivity {
 			if (tempBoard.getBoard(outerPoint).isFinished()) {
 				char winner = tempBoard.getBoard(outerPoint).getWinner();
 				if (winner != 0) {
-					outerBoardState[move.getOuter().x][move.getOuter().y] = winner;
+					outerBoardWinners[move.getOuter().x][move.getOuter().y] = winner;
 
 					// Update the UI for the winner
 					if (winner == 'X') {
