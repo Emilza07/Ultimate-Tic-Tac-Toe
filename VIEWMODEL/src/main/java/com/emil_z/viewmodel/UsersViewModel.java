@@ -12,33 +12,54 @@ import com.emil_z.repository.UsersRepository;
 import com.emil_z.viewmodel.BASE.BaseViewModel;
 
 /**
- * ViewModel class for managing user-related operations.
- * Extends the BaseViewModel to provide functionality for handling User and Users entities.
+ * ViewModel for managing user-related operations such as authentication,
+ * checking user existence, and retrieving top players.
  */
 public class UsersViewModel extends BaseViewModel<User, Users> {
 	private UsersRepository repository;
 
-
+	/**
+	 * Constructs a UsersViewModel with the given application context.
+	 * @param application The application context.
+	 */
 	public UsersViewModel(Application application) {
 		super(User.class, Users.class, application);
 	}
 
+	/**
+	 * Creates and returns the UsersRepository instance.
+	 * @param application The application context.
+	 * @return The UsersRepository instance.
+	 */
 	@Override
 	protected BaseRepository<User, Users> createRepository(Application application) {
 		repository = new UsersRepository(application);
 		return repository;
 	}
 
+	/**
+	 * Returns LiveData indicating whether a user exists.
+	 * @return LiveData of Boolean representing user existence.
+	 */
 	public LiveData<Boolean> getLiveDataExist() {
 		return lvExist;
 	}
 
 	/**
-	 * Logs in a user by verifying the provided username and password.
-	 * Updates the LiveData with the user entity if successful, or sets success to false if not.
-	 *
-	 * @param Username The username of the user.
-	 * @param password The password of the user.
+	 * Retrieves a paginated list of top players based on ELO rating.
+	 * @param limit The maximum number of players to retrieve.
+	 * @param lastElo The ELO rating to start after (for pagination).
+	 * @param lastIdFs The Firestore ID to start after (for pagination).
+	 */
+	public void getTopPlayersPaginated(int limit, float lastElo, String lastIdFs) {
+		lvCollection = repository.getTopPlayersPaginated(limit, lastElo, lastIdFs);
+	}
+
+	/**
+	 * Attempts to log in a user with the provided username and password.
+	 * Updates LiveData with the user entity on success, or sets success to false on failure.
+	 * @param Username The username to log in with.
+	 * @param password The password to verify.
 	 */
 	public void logIn(String Username, String password) {
 		repository.getCollection().whereEqualTo("username", Username).get()
@@ -58,19 +79,14 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 				.addOnFailureListener(e -> lvEntity.setValue(null));
 	}
 
+	/**
+	 * Checks if a user with the given username exists.
+	 * Updates LiveData with the result.
+	 * @param username The username to check for existence.
+	 */
 	public void exist(String username) {
 		repository.exist(username)
-				.addOnSuccessListener(exist -> {
-					if (exist) {
-						lvExist.setValue(true);
-					} else {
-						lvExist.setValue(false);
-					}
-				}).addOnFailureListener(e -> {
-				});
-	}
-
-	public void getTopPlayersPaginated(int limit, float lastElo, String lastIdFs) {
-		lvCollection = repository.getTopPlayersPaginated(limit, lastElo, lastIdFs);
+				.addOnSuccessListener(lvExist::setValue)
+				.addOnFailureListener(e -> lvExist .setValue(false));
 	}
 }
