@@ -71,8 +71,9 @@
 
 	<string-array name="error_codes">
 		<item>OK</item>
+		<item>Game not started</item>
 		<item>Not your turn</item>
 		<item>Illegal move</item>
-		<item>Game not started</item>
+		<item>ERROR_INTERRUPTED</item>
 	</string-array>
 </resources>

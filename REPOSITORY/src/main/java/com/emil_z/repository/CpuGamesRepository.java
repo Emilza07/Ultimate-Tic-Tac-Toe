@@ -11,7 +11,7 @@ import com.emil_z.model.Player;
 
 /**
  * Repository for managing CPU games.
- * Extends BaseGamesRepository to provide game logic specific to games against the CPU.
+ * Extends {@link BaseGamesRepository} to provide game logic specific to games against the CPU.
  */
 public class CpuGamesRepository extends BaseGamesRepository {
 	/**

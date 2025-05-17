@@ -263,6 +263,10 @@ public class GameActivity extends BaseActivity {
 			if (code != 0) {
 				Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
 				gamesViewModel.resetLvCode();
+				if (code == 4) {
+					setResult(RESULT_CANCELED, intent);
+					finish();
+				}
 			}
 		});
 

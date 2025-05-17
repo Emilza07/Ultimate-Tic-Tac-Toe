@@ -24,6 +24,7 @@ import java.util.Objects;
  * Provides base methods for starting games and making moves.
  */
 public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
+	protected final MutableLiveData<Integer> lvCode;
 	protected final MutableLiveData<Game> lvGame;
 	protected final MutableLiveData<char[][]> lvOuterBoardWinners;
 	protected final MutableLiveData<Boolean> lvIsStarted;
@@ -37,12 +38,21 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	 */
 	public BaseGamesRepository(Application application) {
 		super(Game.class, Games.class, application);
+		lvCode = new MutableLiveData<>();
 		lvGame = new MutableLiveData<>();
 		lvOuterBoardWinners = new MutableLiveData<>();
 		lvOuterBoardWinners.setValue(new char[3][3]);
 		lvIsStarted = new MutableLiveData<>(false);
 		lvIsFinished = new MutableLiveData<>();
 		localPlayerIdFs = new UserSessionPreference(application).getUserIdFs();
+	}
+
+	/**
+	 * Returns LiveData for status or error codes.
+	 * @return LiveData of Integer representing the current code.
+	 */
+	public LiveData<Integer> getLiveDataCode() {
+		return lvCode;
 	}
 
 	/**
@@ -78,6 +88,13 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	}
 
 	/**
+	 * Resets the LiveData code value to 0.
+	 */
+	public void resetLiveDataCode() {
+		lvCode.setValue(0);
+	}
+
+	/**
 	 * Returns a Firestore query to check if a game entity exists by its idFs.
 	 * @param entity The game entity to check.
 	 * @return Firestore Query for existence check.
@@ -110,11 +127,11 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 		TaskCompletionSource<Void> taskMakeMove = new TaskCompletionSource<>();
 		Game game = lvGame.getValue();
 		if (!game.isStarted()) {
-			taskMakeMove.setException(new Exception("3"));
-		} else if (!Objects.equals(game.getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			taskMakeMove.setException(new Exception("1"));
-		} else if (!game.isLegal(location)) {
+		} else if (!Objects.equals(game.getCurrentPlayerIdFs(), localPlayerIdFs)) {
 			taskMakeMove.setException(new Exception("2"));
+		} else if (!game.isLegal(location)) {
+			taskMakeMove.setException(new Exception("3"));
 		} else {
 			game.makeMove(location);
 			lvGame.setValue(game);

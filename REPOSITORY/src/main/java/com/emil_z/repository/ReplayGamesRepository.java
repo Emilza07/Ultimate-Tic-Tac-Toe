@@ -7,7 +7,7 @@ import com.emil_z.model.Player;
 
 /**
  * Repository for managing replay games.
- * Extends BaseGamesRepository to provide logic for handling game replays.
+ * Extends {@link BaseGamesRepository} to provide logic for handling game replays.
  */
 public class ReplayGamesRepository extends BaseGamesRepository {
 	/**

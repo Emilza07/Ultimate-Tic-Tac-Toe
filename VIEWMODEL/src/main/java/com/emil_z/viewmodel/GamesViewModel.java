@@ -4,7 +4,6 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
@@ -27,7 +26,7 @@ import java.util.concurrent.Executors;
  * Handles game lifecycle, moves, and LiveData observers for UI updates.
  */
 public class GamesViewModel extends BaseViewModel<Game, Games> {
-	private final MutableLiveData<Integer> lvCode;
+	private final MediatorLiveData<Integer> lvCode;
 	private final MediatorLiveData<Game> lvGame;
 	private final MediatorLiveData<char[][]> lvOuterBoardWinners;
 	private final MediatorLiveData<Boolean> lvIsStarted;
@@ -45,8 +44,8 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	public GamesViewModel(Application application, GameType gameType) {
 		super(Game.class, Games.class, application);
 		this.gameType = gameType;
+		lvCode = new MediatorLiveData<>();
 		lvGame = new MediatorLiveData<>();
-		lvCode = new MutableLiveData<>();
 		lvOuterBoardWinners = new MediatorLiveData<>();
 		lvIsFinished = new MediatorLiveData<>();
 		lvIsStarted = new MediatorLiveData<>(false);
@@ -163,9 +162,11 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	}
 
 	/**
-	 * Observes the game start state and sets up further observers when the game starts.
+	 * Observes code and game start state changes.
+	 * Sets up further observers when the game starts.
 	 */
 	private void isStartedObserver() {
+		lvCode.addSource(repository.getLiveDataCode(), lvCode::setValue);
 		lvIsStarted.addSource(
 			repository.getLiveDataIsStarted(), aBoolean -> {
 				if (aBoolean)
@@ -234,6 +235,6 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	 * Resets the status/error code LiveData to 0.
 	 */
 	public void resetLvCode() {
-		lvCode.setValue(0);
+		repository.resetLiveDataCode();
 	}
 }
