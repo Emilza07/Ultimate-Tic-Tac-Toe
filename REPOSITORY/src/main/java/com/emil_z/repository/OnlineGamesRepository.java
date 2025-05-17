@@ -41,7 +41,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 	private final MutableLiveData<String> lvGameIdFs;
 	private final MutableLiveData<Games> lvGames;
 
-	protected int retryCounter = 0;
+	private int retryCounter = 0;
 
 	/**
 	 * Constructs an OnlineGamesRepository.
@@ -154,7 +154,6 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 			})
 			.addOnFailureListener(e -> result.setValue(new Games()));
 	}
-
 	/**
 	 * Starts a new online game or joins an existing one with similar ELO.
 	 * Handles retries and error cases.
@@ -259,7 +258,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 		add(game)
 			.addOnSuccessListener(aBoolean -> {
 				lvGame.setValue(game);
-				taskCreateGame.setResult(game.getIdFs()); // inform the viewmodel that the game was created and uploaded to the database
+				taskCreateGame.setResult(game.getIdFs());
 				lvGameIdFs.setValue(game.getIdFs());
 			})
 			.addOnFailureListener(taskCreateGame::setException);
@@ -327,7 +326,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 			boolean isLocal = snapshot.getMetadata().hasPendingWrites();
 			if (isLocal || !snapshot.exists()) {
 				if (!isLocal) {
-					lvGame.setValue(null); // The document does not exist (deleted)
+					lvGame.setValue(null); //The document does not exist (deleted)
 				}
 				return;
 			}
