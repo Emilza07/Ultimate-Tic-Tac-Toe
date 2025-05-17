@@ -318,6 +318,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 	 * Handles game state changes and updates LiveData accordingly.
 	 * @param gameIdFs game's /idFs.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	public void addSnapshotListener(String gameIdFs) {
 		final DocumentReference gameRef = getCollection().document(gameIdFs);
 		gameRef.addSnapshotListener((snapshot, e) -> {

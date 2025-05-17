@@ -161,6 +161,7 @@ public class MainActivity extends BaseActivity {
 	/**
 	 * Registers activity result launchers for game and profile activities.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	private void registerLaunchers() {
 		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
 			o -> {

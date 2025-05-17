@@ -10,7 +10,6 @@ import android.view.WindowInsetsController;
 import android.widget.Toast;
 
 import com.emil_z.model.User;
-import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.MainActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 

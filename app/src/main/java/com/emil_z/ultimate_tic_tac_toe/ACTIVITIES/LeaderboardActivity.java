@@ -71,6 +71,7 @@ public class LeaderboardActivity extends BaseActivity {
 	/**
 	 * Initializes view components for the leaderboard screen.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void initializeViews() {
 		rvLeaderboard = findViewById(R.id.rvLeaderboard);
@@ -90,6 +91,7 @@ public class LeaderboardActivity extends BaseActivity {
 	/**
 	 * Sets up a scroll listener for the RecyclerView to load more users when reaching the end.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	private void setupRecyclerViewScrollListener() {
 		rvLeaderboard.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override

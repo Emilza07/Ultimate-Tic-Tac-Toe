@@ -59,14 +59,6 @@ public class User extends BaseEntity implements Serializable {
 	}
 
 	/**
-	 * Sets the user's username.
-	 * @param username The new username.
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	/**
 	 * Gets the user's hashed password.
 	 * @return The hashed password.
 	 */
@@ -96,14 +88,6 @@ public class User extends BaseEntity implements Serializable {
 	 */
 	public float getElo() {
 		return elo;
-	}
-
-	/**
-	 * Sets the user's ELO rating.
-	 * @param elo The new ELO rating.
-	 */
-	public void setElo(float elo) {
-		this.elo = elo;
 	}
 
 	/**

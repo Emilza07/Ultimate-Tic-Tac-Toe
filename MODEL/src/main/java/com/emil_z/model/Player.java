@@ -69,24 +69,6 @@ public class Player extends BaseEntity {
 	}
 
 	/**
-	 * Sets the player's ELO rating.
-	 * @param elo The new ELO rating.
-	 */
-	public void setElo(float elo) {
-		this.elo = elo;
-	}
-
-	/**
-	 * Gets the player's profile picture as a Base64-encoded string.
-	 * Excluded from Firestore serialization.
-	 * @return The Base64-encoded profile picture.
-	 */
-	@Exclude
-	public String getPicture() {
-		return picture;
-	}
-
-	/**
 	 * Sets the player's profile picture as a Base64-encoded string.
 	 * Excluded from Firestore serialization.
 	 * @param picture The Base64-encoded profile picture.

@@ -209,9 +209,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	 */
 	public void exitGame() {
 		((OnlineGamesRepository) repository).exitGame().addOnSuccessListener(aBoolean -> lvSuccess.setValue(aBoolean))
-				.addOnFailureListener(e -> {
-					lvSuccess.setValue(false);
-				});
+				.addOnFailureListener(e -> lvSuccess.setValue(false));
 	}
 
 	/**

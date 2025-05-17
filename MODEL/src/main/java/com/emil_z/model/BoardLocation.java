@@ -54,30 +54,12 @@ public class BoardLocation {
 	}
 
 	/**
-	 * Sets the outer point.
-	 *
-	 * @param outer the outer point to set
-	 */
-	public void setOuter(Point outer) {
-		this.outer = outer;
-	}
-
-	/**
 	 * Gets the inner point.
 	 *
 	 * @return the inner point
 	 */
 	public Point getInner() {
 		return inner;
-	}
-
-	/**
-	 * Sets the inner point.
-	 *
-	 * @param inner the inner point to set
-	 */
-	public void setInner(Point inner) {
-		this.inner = inner;
 	}
 
 	/**

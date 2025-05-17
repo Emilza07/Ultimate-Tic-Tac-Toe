@@ -96,6 +96,7 @@ public class ProfileActivity extends BaseActivity {
 	/**
 	 * Initializes view components for the profile screen.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void initializeViews() {
 		ivPfp = findViewById(R.id.ivPfp);
@@ -123,6 +124,7 @@ public class ProfileActivity extends BaseActivity {
 	/**
 	 * Sets up a scroll listener for the RecyclerView to load more games when reaching the end.
 	 */
+	@SuppressWarnings("ConstantConditions")
 	private void setupRecyclerViewScrollListener() {
 		rvGames.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override

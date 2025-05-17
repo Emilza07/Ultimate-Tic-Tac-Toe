@@ -78,14 +78,6 @@ public class Game extends BaseEntity implements Serializable {
 	}
 
 	/**
-	 * Sets the second player.
-	 * @param player2 the player to set
-	 */
-	public void setPlayer2(Player player2) {
-		this.player2 = player2;
-	}
-
-	/**
 	 * Gets the Firestore ID of the cross player.
 	 * @return crossPlayerIdFs
 	 */
@@ -94,27 +86,11 @@ public class Game extends BaseEntity implements Serializable {
 	}
 
 	/**
-	 * Sets the Firestore ID of the cross player.
-	 * @param crossPlayerIdFs the ID to set
-	 */
-	public void setCrossPlayerIdFs(String crossPlayerIdFs) {
-		this.crossPlayerIdFs = crossPlayerIdFs;
-	}
-
-	/**
 	 * Gets the Firestore ID of the current player.
 	 * @return currentPlayerIdFs
 	 */
 	public String getCurrentPlayerIdFs() {
 		return currentPlayerIdFs;
-	}
-
-	/**
-	 * Sets the Firestore ID of the current player.
-	 * @param currentPlayerIdFs the ID to set
-	 */
-	public void setCurrentPlayerIdFs(String currentPlayerIdFs) {
-		this.currentPlayerIdFs = currentPlayerIdFs;
 	}
 
 	/**
@@ -174,14 +150,6 @@ public class Game extends BaseEntity implements Serializable {
 	}
 
 	/**
-	 * Sets the list of moves made in the game.
-	 * @param moves the list of moves to set
-	 */
-	public void setMoves(List<BoardLocation> moves) {
-		this.moves = moves;
-	}
-
-	/**
 	 * Gets the outer board representing the game state.
 	 * Excluded from Firestore serialization.
 	 * @return outerBoard
@@ -189,16 +157,6 @@ public class Game extends BaseEntity implements Serializable {
 	@Exclude
 	public OuterBoard getOuterBoard() {
 		return outerBoard;
-	}
-
-	/**
-	 * Sets the outer board representing the game state.
-	 * Excluded from Firestore serialization.
-	 * @param outerBoard the board to set
-	 */
-	@Exclude
-	public void setOuterBoard(OuterBoard outerBoard) {
-		this.outerBoard = outerBoard;
 	}
 
 	/**
