@@ -91,7 +91,6 @@ public class RegisterActivity extends BaseActivity {
 			}
 		});
 		btnBack.setOnClickListener(v -> finish());
-
 	}
 
 	/**

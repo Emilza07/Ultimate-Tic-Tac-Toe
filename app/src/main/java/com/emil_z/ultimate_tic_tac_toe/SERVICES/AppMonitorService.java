@@ -26,9 +26,9 @@ public class AppMonitorService extends Service {
 	private static final String EXTRA_IS_PLAYER1 = "is_player1";
 
 	private static boolean inGameActivity = false;
-	private static String gameId;
-	private static String player1Id;
-	private static String player2Id;
+	private static String gameIdFs;
+	private static String player1IdFs;
+	private static String player2IdFs;
 	private static boolean isPlayer1;
 
 	private OnlineGamesRepository repository;
@@ -66,9 +66,9 @@ public class AppMonitorService extends Service {
 	public static void updateGameState(boolean inGame, String gameIdFs,
 									   String player1IdFs, String player2IdFs, boolean isPlayer1) {
 		inGameActivity = inGame;
-		AppMonitorService.gameId = gameIdFs;
-		AppMonitorService.player1Id = player1IdFs;
-		AppMonitorService.player2Id = player2IdFs;
+		AppMonitorService.gameIdFs = gameIdFs;
+		AppMonitorService.player1IdFs = player1IdFs;
+		AppMonitorService.player2IdFs = player2IdFs;
 		AppMonitorService.isPlayer1 = isPlayer1;
 	}
 
@@ -81,9 +81,9 @@ public class AppMonitorService extends Service {
 	public static void userClosedActivity(Context context) {
 		Intent intent = new Intent(context, AppMonitorService.class)
 			.putExtra(EXTRA_IN_GAME, false)
-			.putExtra(EXTRA_GAME_ID_FS, gameId)
-			.putExtra(EXTRA_PLAYER1_ID_FS, player1Id)
-			.putExtra(EXTRA_PLAYER2_ID_FS, player2Id)
+			.putExtra(EXTRA_GAME_ID_FS, gameIdFs)
+			.putExtra(EXTRA_PLAYER1_ID_FS, player1IdFs)
+			.putExtra(EXTRA_PLAYER2_ID_FS, player2IdFs)
 			.putExtra(EXTRA_IS_PLAYER1, isPlayer1);
 		context.startService(intent);
 	}
@@ -121,9 +121,9 @@ public class AppMonitorService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
 			inGameActivity = intent.getBooleanExtra(EXTRA_IN_GAME, false);
-			gameId = intent.getStringExtra(EXTRA_GAME_ID_FS);
-			player1Id = intent.getStringExtra(EXTRA_PLAYER1_ID_FS);
-			player2Id = intent.getStringExtra(EXTRA_PLAYER2_ID_FS);
+			gameIdFs = intent.getStringExtra(EXTRA_GAME_ID_FS);
+			player1IdFs = intent.getStringExtra(EXTRA_PLAYER1_ID_FS);
+			player2IdFs = intent.getStringExtra(EXTRA_PLAYER2_ID_FS);
 			isPlayer1 = intent.getBooleanExtra(EXTRA_IS_PLAYER1, false);
 		}
 		startForeground(1001, createNotification());
@@ -139,8 +139,8 @@ public class AppMonitorService extends Service {
 	@Override
 	public void onTaskRemoved(Intent rootIntent) {
 		super.onTaskRemoved(rootIntent);
-		if (inGameActivity && gameId != null) {
-			repository.exitGameDirect(gameId, player1Id, player2Id, isPlayer1)
+		if (inGameActivity && gameIdFs != null) {
+			repository.exitGameDirect(gameIdFs, player1IdFs, player2IdFs, isPlayer1)
 				.addOnSuccessListener(a -> {
 				})
 				.addOnFailureListener(e -> {
