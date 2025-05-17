@@ -38,7 +38,7 @@ public class LoginPreference {
 		editor.apply();
 	}
 
-	public SharedPreferences getSharedPreferences() { //TODO: check with Uri what to do with this class (extend or write here)
+	public SharedPreferences getSharedPreferences() {
 		return sharedPreferences;
 	}
 

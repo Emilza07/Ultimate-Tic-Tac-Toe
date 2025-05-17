@@ -149,7 +149,7 @@ public class ProfileActivity extends BaseActivity {
 	 */
 	@Override
 	protected void setViewModel() {
-		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class); //TODO: think about right game type
+		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), GameType.ONLINE)).get(GamesViewModel.class);
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 		loadGames(false);
 
