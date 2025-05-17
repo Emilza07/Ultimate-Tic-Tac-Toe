@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
  * Handles game lifecycle, moves, and LiveData observers for UI updates.
  */
 public class GamesViewModel extends BaseViewModel<Game, Games> {
-	private final MediatorLiveData<Integer> lvCode;
+	private final MediatorLiveData<Integer> lvErrorCode;
 	private final MediatorLiveData<Game> lvGame;
 	private final MediatorLiveData<char[][]> lvOuterBoardWinners;
 	private final MediatorLiveData<Boolean> lvIsStarted;
@@ -44,7 +44,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	public GamesViewModel(Application application, GameType gameType) {
 		super(Game.class, Games.class, application);
 		this.gameType = gameType;
-		lvCode = new MediatorLiveData<>();
+		lvErrorCode = new MediatorLiveData<>();
 		lvGame = new MediatorLiveData<>();
 		lvOuterBoardWinners = new MediatorLiveData<>();
 		lvIsFinished = new MediatorLiveData<>();
@@ -77,8 +77,8 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	/**
 	 * @return LiveData for status/error codes.
 	 */
-	public LiveData<Integer> getLiveDataCode() {
-		return lvCode;
+	public LiveData<Integer> getLiveDataErrorCode() {
+		return lvErrorCode;
 	}
 
 	/**
@@ -166,7 +166,7 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 	 * Sets up further observers when the game starts.
 	 */
 	private void isStartedObserver() {
-		lvCode.addSource(repository.getLiveDataCode(), lvCode::setValue);
+		lvErrorCode.addSource(repository.getLiveDataErrorCode(), lvErrorCode::setValue);
 		lvIsStarted.addSource(
 			repository.getLiveDataIsStarted(), aBoolean -> {
 				if (aBoolean)
@@ -226,13 +226,13 @@ public class GamesViewModel extends BaseViewModel<Game, Games> {
 					Executors.newSingleThreadExecutor().execute(() -> ((CpuGamesRepository) repository).makeCpuMove());
 				}
 			})
-			.addOnFailureListener(e -> lvCode.setValue(Integer.valueOf(e.getMessage())));
+			.addOnFailureListener(e -> lvErrorCode.setValue(Integer.valueOf(e.getMessage())));
 	}
 
 	/**
 	 * Resets the status/error code LiveData to 0.
 	 */
-	public void resetLvCode() {
-		repository.resetLiveDataCode();
+	public void resetLiveDataErrorCode() {
+		repository.resetLiveDataErrorCode();
 	}
 }

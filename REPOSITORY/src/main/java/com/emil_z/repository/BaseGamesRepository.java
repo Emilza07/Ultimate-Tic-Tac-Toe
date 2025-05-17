@@ -24,7 +24,7 @@ import java.util.Objects;
  * Provides base methods for starting games and making moves.
  */
 public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
-	protected final MutableLiveData<Integer> lvCode;
+	protected final MutableLiveData<Integer> lvErrorCode;
 	protected final MutableLiveData<Game> lvGame;
 	protected final MutableLiveData<char[][]> lvOuterBoardWinners;
 	protected final MutableLiveData<Boolean> lvIsStarted;
@@ -38,7 +38,7 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	 */
 	public BaseGamesRepository(Application application) {
 		super(Game.class, Games.class, application);
-		lvCode = new MutableLiveData<>();
+		lvErrorCode = new MutableLiveData<>();
 		lvGame = new MutableLiveData<>();
 		lvOuterBoardWinners = new MutableLiveData<>();
 		lvOuterBoardWinners.setValue(new char[3][3]);
@@ -51,8 +51,8 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	 * Returns LiveData for status or error codes.
 	 * @return LiveData of Integer representing the current code.
 	 */
-	public LiveData<Integer> getLiveDataCode() {
-		return lvCode;
+	public LiveData<Integer> getLiveDataErrorCode() {
+		return lvErrorCode;
 	}
 
 	/**
@@ -90,8 +90,8 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 	/**
 	 * Resets the LiveData code value to 0.
 	 */
-	public void resetLiveDataCode() {
-		lvCode.setValue(0);
+	public void resetLiveDataErrorCode() {
+		lvErrorCode.setValue(0);
 	}
 
 	/**

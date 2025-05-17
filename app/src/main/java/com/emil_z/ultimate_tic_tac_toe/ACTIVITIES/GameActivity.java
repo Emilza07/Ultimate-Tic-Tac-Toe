@@ -254,10 +254,10 @@ public class GameActivity extends BaseActivity {
 		gamesViewModel = new ViewModelProvider(this, new GamesViewModelFactory(getApplication(), gameType)).get(GamesViewModel.class);
 		usersViewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
-		gamesViewModel.getLiveDataCode().observe(this, code -> {
+		gamesViewModel.getLiveDataErrorCode().observe(this, code -> {
 			if (code != 0) {
 				Toast.makeText(GameActivity.this, errorCodes[code], Toast.LENGTH_SHORT).show();
-				gamesViewModel.resetLvCode();
+				gamesViewModel.resetLiveDataErrorCode();
 				if (code == 4) {
 					setResult(RESULT_CANCELED, intent);
 					finish();

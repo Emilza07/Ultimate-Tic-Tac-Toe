@@ -180,7 +180,7 @@ public class OnlineGamesRepository extends BaseGamesRepository {
 					startGame(player, null);
 			}
 		} catch (InterruptedException e) {
-			lvCode.setValue(4);
+			lvErrorCode.setValue(4);
 		}
 	}
 
