@@ -2,8 +2,6 @@ package com.emil_z.model;
 
 import android.graphics.Point;
 
-import java.util.Arrays;
-
 class MinimaxResult {
 	public double mE; // minimax evaluation
 	public int tP;    // tmpPlay (board/square index)
@@ -14,7 +12,7 @@ class MinimaxResult {
 	}
 }
 
-public class CPU {
+public class Cpu {
 	public static int RUNS = 0;
 	public static int ai = -1;
 	public static int player = 1;

@@ -4,7 +4,7 @@ import android.app.Application;
 import android.graphics.Point;
 
 import com.emil_z.model.BoardLocation;
-import com.emil_z.model.CPU;
+import com.emil_z.model.Cpu;
 import com.emil_z.model.CpuGame;
 import com.emil_z.model.Game;
 import com.emil_z.model.Player;
@@ -54,7 +54,7 @@ public class CpuGamesRepository extends BaseGamesRepository {
 	@SuppressWarnings("ConstantConditions")
 	public void makeCpuMove() {
 		Game game = lvGame.getValue();
-		BoardLocation location = CPU.findBestMove(game.getOuterBoard());
+		BoardLocation location = Cpu.findBestMove(game.getOuterBoard());
 		game.makeMove(location);
 		lvGame.postValue(game);
 		checkInnerBoardFinish(location.getOuter());
