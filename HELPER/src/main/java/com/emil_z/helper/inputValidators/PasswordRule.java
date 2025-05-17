@@ -14,7 +14,7 @@ public class PasswordRule extends TextRule{
     public PasswordRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength) {
         this(view, operation, message, minimumLength, maximumLength, null);
 
-        regularExpression = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+])[a-zA-Z\\d!@#$%^&*()_+]{" + minimumLength + "," + maximumLength +"}$";
+        regularExpression = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[`!@#$%^&*()-_+={}|;:',.?<>/])[a-zA-Z\\d`!@#$%^&*()-_+={}|;:',.?<>/]{" + minimumLength + "," + maximumLength +"}$";
     }
 
     public PasswordRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, String regularExpression) {
