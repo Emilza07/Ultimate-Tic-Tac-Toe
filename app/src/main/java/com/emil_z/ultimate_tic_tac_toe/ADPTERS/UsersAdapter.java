@@ -35,9 +35,9 @@ public class UsersAdapter extends GenericAdapter<User> {
 						InitializeViewHolder initializeViewHolder,
 						BindViewHolder<User> bindViewHolder) {
 		super(items,
-				layoutId,
-				initializeViewHolder,
-				bindViewHolder);
+			layoutId,
+			initializeViewHolder,
+			bindViewHolder);
 	}
 
 	/**

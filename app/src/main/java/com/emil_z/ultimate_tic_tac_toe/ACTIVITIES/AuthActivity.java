@@ -89,7 +89,7 @@ public class AuthActivity extends BaseActivity {
 				String storedEmail = sessionPreference.getEmail();
 				String storedPassword = sessionPreference.getPassword();
 				if (user.getUsername().equals(storedEmail) &&
-						user.getHashedPassword().equals(storedPassword)) {
+					user.getHashedPassword().equals(storedPassword)) {
 					currentUser = user;
 					Intent intent = new Intent(AuthActivity.this, MainActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

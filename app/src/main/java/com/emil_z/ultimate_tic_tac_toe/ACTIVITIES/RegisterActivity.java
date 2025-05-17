@@ -119,8 +119,8 @@ public class RegisterActivity extends BaseActivity {
 		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp);
 		String hashedPassword = PasswordUtil.hashPassword(etPassword.getText().toString());
 		User user = new User(etUsername.getText().toString(),
-				hashedPassword,
-				BitMapHelper.encodeTobase64(bitmap));
+			hashedPassword,
+			BitMapHelper.encodeTobase64(bitmap));
 		viewModel.save(user);
 		Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
 		startActivity(intent);

@@ -35,9 +35,9 @@ public class GamesAdapter extends GenericAdapter<Game> {
 						InitializeViewHolder initializeViewHolder,
 						BindViewHolder<Game> bindViewHolder) {
 		super(items,
-				layoutId,
-				initializeViewHolder,
-				bindViewHolder);
+			layoutId,
+			initializeViewHolder,
+			bindViewHolder);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class GamesAdapter extends GenericAdapter<Game> {
 	public GenericViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		if (viewType == VIEW_TYPE_LOADING) {
 			View view = LayoutInflater.from(parent.getContext())
-					.inflate(R.layout.item_loading, parent, false);
+				.inflate(R.layout.item_loading, parent, false);
 			return new GenericViewHolder(view);
 		}
 		return super.onCreateViewHolder(parent, viewType);

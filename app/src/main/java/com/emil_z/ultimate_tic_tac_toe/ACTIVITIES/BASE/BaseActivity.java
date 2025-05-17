@@ -90,7 +90,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.navigation_home){
-                    navigateToActivity(MainActivity.class);
+                    navigateToActivity(null);
                 }
                 else if(itemId == R.id.navigation_members){
                     navigateToActivity(null);

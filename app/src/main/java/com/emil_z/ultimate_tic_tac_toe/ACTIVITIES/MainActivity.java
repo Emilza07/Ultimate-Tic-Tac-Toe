@@ -22,12 +22,12 @@ import com.emil_z.viewmodel.UsersViewModel;
 
 import java.util.Random;
 
-	/**
-	 * Main activity for the Ultimate Tic Tac Toe app.
-	 * <p>
-	 * Handles navigation to profile, leaderboard, settings, and game activities.
-	 * Manages user interactions for starting different game modes and handles back press events.
-	 */
+/**
+ * Main activity for the Ultimate Tic Tac Toe app.
+ * <p>
+ * Handles navigation to profile, leaderboard, settings, and game activities.
+ * Manages user interactions for starting different game modes and handles back press events.
+ */
 public class MainActivity extends BaseActivity {
 	public static final String EXTRA_GAME_TYPE = "com.emil_z.EXTRA_GAME_TYPE";
 	public static final String EXTRA_SIGN = "com.emil_z.EXTRA_SIGN";
@@ -55,12 +55,12 @@ public class MainActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		ViewCompat.setOnApplyWindowInsetsListener(
-				findViewById(R.id.main),
-				(v, insets) -> {
-					Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-					v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-					return insets;
-				});
+			findViewById(R.id.main),
+			(v, insets) -> {
+				Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+				v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+				return insets;
+			});
 
 		initializeViews();
 		setListeners();
@@ -70,9 +70,9 @@ public class MainActivity extends BaseActivity {
 
 	}
 
-		/**
-		 * Initializes view components for the main activity.
-		 */
+	/**
+	 * Initializes view components for the main activity.
+	 */
 	@Override
 	protected void initializeViews() {
 		ivProfile = findViewById(R.id.ivProfile);
@@ -85,10 +85,10 @@ public class MainActivity extends BaseActivity {
 		ivProfile.setImageBitmap(currentUser.getPictureBitmap());
 	}
 
-		/**
-		 * Sets up click listeners for profile, leaderboard, settings, and game mode buttons.
-		 * Handles back press with a confirmation dialog.
-		 */
+	/**
+	 * Sets up click listeners for profile, leaderboard, settings, and game mode buttons.
+	 * Handles back press with a confirmation dialog.
+	 */
 	@Override
 	protected void setListeners() {
 		ivProfile.setOnClickListener(v -> {
@@ -109,16 +109,16 @@ public class MainActivity extends BaseActivity {
 		btnCPU.setOnClickListener(v -> {
 			//TODO: add an option to choose the level of the CPU (will do when the CPU will be better)
 			AlertUtil.alert(this,
-					getString(R.string.play_against_ai),
-					getString(R.string.choose_your_sign),
-					true,
-					R.drawable.cpu_pfp,
-					getString(R.string.cross),
-					getString(R.string.nought),
-					getString(R.string.random),
-					() -> startGameActivity(GameType.CPU, 'X'),
-					() -> startGameActivity(GameType.CPU, 'O'),
-					() -> startGameActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O'));
+				getString(R.string.play_against_ai),
+				getString(R.string.choose_your_sign),
+				true,
+				R.drawable.cpu_pfp,
+				getString(R.string.cross),
+				getString(R.string.nought),
+				getString(R.string.random),
+				() -> startGameActivity(GameType.CPU, 'X'),
+				() -> startGameActivity(GameType.CPU, 'O'),
+				() -> startGameActivity(GameType.CPU, new Random().nextBoolean() ? 'X' : 'O'));
 
 		});
 
@@ -130,23 +130,23 @@ public class MainActivity extends BaseActivity {
 			@Override
 			public void handleOnBackPressed() {
 				AlertUtil.alert(MainActivity.this,
-						getString(R.string.exit),
-						getString(R.string.exit_confirmation),
-						true,
-						0,
-						getString(R.string.yes),
-						getString(R.string.no),
-						null,
-						() -> finish(),
-						null,
-						null);
+					getString(R.string.exit),
+					getString(R.string.exit_confirmation),
+					true,
+					0,
+					getString(R.string.yes),
+					getString(R.string.no),
+					null,
+					() -> finish(),
+					null,
+					null);
 			}
 		});
 	}
 
-		/**
-		 * Initializes the ViewModel and observes user data updates.
-		 */
+	/**
+	 * Initializes the ViewModel and observes user data updates.
+	 */
 	@Override
 	protected void setViewModel() {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
@@ -158,43 +158,43 @@ public class MainActivity extends BaseActivity {
 		});
 	}
 
-		/**
-		 * Registers activity result launchers for game and profile activities.
-		 */
+	/**
+	 * Registers activity result launchers for game and profile activities.
+	 */
 	private void registerLaunchers() {
 		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-				o -> {
-					GameType gameType = (GameType) o.getData().getSerializableExtra(EXTRA_GAME_TYPE);
-					if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
-						viewModel.get(currentUser.getIdFs());
-					}
+			o -> {
+				GameType gameType = (GameType) o.getData().getSerializableExtra(EXTRA_GAME_TYPE);
+				if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
+					viewModel.get(currentUser.getIdFs());
 				}
+			}
 		);
 		profileLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK) {
-						ivProfile.setImageBitmap(currentUser.getPictureBitmap());
-					}
+			new ActivityResultContracts.StartActivityForResult(),
+			result -> {
+				if (result.getResultCode() == RESULT_OK) {
+					ivProfile.setImageBitmap(currentUser.getPictureBitmap());
 				}
+			}
 		);
 	}
 
-		/**
-		 * Starts a game activity with the specified game type and default sign.
-		 *
-		 * @param gameType The type of game to start.
-		 */
+	/**
+	 * Starts a game activity with the specified game type and default sign.
+	 *
+	 * @param gameType The type of game to start.
+	 */
 	private void startGameActivity(GameType gameType) {
 		startGameActivity(gameType, '-');
 	}
 
-		/**
-		 * Starts a game activity with the specified game type and player sign.
-		 *
-		 * @param gameType The type of game to start.
-		 * @param sign     The player's sign ('X', 'O', or '-').
-		 */
+	/**
+	 * Starts a game activity with the specified game type and player sign.
+	 *
+	 * @param gameType The type of game to start.
+	 * @param sign     The player's sign ('X', 'O', or '-').
+	 */
 	private void startGameActivity(GameType gameType, char sign) {
 		Intent intent = new Intent(MainActivity.this, GameActivity.class);
 		intent.putExtra(EXTRA_GAME_TYPE, gameType);
