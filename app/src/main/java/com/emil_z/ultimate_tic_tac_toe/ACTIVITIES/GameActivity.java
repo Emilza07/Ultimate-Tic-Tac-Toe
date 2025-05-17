@@ -47,9 +47,6 @@ import java.util.Objects;
  */
 public class GameActivity extends BaseActivity {
 
-	String[] errorCodes;
-	GameType gameType;
-	Intent intent;
 	private GridLayout gridBoard;
 	private LinearLayout llP2;
 	private ImageView ivP2Pfp;
@@ -67,13 +64,21 @@ public class GameActivity extends BaseActivity {
 	private LinearLayout llReview;
 	private Button btnForward;
 	private Button btnBackward;
+
 	private GamesViewModel gamesViewModel;
 	private UsersViewModel usersViewModel;
 	private boolean monitorServiceStarted = false;
+
+	private String[] errorCodes;
+
 	private int moveIndex = 0;
 	private char[][] outerBoardWinners;
+
+	private GameType gameType;
 	private int boardSize;
 	private float conversionFactor;
+
+	private Intent intent;
 
 	/**
 	 * Initializes the activity, sets up UI, listeners, ViewModels, and game state.
