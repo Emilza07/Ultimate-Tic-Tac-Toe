@@ -1,6 +1,7 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -59,7 +61,6 @@ public class GameActivity extends BaseActivity {
 	private TextView tvP1Elo;
 	private TextView tvP1Sign;
 	private TextView tvCurrentPlayer;
-	private ConstraintLayout clLoading;
 	private Button btnAbort;
 	private LinearLayout llReview;
 	private Button btnForward;
@@ -119,7 +120,6 @@ public class GameActivity extends BaseActivity {
 		tvP1Elo = findViewById(R.id.tvP1Elo);
 		tvP1Sign = findViewById(R.id.tvP1Sign);
 		tvCurrentPlayer = findViewById(R.id.tvCurrentPlayer);
-		clLoading = findViewById(R.id.clLoading);
 		btnAbort = findViewById(R.id.btnAbort);
 		llReview = findViewById(R.id.llReview);
 		btnForward = findViewById(R.id.btnForward);
@@ -149,6 +149,8 @@ public class GameActivity extends BaseActivity {
 		});
 
 		btnForward.setOnClickListener(v -> {
+			if (btnBackward.getBackgroundTintList().getDefaultColor() == ContextCompat.getColor(this, R.color.hintTextColor))
+				btnBackward.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.buttonColor)));
 			Game game = gamesViewModel.getLiveDataGame().getValue();
 
 			if (moveIndex >= game.getMoves().size()) {
@@ -179,9 +181,14 @@ public class GameActivity extends BaseActivity {
 
 			tvCurrentPlayer.setText(moveIndex % 2 == 1 ? R.string.player_x_turn : R.string.player_o_turn);
 			moveIndex++;
+			if (moveIndex >= game.getMoves().size()) {
+				btnForward.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.hintTextColor)));
+			}
 		});
 
 		btnBackward.setOnClickListener(v -> {
+			if(btnForward.getBackgroundTintList() == ColorStateList.valueOf(ContextCompat.getColor(this, R.color.hintTextColor)))
+				btnForward.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.buttonColor)));
 			moveIndex--;
 			if (moveIndex < 0) {
 				Toast.makeText(GameActivity.this, R.string.last_move, Toast.LENGTH_SHORT).show();
@@ -205,6 +212,9 @@ public class GameActivity extends BaseActivity {
 			}
 
 			tvCurrentPlayer.setText(moveIndex % 2 == 0 ? R.string.player_x_turn : R.string.player_o_turn);
+			if (moveIndex == 0) {
+				btnBackward.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.hintTextColor)));
+			}
 		});
 
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -364,7 +374,7 @@ public class GameActivity extends BaseActivity {
 					usersViewModel.get(isHost ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
 				else {
 					setPlayers(game.getPlayer1(), game.getPlayer2());
-					clLoading.setVisibility(View.GONE);
+					btnAbort.setVisibility(View.GONE);
 					tvCurrentPlayer.setVisibility(View.VISIBLE);
 					gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
 				}
@@ -394,7 +404,7 @@ public class GameActivity extends BaseActivity {
 		gamesViewModel.getLiveDataEntity().observe(this, game -> gamesViewModel.startReplayGame(game));
 
 		usersViewModel.getLiveDataEntity().observe(this, user -> {
-			clLoading.setVisibility(View.GONE);
+			btnAbort.setVisibility(View.GONE);
 			tvCurrentPlayer.setVisibility(View.VISIBLE);
 			gridBoard.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.board, null));
 			gridBoard.setVisibility(View.VISIBLE);
@@ -438,7 +448,7 @@ public class GameActivity extends BaseActivity {
 				break;
 			case ONLINE:
 				try {
-					clLoading.setVisibility(View.VISIBLE);
+					btnAbort.setVisibility(View.VISIBLE);
 					gamesViewModel.startOnlineGame(new Player(currentUser));
 					setPlayers(new Player(currentUser), null);
 				} catch (Exception e) {
@@ -449,6 +459,7 @@ public class GameActivity extends BaseActivity {
 				break;
 			case REPLAY:
 				gridBoard.setVisibility(View.INVISIBLE);
+				btnBackward.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.hintTextColor)));
 				gamesViewModel.get(intent.getStringExtra(MainActivity.EXTRA_GAME_ID_FS));
 				break;
 		}
