@@ -1,0 +1,233 @@
+@startuml
+class com.emil_z.model.LocalGame {
++ <<Create>> LocalGame(String)
++ void makeMove(BoardLocation)
+}
+
+abstract class com.emil_z.model.BASE.BaseEntity {
+# int id
+# String idFs
+# EntityStatus entityStatus
++ <<Create>> BaseEntity()
++ int getId()
++ void setId(int)
++ String getIdFs()
++ void setIdFs(String)
++ EntityStatus getEntityStatus()
++ void setEntityStatus(EntityStatus)
++ boolean equals(Object)
+}
+
+
+class com.emil_z.model.OuterBoard {
+- InnerBoard[][] board
+- char currentPlayer
+- char winner
+- boolean freeMove
+- Point lastMove
++ <<Create>> OuterBoard()
++ InnerBoard getBoard(Point)
++ char getCurrentPlayer()
++ char getWinner()
++ boolean isFreeMove()
++ Point getLastMove()
++ boolean isTie()
++ boolean isGameOver()
++ boolean isLegal(BoardLocation)
++ void makeMove(BoardLocation)
+}
+
+
+class com.emil_z.model.exceptions.GameFullException {
++ <<Create>> GameFullException()
++ <<Create>> GameFullException(String)
++ <<Create>> GameFullException(String,Throwable)
++ <<Create>> GameFullException(Throwable)
+}
+
+enum com.emil_z.model.GameType {
++  CPU
++  LOCAL
++  ONLINE
++  REPLAY
+}
+
+class com.emil_z.model.Player {
+- String name
+- float elo
+- String picture
++ <<Create>> Player()
++ <<Create>> Player(User)
++ <<Create>> Player(Player)
++ String getName()
++ void setName(String)
++ float getElo()
++ void setPicture(String)
++ Bitmap getPictureBitmap()
++ int compareElo(Player)
+}
+
+
+class com.emil_z.model.MinimaxResult {
++ double mE
++ int tP
++ <<Create>> MinimaxResult(double,int)
+}
+
+
+class com.emil_z.model.Cpu {
++ {static} int RUNS
++ {static} int ai
++ {static} int player
+- {static} int moves
+- {static} int[][] convertOuterBoardToPosition(OuterBoard)
+- {static} int checkWinCondition(int[])
+- {static} double evaluateGame(int[][],int)
+- {static} MinimaxResult miniMax(int[][],int,int,double,double,boolean)
+- {static} double evaluatePos(int[],int)
+- {static} double realEvaluateSquare(int[])
++ {static} BoardLocation findBestMove(OuterBoard)
+}
+
+
+class com.emil_z.model.User {
+- String username
+- String hashedPassword
+- String picture
+- float elo
++ <<Create>> User()
++ <<Create>> User(String,String,String)
++ <<Create>> User(String,String,float,String)
++ String getUsername()
++ String getHashedPassword()
++ String getPicture()
++ void setPicture(String)
++ float getElo()
++ Bitmap getPictureBitmap()
+}
+
+
+class com.emil_z.model.BoardLocation {
+- Point outer
+- Point inner
++ <<Create>> BoardLocation()
++ <<Create>> BoardLocation(Point,Point)
++ <<Create>> BoardLocation(int,int,int,int)
++ Point getOuter()
++ Point getInner()
++ boolean equals(Object)
+}
+
+
+class com.emil_z.model.InnerBoard {
+- char[][] board
+- char winner
+- boolean isFinished
++ <<Create>> InnerBoard()
++ <<Create>> InnerBoard(InnerBoard)
++ char getWinner()
++ boolean isFinished()
++ char getCell(Point)
++ boolean isTie()
++ boolean isLegal(Point)
++ void makeMove(Point,char)
+}
+
+
+class com.emil_z.model.Game {
+# Player player1
+# Player player2
+# String crossPlayerIdFs
+# String currentPlayerIdFs
+# String winnerIdFs
+# boolean isStarted
+# boolean isFinished
+# List<BoardLocation> moves
+# OuterBoard outerBoard
++ <<Create>> Game()
++ <<Create>> Game(Game)
++ Player getPlayer1()
++ void setPlayer1(Player)
++ Player getPlayer2()
++ String getCrossPlayerIdFs()
++ String getCurrentPlayerIdFs()
++ String getWinnerIdFs()
++ void setWinnerIdFs(String)
++ boolean isStarted()
++ void setStarted(boolean)
++ boolean isFinished()
++ void setFinished(boolean)
++ List<BoardLocation> getMoves()
++ OuterBoard getOuterBoard()
++ boolean isLegal(BoardLocation)
++ void makeMove(BoardLocation)
+}
+
+
+class com.emil_z.model.CpuGame {
++ <<Create>> CpuGame(String,String)
++ void makeMove(BoardLocation)
+}
+
+class com.emil_z.model.OnlineGame {
+- Timestamp startedAt
++ <<Create>> OnlineGame()
++ <<Create>> OnlineGame(Player)
++ <<Create>> OnlineGame(Game)
++ Timestamp getStartedAt()
++ void setStartedAt(Timestamp)
++ void startGameForJoiner()
++ void makeMove(BoardLocation)
+}
+
+
+class com.emil_z.model.exceptions.EmptyQueryException {
++ <<Create>> EmptyQueryException()
++ <<Create>> EmptyQueryException(Throwable)
++ <<Create>> EmptyQueryException(String,Code)
++ <<Create>> EmptyQueryException(String,Code,Throwable)
+}
+
+enum com.emil_z.model.BASE.DOW {
++  Sunday
++  Monday
++  Tuesday
++  Wednesday
++  Thursday
++  Friday
++  Saturday
+}
+
+abstract class com.emil_z.model.BASE.BaseList {
+}
+class com.emil_z.model.Games {
+}
+class com.emil_z.model.Users {
+}
+enum com.emil_z.model.BASE.EntityStatus {
++  ADDED
++  MODIFIED
++  DELETED
++  UNCHANGED
+}
+
+
+
+com.emil_z.model.Game <|-- com.emil_z.model.LocalGame
+java.io.Serializable <|.. com.emil_z.model.BASE.BaseEntity
+com.emil_z.model.exceptions.Exception <|-- com.emil_z.model.exceptions.GameFullException
+com.emil_z.model.BASE.BaseEntity <|-- com.emil_z.model.Player
+java.io.Serializable <|.. com.emil_z.model.User
+com.emil_z.model.BASE.BaseEntity <|-- com.emil_z.model.User
+java.io.Serializable <|.. com.emil_z.model.InnerBoard
+com.emil_z.model.BASE.BaseEntity <|-- com.emil_z.model.InnerBoard
+java.io.Serializable <|.. com.emil_z.model.Game
+com.emil_z.model.BASE.BaseEntity <|-- com.emil_z.model.Game
+com.emil_z.model.Game <|-- com.emil_z.model.CpuGame
+com.emil_z.model.Game <|-- com.emil_z.model.OnlineGame
+com.google.firebase.firestore.FirebaseFirestoreException <|-- com.emil_z.model.exceptions.EmptyQueryException
+java.io.Serializable <|.. com.emil_z.model.BASE.BaseList
+java.util.ArrayList <|-- com.emil_z.model.BASE.BaseList
+com.emil_z.model.BASE.BaseList <|-- com.emil_z.model.Games
+com.emil_z.model.BASE.BaseList <|-- com.emil_z.model.Users
+@enduml
