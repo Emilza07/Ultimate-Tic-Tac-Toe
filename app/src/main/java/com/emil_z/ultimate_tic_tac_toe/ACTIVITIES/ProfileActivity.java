@@ -158,6 +158,7 @@ public class ProfileActivity extends BaseActivity {
 		usersViewModel.getLiveDataSuccess().observe(this, success -> {
 			if (success) {
 				ivPfp.setImageBitmap(currentUser.getPictureBitmap());
+				hideProgressDialog();
 				setResult(RESULT_OK);
 			} else {
 				usersViewModel.get(currentUser.getIdFs());
@@ -399,7 +400,8 @@ public class ProfileActivity extends BaseActivity {
 			try {
 				Bitmap croppedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
 				// Now update the image view and save to user profile
-				ivPfp.setImageBitmap(croppedBitmap);
+				//ivPfp.setImageBitmap(croppedBitmap);
+				showProgressDialog("Updating Profile Picture", "Please wait...");
 				String base64Image = BitMapHelper.encodeTobase64(croppedBitmap);
 				currentUser.setPicture(base64Image);
 				usersViewModel.update(currentUser);
