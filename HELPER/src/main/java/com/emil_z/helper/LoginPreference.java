@@ -2,6 +2,7 @@ package com.emil_z.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
@@ -27,6 +28,7 @@ public class LoginPreference {
 					EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
 			);
 		} catch (Exception e) {
+			Toast.makeText(context, "Please clear app data and try again", Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
 	}
