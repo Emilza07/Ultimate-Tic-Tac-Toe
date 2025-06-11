@@ -119,6 +119,7 @@ public class GenericAdapter<T> extends RecyclerView.Adapter<GenericAdapter.Gener
             views.put(key, view);
         }
 
+        @SuppressWarnings("unchecked")
         public <V extends View> V getView(String key) {
             return (V) views.get(key);
         }

@@ -2,6 +2,7 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -257,10 +258,13 @@ public class ProfileActivity extends BaseActivity {
 			result -> {
 				if (result.getResultCode() == RESULT_OK && result.getData() != null) {
 					try {
-						Bitmap bitmap = MediaStore.Images.Media.getBitmap(
-							getContentResolver(),
-							result.getData().getData()
-						);
+						Bitmap bitmap;
+						if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+							ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), result.getData().getData());
+							bitmap = ImageDecoder.decodeBitmap(source);
+						} else {
+							bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), result.getData().getData());
+						}
 						processNewProfileImage(bitmap);
 					} catch (Exception e) {
 						Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
@@ -397,8 +401,18 @@ public class ProfileActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
 			Uri resultUri = UCrop.getOutput(data);
+			if (resultUri == null) {
+				Toast.makeText(this, "Failed to load the image", Toast.LENGTH_SHORT).show();
+				return;
+			}
 			try {
-				Bitmap croppedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
+				Bitmap croppedBitmap;
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+					ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), resultUri);
+					croppedBitmap = ImageDecoder.decodeBitmap(source);
+				} else {
+					croppedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
+				}
 				// Now update the image view and save to user profile
 				//ivPfp.setImageBitmap(croppedBitmap);
 				showProgressDialog("Updating Profile Picture", "Please wait...");

@@ -165,8 +165,12 @@ public class MainActivity extends BaseActivity {
 	private void registerLaunchers() {
 		gameLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
 			o -> {
-				GameType gameType = (GameType) o.getData().getSerializableExtra(EXTRA_GAME_TYPE);
-				if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
+				GameType gameType;
+				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+					gameType = o.getData().getSerializableExtra(EXTRA_GAME_TYPE, GameType.class);
+				} else {
+					gameType = (GameType) o.getData().getSerializableExtra(EXTRA_GAME_TYPE);
+				}				if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
 					viewModel.get(currentUser.getIdFs());
 				}
 			}

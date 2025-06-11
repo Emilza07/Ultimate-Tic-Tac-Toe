@@ -5,10 +5,12 @@ import android.content.res.ColorStateList;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -127,8 +129,11 @@ public class GameActivity extends BaseActivity {
 
 
 		intent = getIntent();
-		gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
-		intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+			gameType = intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE, GameType.class);
+		} else {
+			gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
+		}		intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
 		errorCodes = getResources().getStringArray(R.array.error_codes);
 		createBoard();
 		outerBoardWinners = new char[3][3];
@@ -665,8 +670,15 @@ public class GameActivity extends BaseActivity {
 
 	private int getBoardSize() {
 		DisplayMetrics displayMetrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		int screenWidth = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+		int screenWidth;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+			WindowMetrics windowMetrics = getWindowManager().getCurrentWindowMetrics();
+			Rect bounds = windowMetrics.getBounds();
+			screenWidth = Math.min(bounds.width(), bounds.height());
+		} else {
+			getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+			screenWidth = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+		}
 		return (int) (screenWidth * 0.9);
 	}
 	//endregion
