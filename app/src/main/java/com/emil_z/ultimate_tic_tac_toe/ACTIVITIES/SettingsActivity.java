@@ -3,15 +3,17 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
+import com.emil_z.viewmodel.UsersViewModel;
 
 /**
  * Activity for managing user settings, including logging out.
@@ -20,6 +22,8 @@ import com.emil_z.ultimate_tic_tac_toe.R;
  */
 public class SettingsActivity extends BaseActivity {
 	private Button btnLogOut;
+
+	private UsersViewModel viewModel;
 
 	/**
 	 * Initializes the settings activity, sets up UI, listeners, and window insets.
@@ -39,6 +43,7 @@ public class SettingsActivity extends BaseActivity {
 
 		initializeViews();
 		setListeners();
+		setViewModel();
 	}
 
 	/**
@@ -58,21 +63,28 @@ public class SettingsActivity extends BaseActivity {
 	}
 
 	/**
-	 * No ViewModel setup required for this activity.
+	 * Initializes the ViewModel and observes logout success.
 	 */
 	@Override
 	protected void setViewModel() {
+		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
+
+		viewModel.getLiveDataSuccess().observe(this, success -> {
+			if (success) {
+				BaseActivity.currentUser = null;
+				Intent intent = new Intent(this, AuthActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(intent);
+			} else {
+				Toast.makeText(SettingsActivity.this, R.string.logout_failed, Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	/**
-	 * Logs out the current user by clearing session data and navigating to the authentication screen.
-	 * Clears the activity stack to prevent navigation back to previous activities.
+	 * Logs out the current user.
 	 */
 	private void logOut() {
-		new UserSessionPreference(this).clearLoginCredentials();
-		BaseActivity.currentUser = null;
-		Intent intent = new Intent(this, AuthActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(intent);
+		viewModel.logOut();
 	}
 }

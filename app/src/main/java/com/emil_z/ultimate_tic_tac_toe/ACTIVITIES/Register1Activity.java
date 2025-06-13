@@ -1,12 +1,11 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
@@ -14,32 +13,32 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.emil_z.helper.BitMapHelper;
-import com.emil_z.helper.PasswordUtil;
 import com.emil_z.helper.TextInputLayoutUtil;
 import com.emil_z.helper.inputValidators.CompareRule;
-import com.emil_z.helper.inputValidators.NameRule;
+import com.emil_z.helper.inputValidators.EmailRule;
 import com.emil_z.helper.inputValidators.PasswordRule;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
-import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
- * Activity that handles user registration.
+ * Activity that handles the first part of user registration.
  * <p>
- * Validates user input, checks for existing usernames, and saves new user data.
+ * Validates user input, checks for existing email, and navigates to the Register2 activity upon.
  */
-public class RegisterActivity extends BaseActivity {
-	private EditText etUsername;
+public class Register1Activity extends BaseActivity {
+	public static final String EXTRA_EMAIL = "com.emil_z.EXTRA_EMAIL";
+	public static final String EXTRA_PASSWORD = "com.emil_z.PASSWORD";
+
+	private EditText etEmail;
 	private EditText etPassword;
 	private EditText etConfirmPassword;
 	private TextView tvError;
-	private Button btnRegister;
+	private Button btnContinue;
 	private Button btnBack;
 
 	private UsersViewModel viewModel;
@@ -54,7 +53,7 @@ public class RegisterActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		EdgeToEdge.enable(this);
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_register);
+		setContentView(R.layout.activity_register1);
 		ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 			Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -64,7 +63,6 @@ public class RegisterActivity extends BaseActivity {
 		initializeViews();
 		setListeners();
 		setViewModel();
-
 	}
 
 	/**
@@ -72,22 +70,23 @@ public class RegisterActivity extends BaseActivity {
 	 */
 	@Override
 	protected void initializeViews() {
-		etUsername = findViewById(R.id.etUsername);
+		etEmail = findViewById(R.id.etEmail);
 		etPassword = findViewById(R.id.etPassword);
 		etConfirmPassword = findViewById(R.id.etConfirmPassword);
 		tvError = findViewById(R.id.tvError);
-		btnRegister = findViewById(R.id.btnRegister);
+		btnContinue = findViewById(R.id.btnRegister);
 		btnBack = findViewById(R.id.btnBack);
 	}
 
 	/**
-	 * Sets up click listeners for registration and back buttons.
+	 * Sets up click listeners for continue and back buttons.
 	 */
 	@Override
 	protected void setListeners() {
-		btnRegister.setOnClickListener(v -> {
+		btnContinue.setOnClickListener(v -> {
 			if (validate()) {
-				viewModel.exist(etUsername.getText().toString());
+				showProgressDialog(getString(R.string.checking_email_availability), getString(R.string.please_wait));
+				viewModel.exist(etEmail.getText().toString()); //TODO: check if username or email exists (think about option for same username on different emails)
 			}
 		});
 		btnBack.setOnClickListener(v -> finish());
@@ -101,29 +100,28 @@ public class RegisterActivity extends BaseActivity {
 		viewModel = new ViewModelProvider(this).get(UsersViewModel.class);
 
 		viewModel.getLiveDataExist().observe(this, exist -> {
+			hideProgressDialog();
 			if (exist) {
-				etUsername.setError(getString(R.string.username_taken));
-				TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
+				etEmail.setError(getString(R.string.email_taken));
+				TextInputLayoutUtil.transferErrorsToTextInputLayout(etEmail);
 			} else {
-				etUsername.setError(null);
-				registerUser();
+				etEmail.setError(null);
+				Intent intent = new Intent(Register1Activity.this, Register2Activity.class);
+				intent.putExtra(EXTRA_EMAIL, etEmail.getText().toString());
+				intent.putExtra(EXTRA_PASSWORD, etPassword.getText().toString());
+				startActivity(intent);
 			}
 		});
-	}
 
-	/**
-	 * Registers a new user and navigates to the login screen.
-	 */
-	protected void registerUser() {
-		Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp);
-		String hashedPassword = PasswordUtil.hashPassword(etPassword.getText().toString());
-		User user = new User(etUsername.getText().toString(),
-			hashedPassword,
-			BitMapHelper.encodeTobase64(bitmap));
-		viewModel.save(user);
-		Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-		startActivity(intent);
-		finish();
+		viewModel.getLiveDataSuccess().observe(this, success -> {
+			if (success) {
+				Intent intent = new Intent(Register1Activity.this, LoginActivity.class);
+				startActivity(intent);
+				finish();
+			} else {
+				Toast.makeText(this, getString(R.string.registration_failed), Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	/**
@@ -131,8 +129,8 @@ public class RegisterActivity extends BaseActivity {
 	 */
 	public void setValidation() {
 		Validator.clear();
-		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, getString(R.string.no_username)));
-		Validator.add(new NameRule(etUsername, RuleOperation.NAME, getString(R.string.username_invalid)));
+		Validator.add(new Rule(etEmail, RuleOperation.REQUIRED, getString(R.string.invalid_email)));
+		Validator.add(new EmailRule(etEmail, RuleOperation.TEXT, getString(R.string.invalid_email)));
 		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, getString(R.string.no_password)));
 		Validator.add(new PasswordRule(etPassword, RuleOperation.PASSWORD, getString(R.string.password_invalid), 8, 64));
 		Validator.add(new Rule(etConfirmPassword, RuleOperation.REQUIRED, getString(R.string.no_confirm_password)));
@@ -148,7 +146,9 @@ public class RegisterActivity extends BaseActivity {
 		setValidation();
 		boolean isValid = Validator.validate();
 
-		TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
+		if (etEmail.getError() != null)
+			etEmail.setError(getString(R.string.invalid_email));
+		TextInputLayoutUtil.transferErrorsToTextInputLayout(etEmail);
 		TextInputLayout til = TextInputLayoutUtil.getTextInputLayout(etPassword);
 		boolean hasPasswordError = etPassword.getError() != null;
 		til.setError(hasPasswordError ? " " : null);

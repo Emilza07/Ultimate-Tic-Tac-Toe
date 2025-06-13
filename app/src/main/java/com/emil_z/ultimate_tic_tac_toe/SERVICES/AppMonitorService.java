@@ -36,12 +36,12 @@ public class AppMonitorService extends Service {
 	/**
 	 * Starts the AppMonitorService as a foreground service with the provided game state.
 	 *
-	 * @param context    The context to use for starting the service.
-	 * @param inGame     Whether the user is currently in a game.
-	 * @param gameIdFs     The IdFs of the current game.
-	 * @param player1IdFs  The IdFs of player 1.
-	 * @param player2IdFs  The IdFs of player 2.
-	 * @param isPlayer1  Whether the current user is player 1.
+	 * @param context     The context to use for starting the service.
+	 * @param inGame      Whether the user is currently in a game.
+	 * @param gameIdFs    The IdFs of the current game.
+	 * @param player1IdFs The IdFs of player 1.
+	 * @param player2IdFs The IdFs of player 2.
+	 * @param isPlayer1   Whether the current user is player 1.
 	 */
 	public static void startService(Context context, boolean inGame, String gameIdFs,
 									String player1IdFs, String player2IdFs, boolean isPlayer1) {
@@ -57,11 +57,11 @@ public class AppMonitorService extends Service {
 	/**
 	 * Updates the static game state fields.
 	 *
-	 * @param inGame     Whether the user is currently in a game.
-	 * @param gameIdFs     The IdFs of the current game.
-	 * @param player1IdFs  The IdFs of player 1.
-	 * @param player2IdFs  The IdFs of player 2.
-	 * @param isPlayer1  Whether the current user is player 1.
+	 * @param inGame      Whether the user is currently in a game.
+	 * @param gameIdFs    The IdFs of the current game.
+	 * @param player1IdFs The IdFs of player 1.
+	 * @param player2IdFs The IdFs of player 2.
+	 * @param isPlayer1   Whether the current user is player 1.
 	 */
 	public static void updateGameState(boolean inGame, String gameIdFs,
 									   String player1IdFs, String player2IdFs, boolean isPlayer1) {

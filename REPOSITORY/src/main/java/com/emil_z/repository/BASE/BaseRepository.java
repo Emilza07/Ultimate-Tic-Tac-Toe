@@ -170,6 +170,24 @@ public abstract class BaseRepository<TEntity extends BaseEntity, TCollection ext
 
         return taskAdd.getTask();
     }
+
+    public Task<Boolean> add(TEntity entity, String idFs, String pictureFieldName, String pictureUrlFieldName) {
+        TaskCompletionSource<Boolean> taskAdd = new TaskCompletionSource<>();
+
+        DocumentReference document = collection.document(idFs);
+
+        handlePictureUpload(entity, pictureFieldName, pictureUrlFieldName)
+            .addOnCompleteListener(task -> {
+                document.set(entity)
+                    .addOnSuccessListener(aVoid -> taskAdd.setResult(true))
+                     .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error adding member: " + e.getMessage());
+                        taskAdd.setResult(false);
+                    });
+            });
+
+        return taskAdd.getTask();
+    }
     //endregion
 
     //region UPDATE

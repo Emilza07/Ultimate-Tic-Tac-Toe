@@ -30,7 +30,7 @@ public class Player extends BaseEntity {
 		this.idFs = user.getIdFs();
 		this.name = user.getUsername();
 		this.elo = user.getElo();
-		this.picture = user.getPicture();
+		this.picture = user.getProfilePicture();
 	}
 
 	/**

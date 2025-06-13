@@ -11,6 +11,6 @@ public class EmailRule extends TextRule {
     }
 
     public EmailRule(View view, RuleOperation operation, String message, String emailRegEx) {
-        super(view, operation, message, 1, 100, false, false, emailRegEx);
+        super(view, operation, message, 1, 320, false, false, emailRegEx);
     }
 }

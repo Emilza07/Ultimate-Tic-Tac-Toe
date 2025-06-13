@@ -84,10 +84,10 @@ public class SwipeCallback<T> extends ItemTouchHelper.SimpleCallback {
 
 			Path path = new Path();
 			float[] corners = new float[]{
-					cornerRadius, cornerRadius,        // Top left radius in px
-					cornerRadius, cornerRadius,        // Top right radius in px
-					cornerRadius, cornerRadius,          // Bottom right radius in px
-					cornerRadius, cornerRadius           // Bottom left radius in px
+				cornerRadius, cornerRadius,        // Top left radius in px
+				cornerRadius, cornerRadius,        // Top right radius in px
+				cornerRadius, cornerRadius,          // Bottom right radius in px
+				cornerRadius, cornerRadius           // Bottom left radius in px
 			};
 
 			if (dX > 0) {

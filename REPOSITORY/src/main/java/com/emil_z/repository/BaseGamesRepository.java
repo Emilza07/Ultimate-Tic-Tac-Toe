@@ -6,7 +6,6 @@ import android.graphics.Point;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.model.BoardLocation;
 import com.emil_z.model.Game;
 import com.emil_z.model.Games;
@@ -14,6 +13,7 @@ import com.emil_z.model.Player;
 import com.emil_z.repository.BASE.BaseRepository;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.Query;
 
 import java.util.Objects;
@@ -44,7 +44,7 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 		lvOuterBoardWinners.setValue(new char[3][3]);
 		lvIsStarted = new MutableLiveData<>(false);
 		lvIsFinished = new MutableLiveData<>();
-		localPlayerIdFs = new UserSessionPreference(application).getUserIdFs();
+		localPlayerIdFs = FirebaseAuth.getInstance().getUid();
 	}
 
 	/**

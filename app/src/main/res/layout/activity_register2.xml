@@ -5,10 +5,10 @@
 	android:id="@+id/main"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".ACTIVITIES.LoginActivity">
+	tools:context=".ACTIVITIES.Register2Activity">
 
 	<ImageView
-		android:id="@+id/ivBackground"
+		android:id="@+id/ivBackground3"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
 		android:alpha="1"
@@ -31,83 +31,69 @@
 		android:id="@+id/tvTitle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="60dp"
+		android:layout_marginTop="30dp"
 		android:fontFamily="@font/montserrat_semibold"
-		android:text="@string/sign_in"
+		android:text="@string/register"
 		android:textColor="@color/textColor"
 		android:textSize="50sp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
 
+	<com.google.android.material.imageview.ShapeableImageView
+		android:id="@+id/ivPfp"
+		android:layout_width="150dp"
+		android:layout_height="150dp"
+		android:layout_marginTop="24dp"
+		android:clickable="true"
+		android:scaleType="fitXY"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
+		app:srcCompat="@drawable/default_pfp" />
 
 	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/tilEmail"
 		android:layout_width="250dp"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="60dp"
-		android:hint="@string/email"
+		android:layout_marginTop="16dp"
+		android:hint="@string/username"
 		android:textColorHint="@color/hintTextColor"
 		app:boxStrokeColor="@color/colorPrimary"
 		app:cursorColor="@color/textColor"
 		app:hintTextColor="@color/colorPrimary"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/tvTitle">
+		app:layout_constraintTop_toBottomOf="@+id/ivPfp">
 
 		<com.google.android.material.textfield.TextInputEditText
 			android:id="@+id/etEmail"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:autofillHints="username"
+			android:autofillHints="new_username"
 			android:fontFamily="@font/montserrat_medium"
-			android:inputType="text|textEmailAddress"
-			android:textColor="@color/textColor"
-			android:textColorHint="#1E88E5" />
-
-	</com.google.android.material.textfield.TextInputLayout>
-
-
-	<com.google.android.material.textfield.TextInputLayout
-		android:id="@+id/tilPassword"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
-		android:hint="@string/password"
-		android:textColorHint="@color/hintTextColor"
-		app:boxStrokeColor="@color/colorPrimary"
-		app:cursorColor="@color/textColor"
-		app:hintTextColor="@color/colorPrimary"
-		app:layout_constraintEnd_toEndOf="@+id/tilEmail"
-		app:layout_constraintStart_toStartOf="@+id/tilEmail"
-		app:layout_constraintTop_toBottomOf="@+id/tilEmail"
-		app:passwordToggleEnabled="true"
-		app:passwordToggleTint="@color/colorPrimary">
-
-		<com.google.android.material.textfield.TextInputEditText
-			android:id="@+id/etPassword"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:autofillHints="password"
-			android:fontFamily="@font/montserrat_medium"
-			android:inputType="textPassword"
+			android:inputType="text"
 			android:textColor="@color/textColor"
 			android:textColorHint="@color/hintTextColor" />
+
 	</com.google.android.material.textfield.TextInputLayout>
 
 	<Button
-		android:id="@+id/btnSignIn"
+		android:id="@+id/btnRegister"
 		android:layout_width="290dp"
 		android:layout_height="110dp"
 		android:layout_marginTop="430dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
-		android:text="@string/sign_in"
+		android:text="@string/register"
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
-		app:layout_constraintEnd_toEndOf="@+id/tilPassword"
-		app:layout_constraintStart_toStartOf="@+id/tilPassword"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHeight_percent="0.15"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintWidth_percent="0.73" />
 
 	<Button
 		android:id="@+id/btnBack"
@@ -119,8 +105,9 @@
 		android:text="@string/back"
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
-		app:layout_constraintEnd_toEndOf="@+id/btnSignIn"
-		app:layout_constraintStart_toStartOf="@+id/btnSignIn"
-		app:layout_constraintTop_toBottomOf="@+id/btnSignIn" />
+		app:layout_constraintEnd_toEndOf="@+id/btnRegister"
+		app:layout_constraintHeight_percent="0.15"
+		app:layout_constraintStart_toStartOf="@+id/btnRegister"
+		app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

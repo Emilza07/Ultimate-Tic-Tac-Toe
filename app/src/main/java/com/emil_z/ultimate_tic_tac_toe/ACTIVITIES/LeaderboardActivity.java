@@ -160,7 +160,7 @@ public class LeaderboardActivity extends BaseActivity {
 				((TextView) holder.getView("tvUsername")).setText(item.getUsername());
 				((TextView) holder.getView("tvElo")).setText(String.valueOf(Math.round(item.getElo())));
 
-				if (currentUser != null && item.getUsername().equals(currentUser.getUsername())) {
+				if (currentUser != null && item.getIdFs().equals(currentUser.getIdFs())) {
 					holder.itemView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
 					((TextView) holder.getView("tvUsername")).setTypeface(null, Typeface.BOLD);
 					((TextView) holder.getView("tvElo")).setTypeface(null, Typeface.BOLD);

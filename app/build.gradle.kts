@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -42,7 +43,9 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation(libs.firebase.functions)
+    implementation(libs.firebase.auth)
     implementation(libs.circleimageview)
     implementation(project(":VIEWMODEL"))
     implementation(project(":MODEL"))

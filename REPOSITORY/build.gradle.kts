@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":HELPER"))
     implementation(libs.firebase.functions)
     implementation(libs.gson)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

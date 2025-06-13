@@ -171,9 +171,9 @@ public class ProfileActivity extends BaseActivity {
 				for (Game game : games) {
 					if (game == null) continue;
 					if (Objects.equals(currentUser.getIdFs(), game.getPlayer1().getIdFs())) {
-						game.getPlayer2().setPicture(user.getPicture());
+						game.getPlayer2().setPicture(user.getProfilePicture());
 					} else {
-						game.getPlayer1().setPicture(user.getPicture());
+						game.getPlayer1().setPicture(user.getProfilePicture());
 					}
 				}
 			}
@@ -402,7 +402,7 @@ public class ProfileActivity extends BaseActivity {
 		if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
 			Uri resultUri = UCrop.getOutput(data);
 			if (resultUri == null) {
-				Toast.makeText(this, "Failed to load the image", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
 				return;
 			}
 			try {
@@ -414,13 +414,12 @@ public class ProfileActivity extends BaseActivity {
 					croppedBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
 				}
 				// Now update the image view and save to user profile
-				//ivPfp.setImageBitmap(croppedBitmap);
-				showProgressDialog("Updating Profile Picture", "Please wait...");
+				showProgressDialog(getString(R.string.updating_profile_picture), getString(R.string.please_wait));
 				String base64Image = BitMapHelper.encodeTobase64(croppedBitmap);
-				currentUser.setPicture(base64Image);
-				usersViewModel.update(currentUser);
+				currentUser.setProfilePicture(base64Image);
+				usersViewModel.update(currentUser, "profilePicture", "profilePictureUrl");
 			} catch (IOException e) {
-				Toast.makeText(this, "Failed to load cropped image", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
 			}
 		}
 	}

@@ -170,8 +170,9 @@ public class MainActivity extends BaseActivity {
 					gameType = o.getData().getSerializableExtra(EXTRA_GAME_TYPE, GameType.class);
 				} else {
 					gameType = (GameType) o.getData().getSerializableExtra(EXTRA_GAME_TYPE);
-				}				if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
-					viewModel.get(currentUser.getIdFs());
+				}
+				if (gameType == GameType.ONLINE && o.getResultCode() == RESULT_OK) {
+					viewModel.get(currentUser.getIdFs(), "profilePicture", "profilePictureUrl");
 				}
 			}
 		);

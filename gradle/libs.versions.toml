@@ -1,7 +1,7 @@
 [versions]
 agp = "8.10.1"
 circleimageview = "3.1.0"
-firebaseDatabase = "21.0.1"
+firebaseStorage = "21.0.2"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -22,11 +22,12 @@ lifecycleLivedataKtx = "2.9.0"
 lifecycleViewmodelKtx = "2.8.7"
 gson = "2.13.0"
 ucrop = "2.2.10"
+firebaseAuth = "23.2.1"
+
 
 [libraries]
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
-firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebaseDatabase" }
-firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseDatabase" }
+firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseStorage" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -46,6 +47,7 @@ lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-lived
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucrop" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

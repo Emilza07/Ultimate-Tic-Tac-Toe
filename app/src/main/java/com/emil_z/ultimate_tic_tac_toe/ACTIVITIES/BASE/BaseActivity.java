@@ -9,10 +9,6 @@ import android.view.View;
 import android.view.WindowInsetsController;
 import android.widget.Toast;
 
-import com.emil_z.model.User;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +16,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 public abstract class BaseActivity extends AppCompatActivity {
 

@@ -5,7 +5,7 @@
 	android:id="@+id/main"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context=".ACTIVITIES.RegisterActivity">
+	tools:context=".ACTIVITIES.Register1Activity">
 
 	<ImageView
 		android:id="@+id/ivBackground"
@@ -41,11 +41,11 @@
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<com.google.android.material.textfield.TextInputLayout
-		android:id="@+id/tilUsername"
+		android:id="@+id/tilEmail"
 		android:layout_width="250dp"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="16dp"
-		android:hint="@string/username"
+		android:hint="@string/email"
 		android:textColorHint="@color/hintTextColor"
 		app:boxStrokeColor="@color/colorPrimary"
 		app:cursorColor="@color/textColor"
@@ -55,12 +55,12 @@
 		app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
 		<com.google.android.material.textfield.TextInputEditText
-			android:id="@+id/etUsername"
+			android:id="@+id/etEmail"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:autofillHints="new_username"
 			android:fontFamily="@font/montserrat_medium"
-			android:inputType="text"
+			android:inputType="text|textEmailAddress"
 			android:textColor="@color/textColor"
 			android:textColorHint="@color/hintTextColor" />
 
@@ -76,9 +76,9 @@
 		app:boxStrokeColor="@color/colorPrimary"
 		app:cursorColor="@color/textColor"
 		app:hintTextColor="@color/colorPrimary"
-		app:layout_constraintEnd_toEndOf="@+id/tilUsername"
-		app:layout_constraintStart_toStartOf="@+id/tilUsername"
-		app:layout_constraintTop_toBottomOf="@+id/tilUsername"
+		app:layout_constraintEnd_toEndOf="@+id/tilEmail"
+		app:layout_constraintStart_toStartOf="@+id/tilEmail"
+		app:layout_constraintTop_toBottomOf="@+id/tilEmail"
 		app:passwordToggleEnabled="true"
 		app:passwordToggleTint="@color/colorPrimary">
 
@@ -105,7 +105,7 @@
 		app:hintTextColor="@color/colorPrimary"
 		app:layout_constraintEnd_toEndOf="@+id/tilPassword"
 		app:layout_constraintStart_toStartOf="@+id/tilPassword"
-		app:layout_constraintTop_toBottomOf="@+id/tilUsername"
+		app:layout_constraintTop_toBottomOf="@+id/tilEmail"
 		app:passwordToggleEnabled="true"
 		app:passwordToggleTint="@color/colorPrimary">
 
@@ -142,7 +142,7 @@
 		android:layout_marginTop="430dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
-		android:text="@string/register"
+		android:text="@string/text_continue"
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
 		app:layout_constraintEnd_toEndOf="@+id/tilConfirmPassword"

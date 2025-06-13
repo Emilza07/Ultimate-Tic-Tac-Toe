@@ -4,7 +4,6 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import com.emil_z.helper.PasswordUtil;
 import com.emil_z.model.User;
 import com.emil_z.model.Users;
 import com.emil_z.repository.BASE.BaseRepository;
@@ -56,27 +55,56 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 	}
 
 	/**
-	 * Attempts to log in a user with the provided username and password.
+	 * Registers a new user with the provided credentials and profile picture.
 	 * Updates LiveData with the user entity on success, or sets success to false on failure.
-	 * @param Username The username to log in with.
+	 *
+	 * @param email The user's email address.
+	 * @param username The user's username.
+	 * @param password The user's password.
+	 * @param picture The user's profile picture.
+	 */
+	public void register(String email, String username, String password, String picture) {
+
+		repository.register(email, username, password, picture)
+				.addOnSuccessListener(lvEntity::setValue)
+				.addOnFailureListener(e -> lvSuccess.setValue(false)); //TODO: handle specific exceptions (especially unable to login)
+	}
+
+	/**
+	 * Attempts to log in a user with the provided email and password.
+	 * Updates LiveData with the user entity on success, or sets success to false on failure.
+	 *
+	 * @param email The email to log in with.
 	 * @param password The password to verify.
 	 */
-	public void logIn(String Username, String password) {
-		repository.getCollection().whereEqualTo("username", Username).get()
-				.addOnSuccessListener(queryDocumentSnapshots -> {
-					if (!queryDocumentSnapshots.isEmpty()) {
-						if (PasswordUtil.verifyPassword(password, queryDocumentSnapshots.getDocuments().get(0).getString("hashedPassword"))) {
-							User user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+	public void logIn(String email, String password) {
+		repository.logIn(email, password)
+				.addOnSuccessListener(user -> {
 							lvEntity.setValue(user);
-						}
-						else {
-							lvSuccess.setValue(false);
-						}
-					} else {
-						lvSuccess.setValue(false);
-					}
+					})
+				.addOnFailureListener(e -> lvSuccess.setValue(false));
+	}
+
+	/**
+	 * Checks if a user is currently logged in.
+	 * Updates LiveData with the user entity if logged in, or null if not.
+	 */
+	public void checkLoggedIn() {
+		repository.checkLoggedIn()
+				.addOnSuccessListener(user -> {
+					lvEntity.setValue(user);
 				})
 				.addOnFailureListener(e -> lvEntity.setValue(null));
+	}
+
+	/**
+	 * Logs out the currently logged-in user.
+	 * Updates LiveData to indicate success or failure.
+	 */
+	public void logOut() {
+		repository.logOut()
+				.addOnSuccessListener(unused -> lvSuccess.setValue(true))
+				.addOnFailureListener(e -> lvSuccess.setValue(false));
 	}
 
 	/**
@@ -86,7 +114,7 @@ public class UsersViewModel extends BaseViewModel<User, Users> {
 	 */
 	public void exist(String username) {
 		repository.exist(username)
-				.addOnSuccessListener(lvExist::setValue)
-				.addOnFailureListener(e -> lvExist .setValue(false));
+				.addOnSuccessListener(unused -> lvExist.setValue(false))
+				.addOnFailureListener(e -> lvExist.setValue(true));
 	}
 }

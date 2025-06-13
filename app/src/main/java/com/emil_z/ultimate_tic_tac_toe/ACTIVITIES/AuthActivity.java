@@ -74,7 +74,7 @@ public class AuthActivity extends BaseActivity {
 	@Override
 	protected void setListeners() {
 		btnLogin.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, LoginActivity.class)));
-		btnRegister.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, RegisterActivity.class)));
+		btnRegister.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, Register1Activity.class)));
 	}
 
 	/**
@@ -86,15 +86,10 @@ public class AuthActivity extends BaseActivity {
 
 		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
-				String storedEmail = sessionPreference.getEmail();
-				String storedPassword = sessionPreference.getPassword();
-				if (user.getUsername().equals(storedEmail) &&
-					user.getHashedPassword().equals(storedPassword)) {
-					currentUser = user;
-					Intent intent = new Intent(AuthActivity.this, MainActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-					startActivity(intent);
-				}
+				currentUser = user;
+				Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				startActivity(intent);
 			}
 			hideProgressDialog();
 		});
@@ -104,11 +99,6 @@ public class AuthActivity extends BaseActivity {
 	 * Checks if user has a valid session and attempts to log in automatically.
 	 */
 	private void checkForLogIn() {
-		if (sessionPreference.hasValidSession()) {
-			String userIdFs = sessionPreference.getUserIdFs();
-			viewModel.get(userIdFs);
-		} else {
-			hideProgressDialog();
-		}
+		viewModel.checkLoggedIn();
 	}
 }

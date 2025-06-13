@@ -3,7 +3,6 @@ package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -14,7 +13,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.emil_z.helper.TextInputLayoutUtil;
-import com.emil_z.helper.UserSessionPreference;
 import com.emil_z.helper.inputValidators.Rule;
 import com.emil_z.helper.inputValidators.RuleOperation;
 import com.emil_z.helper.inputValidators.Validator;
@@ -25,12 +23,11 @@ import com.emil_z.viewmodel.UsersViewModel;
 /**
  * Activity that handles user login.
  * <p>
- * Validates user credentials, manages session preferences, and navigates to the main activity upon successful login.
+ * Validates user credentials, and navigates to the main activity upon successful login.
  */
 public class LoginActivity extends BaseActivity {
-	private EditText etUsername;
+	private EditText etEmail;
 	private EditText etPassword;
-	private CheckBox cbRememberMe;
 	private Button btnSignIn;
 	private Button btnBack;
 
@@ -60,9 +57,8 @@ public class LoginActivity extends BaseActivity {
 	 */
 	@Override
 	protected void initializeViews() {
-		etUsername = findViewById(R.id.etUsername);
+		etEmail = findViewById(R.id.etEmail);
 		etPassword = findViewById(R.id.etPassword);
-		cbRememberMe = findViewById(R.id.cbRememberMe);
 		btnSignIn = findViewById(R.id.btnSignIn);
 		btnBack = findViewById(R.id.btnBack);
 	}
@@ -74,7 +70,7 @@ public class LoginActivity extends BaseActivity {
 	protected void setListeners() {
 		btnSignIn.setOnClickListener(v -> {
 			if (validate()) {
-				String username = etUsername.getText().toString();
+				String username = etEmail.getText().toString();
 				String password = etPassword.getText().toString();
 				viewModel.logIn(username, password);
 			}
@@ -83,7 +79,7 @@ public class LoginActivity extends BaseActivity {
 	}
 
 	/**
-	 * Sets up click listeners for sign-in and back buttons.
+	 * Initializes the ViewModel and observes login success.
 	 */
 	@Override
 	protected void setViewModel() {
@@ -98,11 +94,6 @@ public class LoginActivity extends BaseActivity {
 		viewModel.getLiveDataEntity().observe(this, user -> {
 			if (user != null) {
 				BaseActivity.currentUser = user;
-				UserSessionPreference sessionPreference = new UserSessionPreference(this);
-				if (cbRememberMe.isChecked())
-					sessionPreference.saveFullSession(user.getUsername(), user.getHashedPassword(), user.getIdFs(), sessionPreference.generateToken(user.getIdFs()));
-				else
-					sessionPreference.saveLoginCredentials(user.getUsername(), user.getHashedPassword(), user.getIdFs());
 				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
@@ -115,7 +106,7 @@ public class LoginActivity extends BaseActivity {
 	 */
 	public void setValidation() {
 		Validator.clear();
-		Validator.add(new Rule(etUsername, RuleOperation.REQUIRED, getString(R.string.no_username)));
+		Validator.add(new Rule(etEmail, RuleOperation.REQUIRED, getString(R.string.no_username)));
 		Validator.add(new Rule(etPassword, RuleOperation.REQUIRED, getString(R.string.no_password)));
 	}
 
@@ -128,7 +119,7 @@ public class LoginActivity extends BaseActivity {
 		setValidation();
 		boolean isValid = Validator.validate();
 
-		TextInputLayoutUtil.transferErrorsToTextInputLayout(etUsername);
+		TextInputLayoutUtil.transferErrorsToTextInputLayout(etEmail);
 		TextInputLayoutUtil.transferErrorsToTextInputLayout(etPassword);
 		return isValid;
 	}

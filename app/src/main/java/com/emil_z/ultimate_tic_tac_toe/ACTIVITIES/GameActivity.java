@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
@@ -133,7 +132,8 @@ public class GameActivity extends BaseActivity {
 			gameType = intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE, GameType.class);
 		} else {
 			gameType = (GameType) intent.getSerializableExtra(MainActivity.EXTRA_GAME_TYPE);
-		}		intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
+		}
+		intent.putExtra(MainActivity.EXTRA_GAME_TYPE, gameType);
 		errorCodes = getResources().getStringArray(R.array.error_codes);
 		createBoard();
 		outerBoardWinners = new char[3][3];
@@ -192,7 +192,7 @@ public class GameActivity extends BaseActivity {
 		});
 
 		btnBackward.setOnClickListener(v -> {
-			if(btnForward.getBackgroundTintList() == ColorStateList.valueOf(ContextCompat.getColor(this, R.color.hintTextColor)))
+			if (btnForward.getBackgroundTintList() == ColorStateList.valueOf(ContextCompat.getColor(this, R.color.hintTextColor)))
 				btnForward.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.buttonColor)));
 			moveIndex--;
 			if (moveIndex < 0) {
@@ -376,7 +376,7 @@ public class GameActivity extends BaseActivity {
 				boolean isHost = Objects.equals(game.getPlayer1().getIdFs(), currentUser.getIdFs());
 
 				if (gameType == GameType.ONLINE || gameType == GameType.REPLAY)
-					usersViewModel.get(isHost ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs());
+					usersViewModel.get(isHost ? game.getPlayer2().getIdFs() : game.getPlayer1().getIdFs(), "profilePicture", "profilePictureUrl");
 				else {
 					setPlayers(game.getPlayer1(), game.getPlayer2());
 					btnAbort.setVisibility(View.GONE);
@@ -494,7 +494,7 @@ public class GameActivity extends BaseActivity {
 			tvP2Name.setText(p2.getName());
 			tvP2Elo.setText("");
 			tvP2Sign.setText("O");
-			if (!game.getCrossPlayerIdFs().equals(currentUser.getIdFs())) {
+			if (!Objects.equals(game.getCrossPlayerIdFs(), (currentUser.getIdFs())) && gameType == GameType.CPU) {
 				tvCurrentPlayer.setText(R.string.player_o_turn);
 				tvP1Sign.setText("O");
 				tvP2Sign.setText("X");

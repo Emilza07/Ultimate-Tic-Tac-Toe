@@ -9,14 +9,15 @@ import com.google.firebase.firestore.Exclude;
 import java.io.Serializable;
 
 /**
- * Represents a user in the application, including username, hashed password,
- * profile picture, and ELO rating.
+ * Represents a user in the application, including username, profile picture,
+ * profile picture url and ELO rating.
  * Extends {@link BaseEntity} and implements {@link Serializable}.
  */
 public class User extends BaseEntity implements Serializable {
 	private String username;
-	private String hashedPassword;
-	private String picture;
+	@Exclude
+	private String profilePicture; // Base64-encoded string
+	private String profilePictureUrl;
 	private float elo;
 
 	/**
@@ -26,28 +27,39 @@ public class User extends BaseEntity implements Serializable {
 	}
 
 	/**
-	 * Constructs a User with the specified username, password, and picture.
+	 * Constructs a User with the specified username and picture.
 	 * Sets the default ELO rating to 1200.
 	 * @param username The user's username.
-	 * @param password The user's hashed password.
-	 * @param picture The user's profile picture as a Base64-encoded string.
+	 * @param profilePicture The user's profile picture as a Base64-encoded string.
 	 */
-	public User(String username, String password, String picture) {
-		this(username, password, 1200, picture);
+	public User(String username, String profilePicture) {
+		this(username, 1200, profilePicture);
 	}
 
 	/**
-	 * Constructs a User with the specified username, password, ELO rating, and picture.
+	 * Constructs a User with the specified username, ELO rating, and picture.
 	 * @param username The user's username.
-	 * @param password The user's hashed password.
 	 * @param elo The user's ELO rating.
-	 * @param picture The user's profile picture as a Base64-encoded string.
+	 * @param profilePicture The user's profile picture as a Base64-encoded string.
 	 */
-	public User(String username, String password, float elo, String picture) {
+	public User(String username, float elo, String profilePicture) {
 		this.username = username;
-		this.hashedPassword = password;
 		this.elo = elo;
-		this.picture = picture;
+		this.profilePicture = profilePicture;
+	}
+
+	/**
+	 * Copy constructor for the User class.
+	 * Creates a new User instance by copying the properties of the given User object.
+	 *
+	 * @param user The User object to copy from.
+	 */
+	public User(User user) {
+		this.username = user.username;
+		this.elo = user.elo;
+		this.profilePicture = user.profilePicture;
+		this.profilePictureUrl = user.profilePictureUrl;
+		this.setIdFs(user.getIdFs());
 	}
 
 	/**
@@ -59,27 +71,29 @@ public class User extends BaseEntity implements Serializable {
 	}
 
 	/**
-	 * Gets the user's hashed password.
-	 * @return The hashed password.
-	 */
-	public String getHashedPassword() {
-		return hashedPassword;
-	}
-
-	/**
 	 * Gets the user's profile picture as a Base64-encoded string.
 	 * @return The profile picture.
 	 */
-	public String getPicture() {
-		return picture;
+	@Exclude
+	public String getProfilePicture() {
+		return profilePicture;
+	}
+
+	/**
+	 * Gets the URL of the user's profile picture.
+	 * @return The profile picture URL.
+	 */
+	public String getProfilePictureUrl() {
+		return profilePictureUrl;
 	}
 
 	/**
 	 * Sets the user's profile picture as a Base64-encoded string.
-	 * @param picture The new profile picture.
+	 * @param profilePicture The new profile picture.
 	 */
-	public void setPicture(String picture) {
-		this.picture = picture;
+	@Exclude
+	public void setProfilePicture(String profilePicture) {
+		this.profilePicture = profilePicture;
 	}
 
 	/**
@@ -97,7 +111,7 @@ public class User extends BaseEntity implements Serializable {
 	 */
 	@Exclude
 	public Bitmap getPictureBitmap() {
-		return BitMapHelper.decodeBase64(picture);
+		return BitMapHelper.decodeBase64(profilePicture);
 	}
 
 }
