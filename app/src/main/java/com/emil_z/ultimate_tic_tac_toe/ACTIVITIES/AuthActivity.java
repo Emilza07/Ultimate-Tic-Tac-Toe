@@ -11,7 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.emil_z.helper.UserSessionPreference;
+import com.emil_z.helper.NetworkUtil;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
@@ -28,7 +28,6 @@ public class AuthActivity extends BaseActivity {
 
 	private UsersViewModel viewModel;
 
-	private UserSessionPreference sessionPreference;
 
 	/**
 	 * Initializes the authentication activity, sets up the UI,
@@ -49,12 +48,13 @@ public class AuthActivity extends BaseActivity {
 		});
 		setBottomNavigationVisibility(false);
 
-		sessionPreference = new UserSessionPreference(this);
-
 		initializeViews();
 		setListeners();
 		setViewModel();
-		checkForLogIn();
+		if (!NetworkUtil.isInternetAvailable(this))
+			noInternet();
+		else
+			checkForLogIn();
 	}
 
 	/**
@@ -93,6 +93,11 @@ public class AuthActivity extends BaseActivity {
 			}
 			hideProgressDialog();
 		});
+	}
+
+	private void noInternet() {
+		hideProgressDialog();
+		// handle no internet situation
 	}
 
 	/**
