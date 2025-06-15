@@ -4,8 +4,8 @@
 	<string name="ultimate_tic_tac_toe_online">ULTIMATE\nTIC TAC TOE\nONLINE</string>
 	<string name="by_emil_zalessky">by Emil Zalessky</string>
 	<string name="sign_in">SIGN IN</string>
-	<string name="text_continue">Continue</string>
 	<string name="register">REGISTER</string>
+	<string name="play_offline_mode"><u>Play in offline mode</u></string>
 	<string name="logging_in">Logging in</string>
 	<string name="back">Back</string>
 	<string name="email">Email</string>
@@ -13,10 +13,11 @@
 	<string name="password">Password</string>
 	<string name="confirm_password">Confirm Password</string>
 	<string name="remember_me">Remember me</string>
+	<string name="text_continue">Continue</string>
 	<string name="registration_failed">Registration failed</string>
-	<string name="checking_email_availability">Checking email availability...</string>
+	<string name="checking_email_availability">Checking email availability…</string>
 	<string name="email_taken">This email already exist</string>
-	<string name="please_wait">Please wait...</string>
+	<string name="please_wait">Please wait…</string>
 
 	<string name="invalid_email">please enter a valid email</string>
 	<string name="no_username">Please enter a username</string>

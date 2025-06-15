@@ -31,49 +31,54 @@
 		android:id="@+id/tvTitle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="50dp"
 		android:fontFamily="@font/montserrat_bold"
 		android:gravity="center"
 		android:text="@string/ultimate_tic_tac_toe_online"
 		android:textColor="#F2F3F4"
 		android:textSize="50sp"
 		android:textStyle="bold"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.07" />
 
 	<TextView
 		android:id="@+id/tvCreator"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="8dp"
 		android:fontFamily="@font/montserrat_medium"
+		android:gravity="center_horizontal"
 		android:text="@string/by_emil_zalessky"
 		android:textColor="#D0E1E1E1"
 		android:textSize="34sp"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/tvTitle"
 		app:layout_constraintStart_toStartOf="@+id/tvTitle"
-		app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+		app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+		app:layout_constraintVertical_bias="0.0" />
 
 	<Button
 		android:id="@+id/btnLogin"
-		android:layout_width="290dp"
-		android:layout_height="110dp"
-		android:layout_marginTop="430dp"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
 		android:backgroundTint="@color/buttonColor"
 		android:backgroundTintMode="src_atop"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/sign_in"
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/tvTitle"
+		app:layout_constraintHeight_percent="0.13"
+		app:layout_constraintStart_toStartOf="@+id/tvTitle"
+		app:layout_constraintTop_toBottomOf="@+id/tvCreator"
+		app:layout_constraintVertical_bias="0.4" />
 
 	<Button
 		android:id="@+id/btnRegister"
 		android:layout_width="0dp"
-		android:layout_height="110dp"
+		android:layout_height="0dp"
 		android:layout_marginTop="24dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
@@ -81,7 +86,21 @@
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
 		app:layout_constraintEnd_toEndOf="@+id/btnLogin"
+		app:layout_constraintHeight_percent="0.13"
 		app:layout_constraintStart_toStartOf="@+id/btnLogin"
 		app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
+
+	<TextView
+		android:id="@+id/textView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:fontFamily="@font/montserrat_medium"
+		android:text="@string/play_offline_mode"
+		android:textColor="@color/buttonColor"
+		android:textSize="16sp"
+		app:layout_constraintEnd_toEndOf="@+id/btnRegister"
+		app:layout_constraintStart_toStartOf="@+id/btnRegister"
+		app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
