@@ -7,13 +7,12 @@
 	<string name="register">REGISTER</string>
 	<string name="play_offline_mode"><u>Play in offline mode</u></string>
 	<string name="logging_in">Logging in</string>
-	<string name="back">Back</string>
+	<string name="back">BACK</string>
 	<string name="email">Email</string>
 	<string name="username">Username</string>
 	<string name="password">Password</string>
 	<string name="confirm_password">Confirm Password</string>
-	<string name="remember_me">Remember me</string>
-	<string name="text_continue">Continue</string>
+	<string name="text_continue">CONTINUE</string>
 	<string name="registration_failed">Registration failed</string>
 	<string name="checking_email_availability">Checking email availability…</string>
 	<string name="email_taken">This email already exist</string>
