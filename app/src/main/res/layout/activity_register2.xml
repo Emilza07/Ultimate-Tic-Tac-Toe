@@ -31,25 +31,28 @@
 		android:id="@+id/tvTitle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="30dp"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/register"
 		android:textColor="@color/textColor"
 		android:textSize="50sp"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.062" />
 
 	<com.google.android.material.imageview.ShapeableImageView
 		android:id="@+id/ivPfp"
-		android:layout_width="150dp"
-		android:layout_height="150dp"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
 		android:layout_marginTop="24dp"
 		android:clickable="true"
 		android:scaleType="fitXY"
+		app:layout_constraintDimensionRatio="1"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+		app:layout_constraintWidth_percent="0.4"
 		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
 		app:srcCompat="@drawable/default_pfp" />
 
@@ -57,14 +60,14 @@
 		android:id="@+id/tilEmail"
 		android:layout_width="250dp"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="16dp"
+		android:layout_marginTop="8dp"
 		android:hint="@string/username"
 		android:textColorHint="@color/hintTextColor"
 		app:boxStrokeColor="@color/colorPrimary"
 		app:cursorColor="@color/textColor"
 		app:hintTextColor="@color/colorPrimary"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/tvTitle"
+		app:layout_constraintStart_toStartOf="@+id/tvTitle"
 		app:layout_constraintTop_toBottomOf="@+id/ivPfp">
 
 		<com.google.android.material.textfield.TextInputEditText
@@ -81,33 +84,34 @@
 
 	<Button
 		android:id="@+id/btnRegister"
-		android:layout_width="290dp"
-		android:layout_height="110dp"
-		android:layout_marginTop="430dp"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:layout_marginBottom="24dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/register"
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
+		app:layout_constraintBottom_toTopOf="@+id/btnBack"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHeight_percent="0.15"
+		app:layout_constraintHeight_percent="0.13"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintWidth_percent="0.73" />
+		app:layout_constraintWidth_percent="0.75" />
 
 	<Button
 		android:id="@+id/btnBack"
 		android:layout_width="0dp"
-		android:layout_height="110dp"
-		android:layout_marginTop="24dp"
+		android:layout_height="0dp"
 		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/back"
 		android:textSize="34sp"
 		app:cornerRadius="15dp"
+		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@+id/btnRegister"
-		app:layout_constraintHeight_percent="0.15"
+		app:layout_constraintHeight_percent="0.13"
 		app:layout_constraintStart_toStartOf="@+id/btnRegister"
-		app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
+		app:layout_constraintTop_toTopOf="@+id/ivBackground3"
+		app:layout_constraintVertical_bias="0.95" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
