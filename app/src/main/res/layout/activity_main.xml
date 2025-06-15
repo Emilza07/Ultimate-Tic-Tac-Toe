@@ -27,6 +27,19 @@
 		app:tint="#1F2E4D"
 		tools:ignore="RtlSymmetry" />
 
+	<TextView
+		android:id="@+id/tvUsingOffline"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:background="@color/buttonDisabledColor"
+		android:gravity="center_horizontal"
+		android:text="@string/no_internet_connection_using_offline_mode"
+		android:textColor="@color/hintTextColor"
+		android:visibility="invisible"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
+
 	<com.google.android.material.imageview.ShapeableImageView
 
 		android:id="@+id/ivProfile"
@@ -41,7 +54,8 @@
 		app:layout_constraintHeight_percent="0.13"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip" />
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
+		app:tintMode="multiply" />
 
 	<com.google.android.material.imageview.ShapeableImageView
 		android:id="@+id/ivLeaderboard"
@@ -55,7 +69,8 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/ivProfile"
 		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Chip"
-		app:srcCompat="@drawable/leaderboard" />
+		app:srcCompat="@drawable/leaderboard"
+		app:tintMode="multiply" />
 
 	<com.google.android.material.imageview.ShapeableImageView
 		android:id="@+id/ivSettings"
@@ -76,7 +91,6 @@
 		android:layout_width="0dp"
 		android:layout_height="0dp"
 		android:layout_marginTop="230dp"
-		android:backgroundTint="@color/buttonColor"
 		android:fontFamily="@font/montserrat_semibold"
 		android:text="@string/singleplayer"
 		android:textSize="34sp"

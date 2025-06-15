@@ -44,7 +44,7 @@ public abstract class BaseGamesRepository extends BaseRepository<Game, Games> {
 		lvOuterBoardWinners.setValue(new char[3][3]);
 		lvIsStarted = new MutableLiveData<>(false);
 		lvIsFinished = new MutableLiveData<>();
-		localPlayerIdFs = FirebaseAuth.getInstance().getUid();
+		localPlayerIdFs = FirebaseAuth.getInstance().getUid() != null ? FirebaseAuth.getInstance().getUid() : "offline_user";
 	}
 
 	/**

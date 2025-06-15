@@ -1,14 +1,17 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -39,7 +42,7 @@ public class MainActivity extends BaseActivity {
 	private Button btnCPU;
 	private Button btnLocal;
 	private Button btnOnline;
-
+	private TextView tvUsingOffline;
 	private UsersViewModel viewModel;
 	private ActivityResultLauncher<Intent> gameLauncher;
 	private ActivityResultLauncher<Intent> profileLauncher;
@@ -67,7 +70,9 @@ public class MainActivity extends BaseActivity {
 		setViewModel();
 		registerLaunchers();
 
-
+		if (currentUser.getIdFs().equals("offline_user")) {
+			noInternet();
+		}
 	}
 
 	/**
@@ -81,6 +86,7 @@ public class MainActivity extends BaseActivity {
 		btnCPU = findViewById(R.id.btnCpu);
 		btnLocal = findViewById(R.id.btnLocal);
 		btnOnline = findViewById(R.id.btnOnline);
+		tvUsingOffline = findViewById(R.id.tvUsingOffline);
 
 		ivProfile.setImageBitmap(currentUser.getPictureBitmap());
 	}
@@ -184,6 +190,18 @@ public class MainActivity extends BaseActivity {
 				}
 			}
 		);
+	}
+
+	private void noInternet() {
+		ivProfile.setImageTintList(ColorStateList.valueOf(android.graphics.Color.parseColor("#99999999")));
+		ivLeaderboard.setClickable(false);
+		ivProfile.setClickable(false);
+		ivLeaderboard.setImageTintList(ColorStateList.valueOf(android.graphics.Color.parseColor("#99999999")));
+		btnOnline.setClickable(false);
+		ivLeaderboard.setClickable(false);
+		btnOnline.setClickable(false);
+		btnOnline.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.buttonDisabledColor)));
+		tvUsingOffline.setVisibility(TextView.VISIBLE);
 	}
 
 	/**

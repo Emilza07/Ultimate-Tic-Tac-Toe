@@ -1,17 +1,23 @@
 package com.emil_z.ultimate_tic_tac_toe.ACTIVITIES;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emil_z.helper.BitMapHelper;
 import com.emil_z.helper.NetworkUtil;
+import com.emil_z.model.User;
 import com.emil_z.ultimate_tic_tac_toe.ACTIVITIES.BASE.BaseActivity;
 import com.emil_z.ultimate_tic_tac_toe.R;
 import com.emil_z.viewmodel.UsersViewModel;
@@ -22,10 +28,10 @@ import com.emil_z.viewmodel.UsersViewModel;
  * Provides login and registration options, and checks for existing sessions.
  */
 public class AuthActivity extends BaseActivity {
-
 	private Button btnLogin;
 	private Button btnRegister;
-
+	private TextView tvPlayOffline;
+	private TextView tvUsingOffline;
 	private UsersViewModel viewModel;
 
 
@@ -64,6 +70,8 @@ public class AuthActivity extends BaseActivity {
 	protected void initializeViews() {
 		btnLogin = findViewById(R.id.btnLogin);
 		btnRegister = findViewById(R.id.btnRegister);
+		tvPlayOffline = findViewById(R.id.tvPlayOffline);
+		tvUsingOffline = findViewById(R.id.tvUsingOffline);
 
 		showProgressDialog(getString(R.string.logging_in), "");
 	}
@@ -75,6 +83,14 @@ public class AuthActivity extends BaseActivity {
 	protected void setListeners() {
 		btnLogin.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, LoginActivity.class)));
 		btnRegister.setOnClickListener(v -> startActivity(new Intent(AuthActivity.this, Register1Activity.class)));
+		tvPlayOffline.setOnClickListener(v -> {
+			Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+			User offlineUser = new User("Player", BitMapHelper.encodeTobase64(BitmapFactory.decodeResource(getResources(), R.drawable.default_pfp)));
+			offlineUser.setIdFs("offline_user");
+			currentUser = offlineUser;
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+			startActivity(intent);
+		});
 	}
 
 	/**
@@ -97,7 +113,13 @@ public class AuthActivity extends BaseActivity {
 
 	private void noInternet() {
 		hideProgressDialog();
-		// handle no internet situation
+		btnLogin.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.buttonDisabledColor)));
+		btnLogin.setTextColor(getColor(R.color.textDisabledColor));
+		btnLogin.setClickable(false);
+		btnRegister.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.buttonDisabledColor)));
+		btnRegister.setTextColor(getColor(R.color.textDisabledColor));
+		btnRegister.setClickable(false);
+		tvUsingOffline.setVisibility(TextView.VISIBLE);
 	}
 
 	/**

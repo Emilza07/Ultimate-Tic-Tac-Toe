@@ -5,7 +5,8 @@
 	<color name="colorAccent">#001a58</color>
 	<color name="textColor">#f4f4f4</color>
 	<color name="hintTextColor">#bbbbbb</color>
+	<color name="textDisabledColor">#66f4f4f4</color>
 	<color name="buttonColor">#3074c8</color>
-
+	<color name="buttonDisabledColor">#ff112e57</color>
 	<color name="mtrl_textinput_default_box_stroke_color" tools:override="true">#3074c8</color>
 </resources>
