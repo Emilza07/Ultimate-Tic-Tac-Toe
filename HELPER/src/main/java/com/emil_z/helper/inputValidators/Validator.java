@@ -24,20 +24,20 @@ public class Validator {
     }
 
     public static boolean requiredValidator(Rule rule) {
-        boolean isvalid = true;
+        boolean isValid = true;
 
         if (rule.getView() instanceof EditText) {
-            isvalid = ((EditText) rule.getView()).getText() != null && !((EditText) rule.getView()).getText().toString().trim().isEmpty();
+            isValid = ((EditText) rule.getView()).getText() != null && !((EditText) rule.getView()).getText().toString().trim().isEmpty();
         }
 
         if (rule.getView() instanceof Spinner) {
             if (((Spinner) rule.getView()).getSelectedItemPosition() == 0)
-                isvalid = false;
+                isValid = false;
         }
 
         if (rule.getView() instanceof CheckBox) {
             if (!((CheckBox) rule.getView()).isChecked())
-                isvalid = false;
+                isValid = false;
         }
 
         if (rule.getView() instanceof RadioGroup) {
@@ -49,13 +49,13 @@ public class Validator {
                     unchecked++;
             }
             if (count == unchecked)
-                isvalid = false;
+                isValid = false;
         }
 
-        return  isvalid;
+        return  isValid;
     }
 
-    public static boolean regularExpressionValidatpor(String whatToCheck, String regexPattern){
+    public static boolean regularExpressionValidator(String whatToCheck, String regexPattern){
         try {
             return Pattern.compile(regexPattern)
                     .matcher(whatToCheck)
@@ -92,8 +92,8 @@ public class Validator {
                             rule.isValid = true;
                         }
 
-                        if (rule.getPerviousMessage() != null && !rule.getPerviousMessage().isEmpty())
-                            rule.setMessage(rule.getPerviousMessage());
+                        if (rule.getPreviousMessage() != null && !rule.getPreviousMessage().isEmpty())
+                            rule.setMessage(rule.getPreviousMessage());
 
                         break;
                     }
@@ -132,8 +132,8 @@ public class Validator {
                             rule.isValid = true;
                         }
 
-                        if (rule.getPerviousMessage() != null && !rule.getPerviousMessage().isEmpty())
-                            rule.setMessage(rule.getPerviousMessage());
+                        if (rule.getPreviousMessage() != null && !rule.getPreviousMessage().isEmpty())
+                            rule.setMessage(rule.getPreviousMessage());
 
                         break;
                     }

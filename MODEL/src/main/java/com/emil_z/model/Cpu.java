@@ -64,23 +64,23 @@ public class Cpu {
 		return 0;
 	}
 
-	//The most important function, returns a numerical evaluation of the whole game in it's current state
+	//The most important function, returns a numerical evaluation of the whole game in its current state
 	private static double evaluateGame(int[][] position, int currentBoard) {
-		double evale = 0;
+		double evaluate = 0;
 		int[] mainBd = new int[9];
 		double[] evaluatorMul = {1.4, 1, 1.4, 1, 1.75, 1, 1.4, 1, 1.4};
 		for (int eh = 0; eh < 9; eh++){
-			evale += realEvaluateSquare(position[eh])*1.5*evaluatorMul[eh];
+			evaluate += realEvaluateSquare(position[eh])*1.5*evaluatorMul[eh];
 			if(eh == currentBoard){
-				evale += realEvaluateSquare(position[eh])*evaluatorMul[eh];
+				evaluate += realEvaluateSquare(position[eh])*evaluatorMul[eh];
 			}
 			int tmpEv = checkWinCondition(position[eh]);
-			evale -= tmpEv*evaluatorMul[eh];
+			evaluate -= tmpEv*evaluatorMul[eh];
 			mainBd[eh] = tmpEv;
 		}
-		evale -= checkWinCondition(mainBd)*5000;
-		evale += realEvaluateSquare(mainBd)*150;
-		return evale;
+		evaluate -= checkWinCondition(mainBd)*5000;
+		evaluate += realEvaluateSquare(mainBd)*150;
+		return evaluate;
 	}
 
 	//minimax algorithm
@@ -115,7 +115,7 @@ public class Cpu {
 		if(maximizingPlayer){
 			double maxEval = Double.NEGATIVE_INFINITY;
 			for(int mm = 0; mm < 9; mm++){
-				double evalut = Double.NEGATIVE_INFINITY;
+				double evaluate = Double.NEGATIVE_INFINITY;
 				//If you can play on any board, you have to go through all of them
 				if(boardToPlayOn == -1){
 					for(int trr = 0; trr < 9; trr++){
@@ -124,15 +124,15 @@ public class Cpu {
 							if(position[mm][trr] == 0){
 								position[mm][trr] = ai;
 								//tmpPlay = pickBoard(position, true);
-								evalut = miniMax(position, trr, depth-1, alpha, beta, false).mE;
-								//evalut+=150;
+								evaluate = miniMax(position, trr, depth-1, alpha, beta, false).mE;
+								//evaluate+=150;
 								position[mm][trr] = 0;
 							}
-							if(evalut > maxEval){
-								maxEval = evalut;
+							if(evaluate > maxEval){
+								maxEval = evaluate;
 								tmpPlay = mm;
 							}
-							alpha = Math.max(alpha, evalut);
+							alpha = Math.max(alpha, evaluate);
 						}
 
 					}
@@ -141,18 +141,18 @@ public class Cpu {
 					}
 					//If there's a specific board to play on, you just go through it's squares
 				}else{
-					MinimaxResult evalutResult = null;
+					MinimaxResult evaluateResult = null;
 					if(position[boardToPlayOn][mm] == 0){
 						position[boardToPlayOn][mm] = ai;
-						evalutResult = miniMax(position, mm, depth-1, alpha, beta, false);
+						evaluateResult = miniMax(position, mm, depth-1, alpha, beta, false);
 						position[boardToPlayOn][mm] = 0;
 					}
-					// Check if evalutResult is not null before accessing mE
-					double blop = (evalutResult != null) ? evalutResult.mE : Double.NEGATIVE_INFINITY; // Handle case where no move was possible in this square
+					// Check if evaluateResult is not null before accessing mE
+					double blop = (evaluateResult != null) ? evaluateResult.mE : Double.NEGATIVE_INFINITY; // Handle case where no move was possible in this square
 					if(blop > maxEval){
 						maxEval = blop;
 						//Saves which board you should play on, so that this can be passed on when the AI is allowed to play in any board
-						tmpPlay = evalutResult.tP;
+						tmpPlay = evaluateResult.tP;
 					}
 					alpha = Math.max(alpha, blop);
 					if(beta <= alpha){
@@ -164,22 +164,22 @@ public class Cpu {
 		}else{
 			double minEval = Double.POSITIVE_INFINITY;
 			for(int mm = 0; mm < 9; mm++){
-				double evalua = Double.POSITIVE_INFINITY;
+				double evaluate = Double.POSITIVE_INFINITY;
 				if(boardToPlayOn == -1){
 					for(int trr = 0; trr < 9; trr++){
 						if(checkWinCondition(position[mm]) == 0){
 							if(position[mm][trr] == 0){
 								position[mm][trr] = player;
 								//tmpPlay = pickBoard(position, true);
-								evalua = miniMax(position, trr, depth-1, alpha, beta, true).mE;
-								//evalua -= 150;
+								evaluate = miniMax(position, trr, depth-1, alpha, beta, true).mE;
+								//evaluate -= 150;
 								position[mm][trr] = 0;
 							}
-							if(evalua < minEval){
-								minEval = evalua;
+							if(evaluate < minEval){
+								minEval = evaluate;
 								tmpPlay = mm;
 							}
-							beta = Math.min(beta, evalua);
+							beta = Math.min(beta, evaluate);
 						}
 
 					}
@@ -187,16 +187,16 @@ public class Cpu {
 						break;
 					}
 				}else{
-					MinimaxResult evaluaResult = null;
+					MinimaxResult evaluateResult = null;
 					if(position[boardToPlayOn][mm] == 0){
 						position[boardToPlayOn][mm] = player;
-						evaluaResult = miniMax(position, mm, depth-1, alpha, beta, true);
+						evaluateResult = miniMax(position, mm, depth-1, alpha, beta, true);
 						position[boardToPlayOn][mm] = 0;
 					}
-					double blep = (evaluaResult != null) ? evaluaResult.mE : Double.POSITIVE_INFINITY; // Handle case where no move was possible in this square
+					double blep = (evaluateResult != null) ? evaluateResult.mE : Double.POSITIVE_INFINITY; // Handle case where no move was possible in this square
 					if(blep < minEval){
 						minEval = blep;
-						tmpPlay = evaluaResult.tP;
+						tmpPlay = evaluateResult.tP;
 					}
 					beta = Math.min(beta, blep);
 					if(beta <= alpha){

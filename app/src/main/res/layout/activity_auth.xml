@@ -110,7 +110,7 @@
 		android:layout_height="wrap_content"
 		android:background="@color/buttonDisabledColor"
 		android:gravity="center_horizontal"
-		android:text="@string/no_internet_connection_using_offline_mode"
+		android:text="@string/no_internet_connection"
 		android:textColor="@color/hintTextColor"
 		android:visibility="invisible"
 		app:layout_constraintBottom_toBottomOf="parent"

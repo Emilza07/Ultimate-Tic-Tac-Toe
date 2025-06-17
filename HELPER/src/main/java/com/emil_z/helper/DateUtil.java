@@ -181,11 +181,11 @@ public class DateUtil {
         return "";
     }
 
-    public static CalendarConstraints buidCalendarConstrains(LocalDate startDate, LocalDate endDate){
-        return buidCalendarConstrains(startDate, endDate, null);
+    public static CalendarConstraints buildCalendarConstrains(LocalDate startDate, LocalDate endDate){
+        return buildCalendarConstrains(startDate, endDate, null);
     }
 
-    public static CalendarConstraints buidCalendarConstrains(LocalDate startDate, LocalDate endDate, LocalDate openAtDate){
+    public static CalendarConstraints buildCalendarConstrains(LocalDate startDate, LocalDate endDate, LocalDate openAtDate){
         long dateStart = 0;
         long dateEnd = 0;
         long openAt = 0;

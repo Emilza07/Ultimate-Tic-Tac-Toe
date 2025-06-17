@@ -16,15 +16,15 @@ public class TextRule extends Rule {
         super(view, operation, message);
     }
 
-    public TextRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, boolean includenumbers) {
-        this(view, operation, message, minimumLength, maximumLength, includenumbers, false);
+    public TextRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, boolean includeNumbers) {
+        this(view, operation, message, minimumLength, maximumLength, includeNumbers, false);
     }
 
-    public TextRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, boolean includenumbers, boolean startsWithUpperCase) {
-        this(view, operation, message, minimumLength, maximumLength, includenumbers, startsWithUpperCase, null);
+    public TextRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, boolean includeNumbers, boolean startsWithUpperCase) {
+        this(view, operation, message, minimumLength, maximumLength, includeNumbers, startsWithUpperCase, null);
     }
 
-    public TextRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, boolean includenumbers, boolean startsWithUpperCase, String regularExpression){
+    public TextRule(View view, RuleOperation operation, String message, int minimumLength, int maximumLength, boolean includeNumbers, boolean startsWithUpperCase, String regularExpression){
         super(view, operation, message);
 
         this.minimumLength = minimumLength;
@@ -42,14 +42,14 @@ public class TextRule extends Rule {
             else
                 this.maximumLength = 1000;
 
-        this.includeNumbers = includenumbers;
+        this.includeNumbers = includeNumbers;
 
         this.startsWithUpperCase = startsWithUpperCase;
 
         if (regularExpression == null || regularExpression.isEmpty()){
             this.regularExpression = "[a-zA-Z \\-]{" + minimumLength + "," + maximumLength + "}$";
 
-            if (includenumbers)
+            if (includeNumbers)
                 this.regularExpression = "[a-zA-Z0-9 \\-]{" + minimumLength + "," + maximumLength + "}$";
         }
         else{
@@ -98,7 +98,7 @@ public class TextRule extends Rule {
             else {
                 rule.isValid = false;
 
-                rule.setPerviousMessage(rule.getMessage());
+                rule.setPreviousMessage(rule.getMessage());
                 if (rule.getMinimumLength() != rule.getMaximumLength()) {
                     rule.setMessage("The length should be " + rule.getMinimumLength() + "-" + rule.getMaximumLength());
                 }

@@ -34,7 +34,7 @@ public class GenericAdapter<T> extends RecyclerView.Adapter<GenericAdapter.Gener
     }
     //endregion
 
-    //region Swipe Rigth & Letf Listeners
+    //region Swipe Right & Left Listeners
     private OnItemSwipeListener<T> swipeListener;
 
     public void setOnItemSwipeListener(OnItemSwipeListener<T> listener) {

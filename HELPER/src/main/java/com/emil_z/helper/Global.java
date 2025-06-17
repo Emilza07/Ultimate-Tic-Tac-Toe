@@ -70,7 +70,7 @@ public class Global {
                     }
                 });
 
-        //    For permission laucher for camera and gallery - add to Manifest.xml
+        //    For permission launcher for camera and gallery - add to Manifest.xml
         //    <uses-permission android:name="android.permission.CAMERA" />
         //    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
         //    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

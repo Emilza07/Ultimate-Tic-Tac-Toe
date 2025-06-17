@@ -7,7 +7,7 @@ public class Rule {
     protected com.emil_z.helper.inputValidators.RuleOperation operation;
     protected String message;
     protected boolean isValid;
-    protected String perviousMessage;
+    protected String previousMessage;
 
     public Rule(View view, RuleOperation operation, String message) {
         this.view      = view;
@@ -31,11 +31,11 @@ public class Rule {
         this.message = message;
     }
 
-    public String getPerviousMessage(){
-        return perviousMessage;
+    public String getPreviousMessage(){
+        return previousMessage;
     }
 
-    public void setPerviousMessage(String message) {this.perviousMessage = message; }
+    public void setPreviousMessage(String message) {this.previousMessage = message; }
 
     public boolean getIsValid(){
         return isValid;

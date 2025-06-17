@@ -106,7 +106,7 @@ public abstract class BaseList<TEntity ,TCollection> extends ArrayList<TEntity> 
         return this.save(null, null, null);
     }
 
-    public boolean save(String imageFied, String imageUrl, String path) {
+    public boolean save(String imageField, String imageUrl, String path) {
         boolean isOk = false;
 
         genereteUpdateLists();
@@ -116,19 +116,19 @@ public abstract class BaseList<TEntity ,TCollection> extends ArrayList<TEntity> 
                 if (imageField == null) {
                     //isOk = (new BaseRepository<TEntity, TCollection>(typeEntity, typeCollection)).add(c);
                     //else
-                    //    isOk = (new DbTable<TEntity, TCollection>()).add(c, imageFied, imageUrl, path);
+                    //    isOk = (new DbTable<TEntity, TCollection>()).add(c, imageField, imageUrl, path);
                 }
 
 //        if (UpdateList.Count > 0)
 //            foreach (TEntity c in UpdateList)
-//        if (imageFied == null)
+//        if (imageField == null)
 //            isOk = await FireStoreDbTable<TEntity, TCollection>.Update(c);
 //                    else
-//        isOk = await FireStoreDbTable<TEntity, TCollection>.Update(c, imageFied, imageUrl, path);
+//        isOk = await FireStoreDbTable<TEntity, TCollection>.Update(c, imageField, imageUrl, path);
 //
 //        if (DeleteList.Count > 0)
 //            foreach (TEntity c in DeleteList)
-//        if (imageFied == null)
+//        if (imageField == null)
 //            isOk = await FireStoreDbTable<TEntity, TCollection>.Delete(c);
 //                    else
 //        isOk = await FireStoreDbTable<TEntity, TCollection>.Delete(c, path);
