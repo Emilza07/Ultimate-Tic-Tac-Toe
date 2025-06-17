@@ -1,10 +1,13 @@
+import com.android.build.api.dsl.LibraryExtension
+import org.gradle.kotlin.dsl.configure
+
 plugins {
     alias(libs.plugins.android.library)
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "com.emil_z.helper"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
 

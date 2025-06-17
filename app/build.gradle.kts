@@ -1,11 +1,14 @@
+import com.android.build.api.dsl.ApplicationExtension
+import org.gradle.kotlin.dsl.configure
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.emil_z.ultimate_tic_tac_toe"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.emil_z.ultimate_tic_tac_toe"
