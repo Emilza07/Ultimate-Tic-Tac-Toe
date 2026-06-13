@@ -1,5 +1,5 @@
 [versions]
-agp = "9.2.1"
+agp = "9.4.1"
 circleimageview = "3.1.0"
 firebaseStorage = "22.0.1"
 junit = "4.13.2"
